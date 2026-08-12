@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "ch.andrinzwicky.autoclicker.mixin",
+  "compatibilityLevel": "${java}",
+  "client": [
+    "MinecraftAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "${id}",
+  "version": "${version}",
+  "name": "${name}",
+  "description": "Client-seitiger AutoClicker mit den Modi OFF, AUTOATTACK und TIMER, eigenem Einstellungsbildschirm, HUD-Anzeige und frei belegbaren Tasten.",
+  "authors": [
+    "Ovitrinker"
+  ],
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "ch.andrinzwicky.autoclicker.AutoClickerClient"
+    ]
+  },
+  "mixins": [
+    {
+      "config": "autoclicker.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.17",
+    "minecraft": "${minecraft}",
+    "fabric-api": "*"
+  }
+}
