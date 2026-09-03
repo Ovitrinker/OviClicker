@@ -9,6 +9,11 @@
     "Ovitrinker"
   ],
   "license": "MIT",
+  "contact": {
+    "homepage": "https://mods.ovitrinker.ch/oviclicker/",
+    "sources": "https://github.com/andrinzwicky/Autoklicker-1.21.11---26.2",
+    "issues": "https://github.com/andrinzwicky/Autoklicker-1.21.11---26.2/issues"
+  },
   "environment": "client",
   "entrypoints": {
     "client": [

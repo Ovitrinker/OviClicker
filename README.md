@@ -248,15 +248,70 @@ src/main/resources/
   fabric.mod.json, oviclicker.mixins.json
   assets/oviclicker/icon.png       Mod-Icon, 128x128
   assets/oviclicker/lang/en_us.json, de_ch.json
-tools/make_icon.py                 erzeugt das Icon neu
+tools/make_icon.py                 erzeugt Icon und CurseForge-Logo
+tools/publish_curseforge.py        laedt die Jars auf CurseForge
+branding/oviclicker-logo.png       Projektbild fuer CurseForge, 512x512
+branding/curseforge-description.md Projekttext (englisch, wie CurseForge es verlangt)
+branding/curseforge-changelog.md   Changelog-Text des laufenden Release
+CHANGELOG.md                       Aenderungen je Version
 ```
 
 Sprachdateien: Englisch (`en_us`) und Schweizer Deutsch (`de_ch`, durchgehend „ss“).
 
+## Veröffentlichen
+
+### CurseForge
+
+Projektseite: *(wird hier eingetragen, sobald das Projekt angelegt ist)*
+
+Das Projekt selbst muss **von Hand** im Autoren-Konto angelegt werden – die Upload-API
+kann Dateien hochladen, aber keine Projekte erstellen. Anzulegen unter
+<https://authors.curseforge.com/#/projects/create/choose-game>, Spiel *Minecraft*.
+Dafür bereit liegen:
+
+| Feld | Quelle |
+|---|---|
+| Name | `OviClicker` |
+| Summary | Block `SUMMARY` in `branding/curseforge-description.md` |
+| Description | alles ab `DESCRIPTION` in derselben Datei (CurseForge verlangt Englisch) |
+| Project License | MIT |
+| Logo Image | `branding/oviclicker-logo.png` (512×512, CurseForge verlangt mindestens 400×400 im Verhältnis 1:1) |
+
+Danach die drei Jars hochladen. Von Hand geht das über den Reiter *Files*, automatisch
+über das Skript:
+
+```bash
+export CURSEFORGE_TOKEN=...     # Konto-Einstellungen -> API Tokens
+./gradlew :1.21.11:buildAndCollect :26.1.x:buildAndCollect :26.2.x:buildAndCollect
+python tools/publish_curseforge.py --project-id 123456 --dry-run
+python tools/publish_curseforge.py --project-id 123456
+```
+
+Das Skript lädt jedes Jar mit den Minecraft-Versionen hoch, die in
+`stonecutter.properties.toml` unter `mod.mc_releases` stehen, ergänzt den Modloader
+`Fabric` und die passende Java-Version und nimmt den Text aus
+`branding/curseforge-changelog.md` als Changelog. Die numerischen Versions-IDs holt es
+zur Laufzeit von der API, damit hier keine veraltete Liste gepflegt werden muss. Ist die
+Projekt-ID einmal bekannt, kann sie oben im Skript in `PROJECT_ID` fest eingetragen
+werden.
+
+Jede hochgeladene Datei geht bei CurseForge zuerst in die Prüfung und ist erst danach
+öffentlich sichtbar.
+
+Beschreibung der API:
+<https://support.curseforge.com/support/solutions/articles/9000197321-curseforge-upload-api>
+
+### mods.ovitrinker.ch
+
+Die eigene Download-Seite liest die Jars aus `Desktop\Mods\<Version>\`. Nach dem Bauen
+die Jars dorthin kopieren und in `C:\dev\mods.ovitrinker.ch` `python build.py --upload`
+ausführen.
+
 ## Icon
 
-`assets/oviclicker/icon.png` wird nicht von Hand gezeichnet, sondern von
-`tools/make_icon.py` erzeugt (Pillow, 128x128, achtfaches Supersampling). Der Look folgt
+`assets/oviclicker/icon.png` (128×128, im Jar) und `branding/oviclicker-logo.png`
+(512×512, Projektbild für CurseForge) werden nicht von Hand gezeichnet, sondern beide aus
+derselben Zeichnung von `tools/make_icon.py` erzeugt (Pillow, mit Supersampling). Der Look folgt
 mods.ovitrinker.ch: schwarzer Grund mit Terminal-Raster, grüner Mauszeiger, hellblaue
 Klick-Wellen – grün für Inhalt, hellblau für alles Klickbare.
 
