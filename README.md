@@ -1,7 +1,7 @@
-# AutoClicker
+# OviClicker
 
-Client-seitiger AutoClicker für Fabric mit drei Modi, eigenem Einstellungsbildschirm,
-HUD-Anzeige und frei belegbaren Tasten. Mehrere Minecraft-Versionen aus einer
+Client-seitiger Auto-Klicker für Fabric mit drei Modi, automatischem Essen, eigenem
+Einstellungsbildschirm, HUD-Anzeige und frei belegbaren Tasten. Mehrere Minecraft-Versionen aus einer
 Codebasis, verwaltet mit [Stonecutter](https://stonecutter.kikugie.dev).
 
 Autor: **Ovitrinker** · Lizenz: **MIT**
@@ -37,12 +37,12 @@ Voraussetzung: JDK 21 oder neuer (Gradle lädt fehlende JDKs über den Foojay-Re
 ./gradlew :1.21.11:buildAndCollect :26.1.x:buildAndCollect :26.2.x:buildAndCollect
 ```
 
-Die fertigen Jars liegen anschliessend unter `build/libs/1.0.0/`:
+Die fertigen Jars liegen anschliessend unter `build/libs/1.1.0/`:
 
 ```
-autoclicker-1.0.0+1.21.11.jar
-autoclicker-1.0.0+26.1.2.jar
-autoclicker-1.0.0+26.2.jar
+oviclicker-1.1.0+1.21.11.jar
+oviclicker-1.1.0+26.1.2.jar
+oviclicker-1.1.0+26.2.jar
 ```
 
 Aktive Version im Entwicklungszustand wechseln:
@@ -58,7 +58,7 @@ Testen im Spiel: `./gradlew :26.2.x:runClient`
 ### Tasten
 
 Alle drei Tasten stehen unter *Optionen → Steuerung → Tastenbelegung* in der Kategorie
-**AutoClicker** und lassen sich dort frei ändern.
+**OviClicker** und lassen sich dort frei ändern.
 
 | Aktion | Standard |
 |---|---|
@@ -106,7 +106,7 @@ losgelassen, sobald der Mod abschaltet, das Spiel anhält oder du die Welt verl�
 ### Automatisch essen (AutoEat)
 
 Fällt der Hunger unter die eingestellte Schwelle (Standard 6 Keulen), unterbricht der Mod
-das Klicken und isst, bis die Hungerleiste wieder voll ist. Danach läuft der AutoClicker von
+das Klicken und isst, bis die Hungerleiste wieder voll ist. Danach läuft der OviClicker von
 selbst weiter. Solange gegessen wird, zeigt das HUD „· isst“.
 
 * **Nur gutes Essen.** Gegessen wird nur, was einen Nährwert hat und beim Verzehr keinen
@@ -132,22 +132,22 @@ selbst weiter. Solange gegessen wird, zeigt das HUD „· isst“.
 
 ### Offene Bildschirme und Fensterwechsel
 
-Der AutoClicker läuft weiter, wenn ein Bildschirm offen ist – Esc-Menü, Inventar, Chat, der
+Der OviClicker läuft weiter, wenn ein Bildschirm offen ist – Esc-Menü, Inventar, Chat, der
 eigene Einstellungsbildschirm – und auch dann, wenn du in ein anderes Fenster wechselst.
 
 Minecraft überspringt in diesen Fällen seine eigene Tastenverarbeitung und setzt zusätzlich
 `missTime` auf 10000, was jeden Angriff blockiert. Der Mod stösst Angriff, Benutzen und
 Ablegen deshalb selbst genau so an, wie es Minecraft täte, und führt die Angriffs-Sperrzeit
-selbst weiter (`AutoClickerEngine.trackMissTime`). Bewegungstasten wirken ohnehin, weil der
+selbst weiter (`OviClickerEngine.trackMissTime`). Bewegungstasten wirken ohnehin, weil der
 Spieler den gehaltenen Zustand direkt ausliest.
 
 Zwei Grenzen bleiben:
 
 * **Einzelspieler**: Minecraft hält dort das ganze Spiel an, sobald ein Bildschirm offen ist.
-  Dann tickt weder Welt noch Server – der AutoClicker pausiert mit und setzt seinen Timer neu
+  Dann tickt weder Welt noch Server – der OviClicker pausiert mit und setzt seinen Timer neu
   an. Auf einem Server (auch bei „Für LAN öffnen") läuft alles weiter. Für den Fensterwechsel
   hilft im Einzelspieler `Optionen → *Pause bei Fokusverlust* → AUS`: dann geht beim
-  Alt-Tab gar kein Bildschirm auf und das Spiel läuft samt AutoClicker weiter.
+  Alt-Tab gar kein Bildschirm auf und das Spiel läuft samt OviClicker weiter.
 * **Nur bei gedrückter Angriffstaste**: der Zustand wird direkt bei GLFW abgefragt. Verliert
   das Fenster den Fokus, meldet GLFW die Taste als losgelassen, und die Bedingung greift.
 
@@ -174,16 +174,16 @@ Standardwerte her, **Abbrechen** verwirft die Änderungen.
 
 Modus und Master-Schalter werden bei jeder Änderung sofort in die Konfigurationsdatei
 geschrieben und beim Verlassen eines Servers nicht zurückgesetzt. Wer den Server verlässt und
-wieder beitritt – oder den Client neu startet – findet den AutoClicker unverändert aktiv vor.
+wieder beitritt – oder den Client neu startet – findet den OviClicker unverändert aktiv vor.
 Lediglich der Intervall-Timer startet beim Betreten einer Welt frisch, damit direkt nach dem
 Beitritt kein Klick-Stau entsteht.
 
 ## Konfiguration
 
-`config/autoclicker.json`, geschrieben über die in Minecraft enthaltene GSON-Instanz.
+`config/oviclicker.json`, geschrieben über die in Minecraft enthaltene GSON-Instanz.
 
-Geschrieben wird atomar: zuerst `autoclicker.json.tmp`, dann wird die bisherige Datei als
-`autoclicker.json.bak` gesichert und die temporäre Datei an ihre Stelle verschoben. Fehlende
+Geschrieben wird atomar: zuerst `oviclicker.json.tmp`, dann wird die bisherige Datei als
+`oviclicker.json.bak` gesichert und die temporäre Datei an ihre Stelle verschoben. Fehlende
 oder defekte Felder fallen auf die Standardwerte zurück, eine unlesbare Datei verhindert den
 Start des Clients nicht.
 
@@ -226,27 +226,40 @@ Alle Unterschiede sind über Stonecutter-Kommentare gelöst:
 
 Die Kategorie der Tastenbelegungen ist seit 1.21.11 keine freie Zeichenkette mehr, sondern ein
 `KeyMapping.Category` mit `Identifier`. Der daraus gebildete Übersetzungsschlüssel lautet
-`key.category.autoclicker.main`; `key.categories.autoclicker` ist in den Sprachdateien als
+`key.category.oviclicker.main`; `key.categories.oviclicker` ist in den Sprachdateien als
 Alias enthalten.
 
 ## Projektstruktur
 
 ```
-src/main/java/ch/andrinzwicky/autoclicker/
-  AutoClickerClient.java      Einstiegspunkt
+src/main/java/ch/andrinzwicky/oviclicker/
+  OviClickerClient.java      Einstiegspunkt
   KeybindManager.java         Tastenbelegungen und deren Auswertung
   HudRenderer.java            HUD-Element
   compat/ClientCompat.java    versionsabhängige Screen-Zugriffe
   compat/ContainerCompat.java versionsabhängiger Inventar-Klick
-  config/                     AutoClickerConfig, ConfigManager, HudCorner
-  feature/                    ClickMode, ClickAction, InputSimulator, AutoClickerEngine
+  config/                     OviClickerConfig, ConfigManager, HudCorner
+  feature/                    ClickMode, ClickAction, InputSimulator, OviClickerEngine
   feature/AutoEatHandler.java automatisches Essen
   feature/FoodFilter.java     Bewertung, welches Essen gut ist
-  gui/                        AutoClickerScreen, DoubleSliderWidget
+  gui/                        OviClickerScreen, DoubleSliderWidget
   mixin/                      MinecraftAccessor
 src/main/resources/
-  fabric.mod.json, autoclicker.mixins.json
-  assets/autoclicker/lang/en_us.json, de_ch.json
+  fabric.mod.json, oviclicker.mixins.json
+  assets/oviclicker/icon.png       Mod-Icon, 128x128
+  assets/oviclicker/lang/en_us.json, de_ch.json
+tools/make_icon.py                 erzeugt das Icon neu
 ```
 
 Sprachdateien: Englisch (`en_us`) und Schweizer Deutsch (`de_ch`, durchgehend „ss“).
+
+## Icon
+
+`assets/oviclicker/icon.png` wird nicht von Hand gezeichnet, sondern von
+`tools/make_icon.py` erzeugt (Pillow, 128x128, achtfaches Supersampling). Der Look folgt
+mods.ovitrinker.ch: schwarzer Grund mit Terminal-Raster, grüner Mauszeiger, hellblaue
+Klick-Wellen – grün für Inhalt, hellblau für alles Klickbare.
+
+```bash
+python tools/make_icon.py
+```

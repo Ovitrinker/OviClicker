@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "ch.andrinzwicky.autoclicker.mixin",
+  "package": "ch.andrinzwicky.oviclicker.mixin",
   "compatibilityLevel": "${java}",
   "client": [
     "MinecraftAccessor"

@@ -1,4 +1,4 @@
-package ch.andrinzwicky.autoclicker.mixin;
+package ch.andrinzwicky.oviclicker.mixin;
 
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
@@ -25,7 +25,7 @@ public interface MinecraftAccessor {
      * @return {@code true}, wenn Minecraft den Klick als Angriff gewertet hat
      */
     @Invoker("startAttack")
-    boolean autoclicker$startAttack();
+    boolean oviclicker$startAttack();
 
     /**
      * Setzt das Halten der linken Maustaste fort, wird fuer das Abbauen von Bloecken genutzt.
@@ -33,13 +33,13 @@ public interface MinecraftAccessor {
      * @param pressed {@code true}, solange die Taste gehalten wird
      */
     @Invoker("continueAttack")
-    void autoclicker$continueAttack(boolean pressed);
+    void oviclicker$continueAttack(boolean pressed);
 
     /**
      * Loest einen einzelnen Rechtsklick aus (Gegenstand oder Block benutzen).
      */
     @Invoker("startUseItem")
-    void autoclicker$startUseItem();
+    void oviclicker$startUseItem();
 
     /**
      * Liest die verbleibende Sperrzeit nach einem Fehlschlag in Ticks.
@@ -47,19 +47,19 @@ public interface MinecraftAccessor {
      * @return Anzahl Ticks, in denen Minecraft keinen weiteren Angriff zulaesst
      */
     @Accessor("missTime")
-    int autoclicker$getMissTime();
+    int oviclicker$getMissTime();
 
     /**
      * Setzt die verbleibende Sperrzeit nach einem Fehlschlag.
      *
      * <p>Minecraft setzt das Feld auf 10000, solange ein Bildschirm offen ist, und blockiert
      * damit jeden Angriff. Der Mod fuehrt die echte Sperrzeit in dieser Zeit selbst weiter
-     * und schreibt sie hier zurueck, siehe {@code AutoClickerEngine}.</p>
+     * und schreibt sie hier zurueck, siehe {@code OviClickerEngine}.</p>
      *
      * @param value Anzahl Ticks bis zum naechsten erlaubten Angriff
      */
     @Accessor("missTime")
-    void autoclicker$setMissTime(int value);
+    void oviclicker$setMissTime(int value);
 
     /**
      * Liest die Wartezeit bis zum naechsten automatischen Rechtsklick in Ticks.
@@ -67,5 +67,5 @@ public interface MinecraftAccessor {
      * @return Anzahl Ticks, in denen Minecraft kein weiteres Benutzen zulaesst
      */
     @Accessor("rightClickDelay")
-    int autoclicker$getRightClickDelay();
+    int oviclicker$getRightClickDelay();
 }

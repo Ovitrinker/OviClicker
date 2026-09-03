@@ -1,20 +1,20 @@
-package ch.andrinzwicky.autoclicker.config;
+package ch.andrinzwicky.oviclicker.config;
 
-import ch.andrinzwicky.autoclicker.feature.ClickAction;
-import ch.andrinzwicky.autoclicker.feature.ClickMode;
+import ch.andrinzwicky.oviclicker.feature.ClickAction;
+import ch.andrinzwicky.oviclicker.feature.ClickMode;
 
 /**
- * Datenhalter aller Einstellungen des AutoClickers.
+ * Datenhalter aller Einstellungen des OviClickers.
  *
- * <p>Die Klasse wird von GSON direkt aus {@code config/autoclicker.json} gelesen und
+ * <p>Die Klasse wird von GSON direkt aus {@code config/oviclicker.json} gelesen und
  * geschrieben. Alle Felder sind mit Standardwerten vorbelegt, damit fehlende oder
  * defekte Eintraege in der Datei automatisch auf den Standard zurueckfallen.</p>
  *
- * <p>Modus und Master-Toggle werden bewusst mitgespeichert: der AutoClicker soll nach
+ * <p>Modus und Master-Toggle werden bewusst mitgespeichert: der OviClicker soll nach
  * einem Server-Wechsel, einem Weltwechsel oder einem Client-Neustart im gleichen
  * Zustand weiterlaufen, ohne dass erneut umgeschaltet werden muss.</p>
  */
-public class AutoClickerConfig {
+public class OviClickerConfig {
 
     // ------------------------------------------------------------------
     // Allgemein
@@ -83,7 +83,7 @@ public class AutoClickerConfig {
 
     /**
      * Isst automatisch, sobald der Hunger unter die Schwelle faellt. Waehrend des Essens
-     * pausiert der AutoClicker, danach laeuft er von selbst weiter.
+     * pausiert der OviClicker, danach laeuft er von selbst weiter.
      */
     public boolean autoEatEnabled = true;
 
@@ -236,8 +236,8 @@ public class AutoClickerConfig {
      *
      * @return eine Kopie mit identischen Werten
      */
-    public AutoClickerConfig copy() {
-        AutoClickerConfig copy = new AutoClickerConfig();
+    public OviClickerConfig copy() {
+        OviClickerConfig copy = new OviClickerConfig();
         copy.masterEnabled = masterEnabled;
         copy.mode = mode;
         copy.autoAttackCps = autoAttackCps;
@@ -274,7 +274,7 @@ public class AutoClickerConfig {
      *
      * @param other Quelle der Werte, {@code null} wird ignoriert
      */
-    public void copyFrom(AutoClickerConfig other) {
+    public void copyFrom(OviClickerConfig other) {
         if (other == null) return;
         masterEnabled = other.masterEnabled;
         mode = other.mode;

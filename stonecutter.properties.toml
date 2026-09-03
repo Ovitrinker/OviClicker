@@ -1,10 +1,10 @@
 # Zentrale Projekt-Eigenschaften und versionsspezifische Ueberschreibungen.
 # Siehe https://stonecutter.kikugie.dev/wiki/config/properties#centralized-properties
 
-mod.id = "autoclicker"
-mod.name = "AutoClicker"
+mod.id = "oviclicker"
+mod.name = "OviClicker"
 mod.group = "ch.andrinzwicky"
-mod.version = "1.0.0"
+mod.version = "1.1.0"
 
 deps.fabric_loader = "0.19.3"
 loomx.loom_version = "1.17-SNAPSHOT"

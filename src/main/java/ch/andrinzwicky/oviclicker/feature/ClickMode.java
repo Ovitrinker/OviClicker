@@ -1,15 +1,15 @@
-package ch.andrinzwicky.autoclicker.feature;
+package ch.andrinzwicky.oviclicker.feature;
 
 /**
- * Die drei moeglichen Betriebsmodi des AutoClickers. Es ist immer genau ein Modus aktiv.
+ * Die drei moeglichen Betriebsmodi des OviClickers. Es ist immer genau ein Modus aktiv.
  */
 public enum ClickMode {
-    /** Der AutoClicker ist ausgeschaltet. */
-    OFF("autoclicker.mode.off"),
+    /** Der OviClicker ist ausgeschaltet. */
+    OFF("oviclicker.mode.off"),
     /** Klickt automatisch, sobald das Fadenkreuz auf einer Entity liegt. */
-    AUTOATTACK("autoclicker.mode.autoattack"),
+    AUTOATTACK("oviclicker.mode.autoattack"),
     /** Klickt in einem festen Intervall, unabhaengig vom Ziel. */
-    TIMER("autoclicker.mode.timer");
+    TIMER("oviclicker.mode.timer");
 
     private final String translationKey;
 

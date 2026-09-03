@@ -1,8 +1,8 @@
-package ch.andrinzwicky.autoclicker;
+package ch.andrinzwicky.oviclicker;
 
-import ch.andrinzwicky.autoclicker.config.ConfigManager;
-import ch.andrinzwicky.autoclicker.feature.AutoClickerEngine;
-import ch.andrinzwicky.autoclicker.feature.AutoEatHandler;
+import ch.andrinzwicky.oviclicker.config.ConfigManager;
+import ch.andrinzwicky.oviclicker.feature.OviClickerEngine;
+import ch.andrinzwicky.oviclicker.feature.AutoEatHandler;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import org.slf4j.Logger;
@@ -14,10 +14,10 @@ import org.slf4j.LoggerFactory;
  * <p>Der Mod ist rein client-seitig: er simuliert ausschliesslich lokale Eingaben,
  * faelscht keine Netzwerkpakete und umgeht keine Serverlogik.</p>
  */
-public class AutoClickerClient implements ClientModInitializer {
+public class OviClickerClient implements ClientModInitializer {
 
     /** Modkennung, wie sie in der {@code fabric.mod.json} steht. */
-    public static final String MOD_ID = "autoclicker";
+    public static final String MOD_ID = "oviclicker";
 
     /** Logger des Mods. */
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
@@ -39,14 +39,14 @@ public class AutoClickerClient implements ClientModInitializer {
         HudRenderer.register();
 
         // Die gesamte Klick-Logik laeuft im Client-Tick, nicht in einem eigenen Thread.
-        // Der AutoEat kommt bewusst nach dem AutoClicker: dieser gibt seine Taste zuerst
+        // Der AutoEat kommt bewusst nach dem Klicker: dieser gibt seine Taste zuerst
         // frei, erst danach haelt der AutoEat die Taste "Benutzen" fuer den Bissen.
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             KeybindManager.handleInput(client);
-            AutoClickerEngine.onEndClientTick(client);
+            OviClickerEngine.onEndClientTick(client);
             AutoEatHandler.onEndClientTick(client);
         });
 
-        LOGGER.info("AutoClicker {} fuer Minecraft {} geladen.", VERSION, MINECRAFT);
+        LOGGER.info("OviClicker {} fuer Minecraft {} geladen.", VERSION, MINECRAFT);
     }
 }

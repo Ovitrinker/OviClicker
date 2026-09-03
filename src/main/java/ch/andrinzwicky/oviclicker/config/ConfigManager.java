@@ -1,4 +1,4 @@
-package ch.andrinzwicky.autoclicker.config;
+package ch.andrinzwicky.oviclicker.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -14,7 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 /**
- * Laedt und speichert die Einstellungen als JSON unter {@code config/autoclicker.json}.
+ * Laedt und speichert die Einstellungen als JSON unter {@code config/oviclicker.json}.
  *
  * <p>Geschrieben wird immer atomar: zuerst in eine {@code .tmp}-Datei, danach wird die
  * bisherige Datei als {@code .bak} gesichert und die temporaere Datei an ihre Stelle
@@ -27,16 +27,16 @@ import java.nio.file.StandardCopyOption;
 public final class ConfigManager {
 
     /** Logger des Mods. */
-    private static final Logger LOGGER = LoggerFactory.getLogger("autoclicker");
+    private static final Logger LOGGER = LoggerFactory.getLogger("oviclicker");
 
     /** GSON-Instanz mit lesbarer Formatierung. */
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     /** Dateiname der Konfiguration im Ordner {@code config}. */
-    private static final String FILE_NAME = "autoclicker.json";
+    private static final String FILE_NAME = "oviclicker.json";
 
     /** Die aktuell gueltigen Einstellungen. */
-    private static AutoClickerConfig config = new AutoClickerConfig();
+    private static OviClickerConfig config = new OviClickerConfig();
 
     private ConfigManager() {
     }
@@ -46,14 +46,14 @@ public final class ConfigManager {
      *
      * @return die Einstellungen, nie {@code null}
      */
-    public static AutoClickerConfig get() {
+    public static OviClickerConfig get() {
         return config;
     }
 
     /**
      * Gibt den Pfad der Konfigurationsdatei zurueck.
      *
-     * @return absoluter Pfad auf {@code config/autoclicker.json}
+     * @return absoluter Pfad auf {@code config/oviclicker.json}
      */
     public static Path getConfigPath() {
         return FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME);
@@ -68,26 +68,26 @@ public final class ConfigManager {
         Path path = getConfigPath();
 
         if (!Files.exists(path)) {
-            config = new AutoClickerConfig();
+            config = new OviClickerConfig();
             save();
             return;
         }
 
         try {
             String json = Files.readString(path, StandardCharsets.UTF_8);
-            AutoClickerConfig loaded = GSON.fromJson(json, AutoClickerConfig.class);
+            OviClickerConfig loaded = GSON.fromJson(json, OviClickerConfig.class);
 
             if (loaded == null) {
-                LOGGER.warn("autoclicker.json ist leer, es werden die Standardwerte verwendet.");
-                loaded = new AutoClickerConfig();
+                LOGGER.warn("oviclicker.json ist leer, es werden die Standardwerte verwendet.");
+                loaded = new OviClickerConfig();
             }
 
             loaded.clamp();
             config = loaded;
         } catch (Exception exception) {
             // Defekte Datei darf den Client nicht am Start hindern
-            LOGGER.error("autoclicker.json konnte nicht gelesen werden, es gelten die Standardwerte.", exception);
-            config = new AutoClickerConfig();
+            LOGGER.error("oviclicker.json konnte nicht gelesen werden, es gelten die Standardwerte.", exception);
+            config = new OviClickerConfig();
         }
     }
 
@@ -121,7 +121,7 @@ public final class ConfigManager {
                 Files.move(tempPath, path, StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (IOException exception) {
-            LOGGER.error("autoclicker.json konnte nicht geschrieben werden.", exception);
+            LOGGER.error("oviclicker.json konnte nicht geschrieben werden.", exception);
         }
     }
 
@@ -130,7 +130,7 @@ public final class ConfigManager {
      *
      * @param newConfig die neuen Einstellungen, {@code null} wird ignoriert
      */
-    public static void replaceAndSave(AutoClickerConfig newConfig) {
+    public static void replaceAndSave(OviClickerConfig newConfig) {
         if (newConfig == null) return;
         config.copyFrom(newConfig);
         save();

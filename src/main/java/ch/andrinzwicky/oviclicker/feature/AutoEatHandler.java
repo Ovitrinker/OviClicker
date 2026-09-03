@@ -1,8 +1,8 @@
-package ch.andrinzwicky.autoclicker.feature;
+package ch.andrinzwicky.oviclicker.feature;
 
-import ch.andrinzwicky.autoclicker.compat.ContainerCompat;
-import ch.andrinzwicky.autoclicker.config.AutoClickerConfig;
-import ch.andrinzwicky.autoclicker.config.ConfigManager;
+import ch.andrinzwicky.oviclicker.compat.ContainerCompat;
+import ch.andrinzwicky.oviclicker.config.OviClickerConfig;
+import ch.andrinzwicky.oviclicker.config.ConfigManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
@@ -15,7 +15,7 @@ import net.minecraft.world.item.ItemStack;
  * Isst automatisch, sobald der Hunger unter die eingestellte Schwelle faellt, und hoert
  * erst wieder auf, wenn die Hungerleiste voll ist.
  *
- * <p>Solange gegessen wird, pausiert der AutoClicker: {@code AutoClickerEngine} fragt dazu
+ * <p>Solange gegessen wird, pausiert der OviClicker: {@code OviClickerEngine} fragt dazu
  * {@link #isEating()} ab und laesst in dieser Zeit jede gehaltene Taste los. Nach dem
  * Essen laeuft er ohne Zutun weiter.</p>
  *
@@ -75,7 +75,7 @@ public final class AutoEatHandler {
     /**
      * Gibt an, ob gerade ein Ess-Vorgang laeuft.
      *
-     * @return {@code true}, wenn der AutoClicker pausieren soll
+     * @return {@code true}, wenn der OviClicker pausieren soll
      */
     public static boolean isEating() {
         return eating;
@@ -84,7 +84,7 @@ public final class AutoEatHandler {
     /**
      * Wird am Ende jedes Client-Ticks aufgerufen, nach der Klick-Logik.
      *
-     * <p>Die Reihenfolge ist wichtig: der AutoClicker laesst seine Taste erst los, danach
+     * <p>Die Reihenfolge ist wichtig: der OviClicker laesst seine Taste erst los, danach
      * darf der AutoEat die Taste "Benutzen" halten, ohne dass sie im selben Tick wieder
      * losgelassen wird.</p>
      *
@@ -96,7 +96,7 @@ public final class AutoEatHandler {
             return;
         }
 
-        AutoClickerConfig config = ConfigManager.get();
+        OviClickerConfig config = ConfigManager.get();
         LocalPlayer player = client.player;
 
         if (!config.masterEnabled || !config.autoEatEnabled || player.isSpectator()) {
@@ -152,7 +152,7 @@ public final class AutoEatHandler {
      * @param foodLevel der aktuelle Hungerstand in halben Keulen
      */
     private static void begin(Minecraft client, LocalPlayer player,
-                              AutoClickerConfig config, int foodLevel) {
+                              OviClickerConfig config, int foodLevel) {
         Inventory inventory = player.getInventory();
         int missing = FULL_FOOD - foodLevel;
 
@@ -189,7 +189,7 @@ public final class AutoEatHandler {
      * @return der Hotbar-Platz mit dem Essen, oder -1 wenn nichts geholt werden konnte
      */
     private static int fetchFromInventory(Minecraft client, LocalPlayer player,
-                                          AutoClickerConfig config, int missing) {
+                                          OviClickerConfig config, int missing) {
         if (!config.autoEatRefillFromInventory) return -1;
 
         // Ist ein anderer Behaelter offen (Truhe, Ofen), gehoert das Klick-Paket dorthin
@@ -229,7 +229,7 @@ public final class AutoEatHandler {
      * @param player der Spieler
      * @param config die aktiven Einstellungen
      */
-    private static void keepEating(Minecraft client, LocalPlayer player, AutoClickerConfig config) {
+    private static void keepEating(Minecraft client, LocalPlayer player, OviClickerConfig config) {
         Inventory inventory = player.getInventory();
 
         // Hat der Spieler selbst umgeschaltet, gehoert ihm die Steuerung
@@ -365,7 +365,7 @@ public final class AutoEatHandler {
      * @return der gefundene Platz oder -1
      */
     private static int findFood(Inventory inventory, int from, int toExclusive,
-                                int missing, AutoClickerConfig config) {
+                                int missing, OviClickerConfig config) {
         int bestFit = -1;
         int bestFitNutrition = -1;
         int weakest = -1;

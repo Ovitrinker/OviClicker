@@ -3,7 +3,8 @@
   "id": "${id}",
   "version": "${version}",
   "name": "${name}",
-  "description": "Client-seitiger AutoClicker mit den Modi OFF, AUTOATTACK und TIMER, eigenem Einstellungsbildschirm, HUD-Anzeige und frei belegbaren Tasten.",
+  "description": "Client-seitiger Auto-Klicker mit den Modi OFF, AUTOATTACK und TIMER, automatischem Essen, eigenem Einstellungsbildschirm, HUD-Anzeige und frei belegbaren Tasten.",
+  "icon": "assets/oviclicker/icon.png",
   "authors": [
     "Ovitrinker"
   ],
@@ -11,12 +12,12 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "ch.andrinzwicky.autoclicker.AutoClickerClient"
+      "ch.andrinzwicky.oviclicker.OviClickerClient"
     ]
   },
   "mixins": [
     {
-      "config": "autoclicker.mixins.json",
+      "config": "oviclicker.mixins.json",
       "environment": "client"
     }
   ],

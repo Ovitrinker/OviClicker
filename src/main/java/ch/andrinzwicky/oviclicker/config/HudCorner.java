@@ -1,17 +1,17 @@
-package ch.andrinzwicky.autoclicker.config;
+package ch.andrinzwicky.oviclicker.config;
 
 /**
  * Bildschirmecke, an der die HUD-Anzeige verankert wird.
  */
 public enum HudCorner {
     /** Oben links. */
-    TOP_LEFT("autoclicker.hud.corner.top_left"),
+    TOP_LEFT("oviclicker.hud.corner.top_left"),
     /** Oben rechts. */
-    TOP_RIGHT("autoclicker.hud.corner.top_right"),
+    TOP_RIGHT("oviclicker.hud.corner.top_right"),
     /** Unten links. */
-    BOTTOM_LEFT("autoclicker.hud.corner.bottom_left"),
+    BOTTOM_LEFT("oviclicker.hud.corner.bottom_left"),
     /** Unten rechts. */
-    BOTTOM_RIGHT("autoclicker.hud.corner.bottom_right");
+    BOTTOM_RIGHT("oviclicker.hud.corner.bottom_right");
 
     private final String translationKey;
 

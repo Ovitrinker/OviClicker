@@ -1,11 +1,11 @@
-package ch.andrinzwicky.autoclicker;
+package ch.andrinzwicky.oviclicker;
 
-import ch.andrinzwicky.autoclicker.compat.ClientCompat;
-import ch.andrinzwicky.autoclicker.config.AutoClickerConfig;
-import ch.andrinzwicky.autoclicker.config.ConfigManager;
-import ch.andrinzwicky.autoclicker.feature.AutoClickerEngine;
-import ch.andrinzwicky.autoclicker.feature.ClickMode;
-import ch.andrinzwicky.autoclicker.gui.AutoClickerScreen;
+import ch.andrinzwicky.oviclicker.compat.ClientCompat;
+import ch.andrinzwicky.oviclicker.config.OviClickerConfig;
+import ch.andrinzwicky.oviclicker.config.ConfigManager;
+import ch.andrinzwicky.oviclicker.feature.OviClickerEngine;
+import ch.andrinzwicky.oviclicker.feature.ClickMode;
+import ch.andrinzwicky.oviclicker.gui.OviClickerScreen;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -28,14 +28,14 @@ import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
  * <p>Hinweis zur Kategorie: seit 1.21.11 sind Kategorien keine freien Zeichenketten mehr,
  * sondern {@code KeyMapping.Category}-Objekte mit einem {@code Identifier}. Der daraus
  * gebildete Uebersetzungsschluessel lautet {@code key.category.<namespace>.<pfad>}, hier
- * also {@code key.category.autoclicker.main}. Das gilt fuer alle Zielversionen dieses Mods,
+ * also {@code key.category.oviclicker.main}. Das gilt fuer alle Zielversionen dieses Mods,
  * eine Fallunterscheidung ist deshalb nicht noetig.</p>
  */
 public final class KeybindManager {
 
     /** Eigene Kategorie fuer alle Tasten des Mods. */
     public static final KeyMapping.Category CATEGORY =
-            KeyMapping.Category.register(Identifier.fromNamespaceAndPath("autoclicker", "main"));
+            KeyMapping.Category.register(Identifier.fromNamespaceAndPath("oviclicker", "main"));
 
     /**
      * Oeffnet die Einstellungen.
@@ -62,14 +62,14 @@ public final class KeybindManager {
      */
     public static void register() {
         openGuiKey = register(new KeyMapping(
-                "key.autoclicker.open_gui", GLFW.GLFW_KEY_BACKSLASH, CATEGORY));
+                "key.oviclicker.open_gui", GLFW.GLFW_KEY_BACKSLASH, CATEGORY));
 
         toggleKey = register(new KeyMapping(
-                "key.autoclicker.toggle", GLFW.GLFW_KEY_RIGHT_SHIFT, CATEGORY));
+                "key.oviclicker.toggle", GLFW.GLFW_KEY_RIGHT_SHIFT, CATEGORY));
 
         // Ohne Standardbelegung, damit es keine Konflikte gibt
         cycleModeKey = register(new KeyMapping(
-                "key.autoclicker.cycle_mode", GLFW.GLFW_KEY_UNKNOWN, CATEGORY));
+                "key.oviclicker.cycle_mode", GLFW.GLFW_KEY_UNKNOWN, CATEGORY));
     }
 
     /**
@@ -80,27 +80,27 @@ public final class KeybindManager {
     public static void handleInput(Minecraft client) {
         if (client == null) return;
 
-        AutoClickerConfig config = ConfigManager.get();
+        OviClickerConfig config = ConfigManager.get();
 
         while (toggleKey.consumeClick()) {
             config.masterEnabled = !config.masterEnabled;
             ConfigManager.save();
-            AutoClickerEngine.resetTimer();
+            OviClickerEngine.resetTimer();
         }
 
         while (cycleModeKey.consumeClick()) {
             ClickMode next = config.getMode().next();
             config.setMode(next);
             ConfigManager.save();
-            AutoClickerEngine.resetTimer();
+            OviClickerEngine.resetTimer();
         }
 
         while (openGuiKey.consumeClick()) {
             // Nur ausserhalb anderer Bildschirme oeffnen. Waehrend einer Texteingabe
             // liefert Minecraft ohnehin keine Tastendruecke an Tastenbelegungen aus.
             if (ClientCompat.getCurrentScreen(client) == null) {
-                ClientCompat.openScreen(client, new AutoClickerScreen(
-                        Component.translatable("autoclicker.gui.title"), null));
+                ClientCompat.openScreen(client, new OviClickerScreen(
+                        Component.translatable("oviclicker.gui.title"), null));
             }
         }
     }

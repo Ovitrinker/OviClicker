@@ -1,10 +1,10 @@
-package ch.andrinzwicky.autoclicker.feature;
+package ch.andrinzwicky.oviclicker.feature;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Options;
 
 /**
- * Die Aktion, die der AutoClicker ausloest.
+ * Die Aktion, die der OviClicker ausloest.
  *
  * <p>Alle Aktionen entsprechen einer Vanilla-Tastenbelegung. Der Mod setzt ausschliesslich
  * den lokalen Zustand dieser Belegung, genau so, wie es die echte Taste tun wuerde.
@@ -14,25 +14,25 @@ import net.minecraft.client.Options;
  */
 public enum ClickAction {
     /** Linksklick, also Angriff beziehungsweise Block abbauen. */
-    ATTACK("autoclicker.action.attack"),
+    ATTACK("oviclicker.action.attack"),
     /** Rechtsklick, also Gegenstand oder Block benutzen. */
-    USE("autoclicker.action.use"),
+    USE("oviclicker.action.use"),
     /** Springen. */
-    JUMP("autoclicker.action.jump"),
+    JUMP("oviclicker.action.jump"),
     /** Vorwaerts laufen. */
-    FORWARD("autoclicker.action.forward"),
+    FORWARD("oviclicker.action.forward"),
     /** Rueckwaerts laufen. */
-    BACK("autoclicker.action.back"),
+    BACK("oviclicker.action.back"),
     /** Nach links laufen. */
-    LEFT("autoclicker.action.left"),
+    LEFT("oviclicker.action.left"),
     /** Nach rechts laufen. */
-    RIGHT("autoclicker.action.right"),
+    RIGHT("oviclicker.action.right"),
     /** Schleichen. */
-    SNEAK("autoclicker.action.sneak"),
+    SNEAK("oviclicker.action.sneak"),
     /** Sprinten. */
-    SPRINT("autoclicker.action.sprint"),
+    SPRINT("oviclicker.action.sprint"),
     /** Gegenstand ablegen. */
-    DROP("autoclicker.action.drop");
+    DROP("oviclicker.action.drop");
 
     private final String translationKey;
 

@@ -1,4 +1,4 @@
-package ch.andrinzwicky.autoclicker.compat;
+package ch.andrinzwicky.oviclicker.compat;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;

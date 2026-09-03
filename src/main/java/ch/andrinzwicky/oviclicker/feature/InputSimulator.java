@@ -1,7 +1,7 @@
-package ch.andrinzwicky.autoclicker.feature;
+package ch.andrinzwicky.oviclicker.feature;
 
-import ch.andrinzwicky.autoclicker.KeybindManager;
-import ch.andrinzwicky.autoclicker.mixin.MinecraftAccessor;
+import ch.andrinzwicky.oviclicker.KeybindManager;
+import ch.andrinzwicky.oviclicker.mixin.MinecraftAccessor;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -54,11 +54,11 @@ public final class InputSimulator {
         // Angriff und Benutzen laufen ueber die Vanilla-Methoden, damit Reichweite,
         // Cooldown und Animation exakt der Vanilla-Logik entsprechen.
         if (action == ClickAction.ATTACK) {
-            ((MinecraftAccessor) (Object) client).autoclicker$startAttack();
+            ((MinecraftAccessor) (Object) client).oviclicker$startAttack();
             return;
         }
         if (action == ClickAction.USE) {
-            ((MinecraftAccessor) (Object) client).autoclicker$startUseItem();
+            ((MinecraftAccessor) (Object) client).oviclicker$startUseItem();
             return;
         }
 
@@ -115,11 +115,11 @@ public final class InputSimulator {
         // die uebersprungene Verarbeitung und werden hier genau gleich angestossen.
         MinecraftAccessor accessor = (MinecraftAccessor) (Object) client;
         if (action == ClickAction.ATTACK) {
-            accessor.autoclicker$continueAttack(true);
+            accessor.oviclicker$continueAttack(true);
         } else if (action == ClickAction.USE
-                && accessor.autoclicker$getRightClickDelay() == 0
+                && accessor.oviclicker$getRightClickDelay() == 0
                 && !client.player.isUsingItem()) {
-            accessor.autoclicker$startUseItem();
+            accessor.oviclicker$startUseItem();
         }
     }
 

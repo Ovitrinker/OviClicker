@@ -1,9 +1,9 @@
-package ch.andrinzwicky.autoclicker.feature;
+package ch.andrinzwicky.oviclicker.feature;
 
-import ch.andrinzwicky.autoclicker.compat.ClientCompat;
-import ch.andrinzwicky.autoclicker.config.AutoClickerConfig;
-import ch.andrinzwicky.autoclicker.config.ConfigManager;
-import ch.andrinzwicky.autoclicker.mixin.MinecraftAccessor;
+import ch.andrinzwicky.oviclicker.compat.ClientCompat;
+import ch.andrinzwicky.oviclicker.config.OviClickerConfig;
+import ch.andrinzwicky.oviclicker.config.ConfigManager;
+import ch.andrinzwicky.oviclicker.mixin.MinecraftAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.Entity;
@@ -27,20 +27,20 @@ import java.util.Random;
  * solange alle Bedingungen erfuellt sind, sonst wird sie im eingestellten Intervall
  * angetippt.</p>
  *
- * <p>Offene Bildschirme halten den AutoClicker nicht an: er laeuft im Esc-Menue, im Inventar
+ * <p>Offene Bildschirme halten den OviClicker nicht an: er laeuft im Esc-Menue, im Inventar
  * und auch dann weiter, wenn das Fenster den Fokus verliert, weil du in einem anderen
  * Programm bist. Minecraft ueberspringt in diesen Faellen seine eigene Tastenverarbeitung,
  * deshalb stoesst der Mod Angriff und Benutzen selbst an und fuehrt die Angriffs-Sperrzeit
  * selbst weiter. Nur wenn Minecraft das Spiel wirklich anhaelt – im Einzelspieler, sobald
- * ein Bildschirm offen ist –, pausiert auch der AutoClicker, denn dann laeuft die Welt
+ * ein Bildschirm offen ist –, pausiert auch der OviClicker, denn dann laeuft die Welt
  * nicht.</p>
  *
  * <p>Der Zustand (Modus und Master-Schalter) liegt in der Konfiguration und wird beim
  * Verlassen eines Servers bewusst nicht zurueckgesetzt. Wer den Server verlaesst und
- * wieder beitritt, findet den AutoClicker unveraendert aktiv vor; lediglich der
+ * wieder beitritt, findet den OviClicker unveraendert aktiv vor; lediglich der
  * Intervall-Timer startet frisch, damit nach dem Beitritt kein Klick-Stau entsteht.</p>
  */
-public final class AutoClickerEngine {
+public final class OviClickerEngine {
 
     /** Zufallsgenerator fuer den Jitter. */
     private static final Random RANDOM = new Random();
@@ -54,7 +54,7 @@ public final class AutoClickerEngine {
     /** Selbst weitergefuehrte Angriffs-Sperrzeit, solange ein Bildschirm offen ist. */
     private static int missTime = 0;
 
-    private AutoClickerEngine() {
+    private OviClickerEngine() {
     }
 
     /**
@@ -68,7 +68,7 @@ public final class AutoClickerEngine {
         // Laesst angetippte Tasten nach Ablauf ihrer Haltedauer wieder los
         InputSimulator.tick();
 
-        AutoClickerConfig config = ConfigManager.get();
+        OviClickerConfig config = ConfigManager.get();
 
         // Ohne Spieler, Welt oder Interaktionsmanager gibt es nichts zu tun.
         // Der gewaehlte Modus bleibt dabei erhalten.
@@ -118,7 +118,7 @@ public final class AutoClickerEngine {
         // Ein Fehlschlag setzt die Sperrzeit neu. Bei offenem Bildschirm muss der Mod sie
         // uebernehmen, weil Minecraft den Wert im naechsten Tick wieder ueberschreibt.
         if (screenOpen) {
-            missTime = ((MinecraftAccessor) (Object) client).autoclicker$getMissTime();
+            missTime = ((MinecraftAccessor) (Object) client).oviclicker$getMissTime();
         }
     }
 
@@ -126,7 +126,7 @@ public final class AutoClickerEngine {
      * Fuehrt die Angriffs-Sperrzeit ueber offene Bildschirme hinweg weiter.
      *
      * <p>Minecraft setzt {@code missTime} in jedem Tick auf 10000, solange ein Bildschirm
-     * offen ist, und blockiert damit jeden Angriff. Weil der AutoClicker auch im Esc-Menue
+     * offen ist, und blockiert damit jeden Angriff. Weil der OviClicker auch im Esc-Menue
      * weiterlaeuft, zaehlt der Mod den echten Wert selbst herunter und schreibt ihn zurueck.
      * Ausserhalb von Bildschirmen wird nur mitgelesen.</p>
      *
@@ -143,12 +143,12 @@ public final class AutoClickerEngine {
         MinecraftAccessor accessor = (MinecraftAccessor) (Object) client;
 
         if (!screenOpen) {
-            missTime = accessor.autoclicker$getMissTime();
+            missTime = accessor.oviclicker$getMissTime();
             return;
         }
 
         if (missTime > 0) missTime--;
-        if (active) accessor.autoclicker$setMissTime(missTime);
+        if (active) accessor.oviclicker$setMissTime(missTime);
     }
 
     /**
@@ -160,7 +160,7 @@ public final class AutoClickerEngine {
      * @param action die eingestellte Aktion
      * @return {@code true}, wenn ausgeloest werden darf
      */
-    private static boolean isAllowed(Minecraft client, AutoClickerConfig config,
+    private static boolean isAllowed(Minecraft client, OviClickerConfig config,
                                      ClickMode mode, ClickAction action) {
         if (!config.masterEnabled) return false;
         if (mode == ClickMode.OFF) return false;
@@ -177,7 +177,7 @@ public final class AutoClickerEngine {
 
         // Cooldown und Sperrzeit betreffen nur den Angriff
         if (action.isAttack()) {
-            if (((MinecraftAccessor) (Object) client).autoclicker$getMissTime() > 0) return false;
+            if (((MinecraftAccessor) (Object) client).oviclicker$getMissTime() > 0) return false;
             if (config.respectAttackCooldown && client.player.getAttackStrengthScale(0.0F) < 1.0F) {
                 return false;
             }
@@ -191,7 +191,7 @@ public final class AutoClickerEngine {
      * und nach jeder Aenderung der Einstellungen aufgerufen.
      */
     public static void resetTimer() {
-        AutoClickerConfig config = ConfigManager.get();
+        OviClickerConfig config = ConfigManager.get();
 
         double baseMs;
         double jitterPercent;
@@ -216,7 +216,7 @@ public final class AutoClickerEngine {
      * @param config die aktiven Einstellungen
      * @return {@code true}, wenn ein gueltiges Ziel anvisiert ist
      */
-    private static boolean hasValidTarget(Minecraft client, AutoClickerConfig config) {
+    private static boolean hasValidTarget(Minecraft client, OviClickerConfig config) {
         HitResult hitResult = client.hitResult;
         if (!(hitResult instanceof EntityHitResult entityHitResult)) return false;
 
@@ -235,7 +235,7 @@ public final class AutoClickerEngine {
      * @param config die aktiven Einstellungen
      * @return {@code true}, wenn die Entity nicht angegriffen werden darf
      */
-    private static boolean isBlacklisted(Entity entity, AutoClickerConfig config) {
+    private static boolean isBlacklisted(Entity entity, OviClickerConfig config) {
         if (config.blacklistPlayers && entity instanceof Player) return true;
         if (config.blacklistVillagers && entity instanceof AbstractVillager) return true;
         if (config.blacklistTamed && entity instanceof TamableAnimal tamable && tamable.isTame()) return true;

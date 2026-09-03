@@ -1,10 +1,10 @@
-package ch.andrinzwicky.autoclicker;
+package ch.andrinzwicky.oviclicker;
 
-import ch.andrinzwicky.autoclicker.config.AutoClickerConfig;
-import ch.andrinzwicky.autoclicker.config.ConfigManager;
-import ch.andrinzwicky.autoclicker.config.HudCorner;
-import ch.andrinzwicky.autoclicker.feature.AutoEatHandler;
-import ch.andrinzwicky.autoclicker.feature.ClickMode;
+import ch.andrinzwicky.oviclicker.config.OviClickerConfig;
+import ch.andrinzwicky.oviclicker.config.ConfigManager;
+import ch.andrinzwicky.oviclicker.config.HudCorner;
+import ch.andrinzwicky.oviclicker.feature.AutoEatHandler;
+import ch.andrinzwicky.oviclicker.feature.ClickMode;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.Minecraft;
@@ -24,7 +24,7 @@ public final class HudRenderer {
 
     /** Kennung des HUD-Elements. */
     private static final Identifier ELEMENT_ID =
-            Identifier.fromNamespaceAndPath("autoclicker", "mode_display");
+            Identifier.fromNamespaceAndPath("oviclicker", "mode_display");
 
     /** Farbe fuer den ausgeschalteten Zustand (ARGB). */
     private static final int COLOUR_OFF = 0xFFAAAAAA;
@@ -45,7 +45,7 @@ public final class HudRenderer {
         HudElementRegistry.attachElementAfter(VanillaHudElements.MISC_OVERLAYS, ELEMENT_ID,
                 (graphics, tickCounter) -> {
                     Minecraft client = Minecraft.getInstance();
-                    AutoClickerConfig config = ConfigManager.get();
+                    OviClickerConfig config = ConfigManager.get();
 
                     if (!config.hudEnabled) return;
                     if (client == null || client.player == null || client.level == null) return;
@@ -86,15 +86,15 @@ public final class HudRenderer {
      * @param mode   der aktive Modus
      * @return der fertige Text
      */
-    private static Component buildText(AutoClickerConfig config, ClickMode mode) {
+    private static Component buildText(OviClickerConfig config, ClickMode mode) {
         Component base = config.masterEnabled
-                ? Component.translatable("autoclicker.hud.mode",
+                ? Component.translatable("oviclicker.hud.mode",
                         Component.translatable(mode.getTranslationKey()))
-                : Component.translatable("autoclicker.hud.disabled");
+                : Component.translatable("oviclicker.hud.disabled");
 
         // Waehrend des automatischen Essens ist sichtbar, warum gerade nicht geklickt wird
         if (AutoEatHandler.isEating()) {
-            return Component.translatable("autoclicker.hud.eating", base);
+            return Component.translatable("oviclicker.hud.eating", base);
         }
 
         return base;

@@ -1,4 +1,4 @@
-package ch.andrinzwicky.autoclicker.feature;
+package ch.andrinzwicky.oviclicker.feature;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.effect.MobEffectCategory;

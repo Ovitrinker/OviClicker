@@ -1,12 +1,12 @@
-package ch.andrinzwicky.autoclicker.gui;
+package ch.andrinzwicky.oviclicker.gui;
 
-import ch.andrinzwicky.autoclicker.compat.ClientCompat;
-import ch.andrinzwicky.autoclicker.config.AutoClickerConfig;
-import ch.andrinzwicky.autoclicker.config.ConfigManager;
-import ch.andrinzwicky.autoclicker.config.HudCorner;
-import ch.andrinzwicky.autoclicker.feature.AutoClickerEngine;
-import ch.andrinzwicky.autoclicker.feature.ClickAction;
-import ch.andrinzwicky.autoclicker.feature.ClickMode;
+import ch.andrinzwicky.oviclicker.compat.ClientCompat;
+import ch.andrinzwicky.oviclicker.config.OviClickerConfig;
+import ch.andrinzwicky.oviclicker.config.ConfigManager;
+import ch.andrinzwicky.oviclicker.config.HudCorner;
+import ch.andrinzwicky.oviclicker.feature.OviClickerEngine;
+import ch.andrinzwicky.oviclicker.feature.ClickAction;
+import ch.andrinzwicky.oviclicker.feature.ClickMode;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Checkbox;
@@ -22,7 +22,7 @@ import java.util.List;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 /**
- * Der Einstellungsbildschirm des AutoClickers.
+ * Der Einstellungsbildschirm des OviClickers.
  *
  * <p>Bewusst ausschliesslich mit dem Vanilla-Screen-API gebaut, ohne Cloth Config oder
  * eine andere Fremdbibliothek. So haengt der Multiversion-Build an keiner zusaetzlichen
@@ -36,7 +36,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
  * <p>Alle Aenderungen laufen zuerst in eine Arbeitskopie der Einstellungen. Erst der
  * Knopf "Speichern" uebernimmt sie und schreibt sie auf die Festplatte.</p>
  */
-public class AutoClickerScreen extends Screen {
+public class OviClickerScreen extends Screen {
 
     /** Breite einer Spalte in Pixeln. */
     private static final int COLUMN_WIDTH = 150;
@@ -60,7 +60,7 @@ public class AutoClickerScreen extends Screen {
     private final Screen parent;
 
     /** Arbeitskopie der Einstellungen. */
-    private final AutoClickerConfig working;
+    private final OviClickerConfig working;
 
     /** Alle scrollbaren Bedienelemente mit ihrer unverschobenen Position. */
     private final List<ScrollEntry> entries = new ArrayList<>();
@@ -86,7 +86,7 @@ public class AutoClickerScreen extends Screen {
      * @param title  der Titel des Bildschirms
      * @param parent der Bildschirm, zu dem beim Schliessen zurueckgekehrt wird, darf {@code null} sein
      */
-    public AutoClickerScreen(Component title, Screen parent) {
+    public OviClickerScreen(Component title, Screen parent) {
         super(title);
         this.parent = parent;
         this.working = ConfigManager.get().copy();
@@ -107,7 +107,7 @@ public class AutoClickerScreen extends Screen {
 
         // --- Linke Spalte: Modus, Aktion und die Optionen des Modus ---
         addOption(Button.builder(
-                        Component.translatable("autoclicker.gui.mode",
+                        Component.translatable("oviclicker.gui.mode",
                                 Component.translatable(working.getMode().getTranslationKey())),
                         button -> {
                             working.setMode(working.getMode().next());
@@ -116,16 +116,16 @@ public class AutoClickerScreen extends Screen {
                 .bounds(leftX, leftY, COLUMN_WIDTH, WIDGET_HEIGHT).build());
         leftY += ROW_HEIGHT;
 
-        // Aktion des aktiven Modus: was der AutoClicker ausloest
+        // Aktion des aktiven Modus: was der OviClicker ausloest
         if (working.getMode() != ClickMode.OFF) {
             final ClickMode currentMode = working.getMode();
             addOption(Button.builder(
-                            Component.translatable("autoclicker.option.action",
+                            Component.translatable("oviclicker.option.action",
                                     Component.translatable(working.getAction(currentMode).getTranslationKey())),
                             button -> {
                                 ClickAction next = working.getAction(currentMode).next();
                                 working.setAction(currentMode, next);
-                                button.setMessage(Component.translatable("autoclicker.option.action",
+                                button.setMessage(Component.translatable("oviclicker.option.action",
                                         Component.translatable(next.getTranslationKey())));
                             })
                     .bounds(leftX, leftY, COLUMN_WIDTH, WIDGET_HEIGHT).build());
@@ -135,53 +135,53 @@ public class AutoClickerScreen extends Screen {
         switch (working.getMode()) {
             case AUTOATTACK -> {
                 addOption(new DoubleSliderWidget(leftX, leftY, COLUMN_WIDTH, WIDGET_HEIGHT,
-                        "autoclicker.option.cps", working.autoAttackCps, 0.1, 20.0, 1,
+                        "oviclicker.option.cps", working.autoAttackCps, 0.1, 20.0, 1,
                         value -> working.autoAttackCps = value));
                 leftY += ROW_HEIGHT;
 
                 addOption(new DoubleSliderWidget(leftX, leftY, COLUMN_WIDTH, WIDGET_HEIGHT,
-                        "autoclicker.option.jitter", working.autoAttackJitterPercent, 0.0, 100.0, 0,
+                        "oviclicker.option.jitter", working.autoAttackJitterPercent, 0.0, 100.0, 0,
                         value -> working.autoAttackJitterPercent = value));
                 leftY += ROW_HEIGHT;
 
                 addOption(new DoubleSliderWidget(leftX, leftY, COLUMN_WIDTH, WIDGET_HEIGHT,
-                        "autoclicker.option.reach", working.maxReach, 1.0, 6.0, 1,
+                        "oviclicker.option.reach", working.maxReach, 1.0, 6.0, 1,
                         value -> working.maxReach = value));
                 leftY += ROW_HEIGHT;
 
                 // Entity-Blacklist, nur im Modus AUTOATTACK sinnvoll
                 addOption(Checkbox.builder(
-                                Component.translatable("autoclicker.option.blacklist_players"), this.font)
+                                Component.translatable("oviclicker.option.blacklist_players"), this.font)
                         .pos(leftX, leftY).maxWidth(COLUMN_WIDTH).selected(working.blacklistPlayers)
                         .onValueChange((checkbox, selected) -> working.blacklistPlayers = selected).build());
                 leftY += ROW_HEIGHT;
 
                 addOption(Checkbox.builder(
-                                Component.translatable("autoclicker.option.blacklist_villagers"), this.font)
+                                Component.translatable("oviclicker.option.blacklist_villagers"), this.font)
                         .pos(leftX, leftY).maxWidth(COLUMN_WIDTH).selected(working.blacklistVillagers)
                         .onValueChange((checkbox, selected) -> working.blacklistVillagers = selected).build());
                 leftY += ROW_HEIGHT;
 
                 addOption(Checkbox.builder(
-                                Component.translatable("autoclicker.option.blacklist_tamed"), this.font)
+                                Component.translatable("oviclicker.option.blacklist_tamed"), this.font)
                         .pos(leftX, leftY).maxWidth(COLUMN_WIDTH).selected(working.blacklistTamed)
                         .onValueChange((checkbox, selected) -> working.blacklistTamed = selected).build());
                 leftY += ROW_HEIGHT;
 
                 addOption(Checkbox.builder(
-                                Component.translatable("autoclicker.option.blacklist_passive"), this.font)
+                                Component.translatable("oviclicker.option.blacklist_passive"), this.font)
                         .pos(leftX, leftY).maxWidth(COLUMN_WIDTH).selected(working.blacklistPassive)
                         .onValueChange((checkbox, selected) -> working.blacklistPassive = selected).build());
                 leftY += ROW_HEIGHT;
             }
             case TIMER -> {
                 addOption(new DoubleSliderWidget(leftX, leftY, COLUMN_WIDTH, WIDGET_HEIGHT,
-                        "autoclicker.option.interval", working.timerIntervalSeconds, 0.05, 300.0, 2,
+                        "oviclicker.option.interval", working.timerIntervalSeconds, 0.05, 300.0, 2,
                         value -> working.timerIntervalSeconds = value));
                 leftY += ROW_HEIGHT;
 
                 addOption(new DoubleSliderWidget(leftX, leftY, COLUMN_WIDTH, WIDGET_HEIGHT,
-                        "autoclicker.option.jitter", working.timerJitterPercent, 0.0, 100.0, 0,
+                        "oviclicker.option.jitter", working.timerJitterPercent, 0.0, 100.0, 0,
                         value -> working.timerJitterPercent = value));
                 leftY += ROW_HEIGHT;
             }
@@ -194,120 +194,120 @@ public class AutoClickerScreen extends Screen {
         leftY += ROW_HEIGHT / 2;
 
         addOption(Checkbox.builder(
-                        Component.translatable("autoclicker.option.auto_eat"), this.font)
+                        Component.translatable("oviclicker.option.auto_eat"), this.font)
                 .pos(leftX, leftY).maxWidth(COLUMN_WIDTH).selected(working.autoEatEnabled)
                 .onValueChange((checkbox, selected) -> working.autoEatEnabled = selected).build());
         leftY += ROW_HEIGHT;
 
         addOption(new DoubleSliderWidget(leftX, leftY, COLUMN_WIDTH, WIDGET_HEIGHT,
-                "autoclicker.option.auto_eat_threshold", working.autoEatThresholdHaunches, 1.0, 9.0, 0,
+                "oviclicker.option.auto_eat_threshold", working.autoEatThresholdHaunches, 1.0, 9.0, 0,
                 value -> working.autoEatThresholdHaunches = (int) Math.round(value)));
         leftY += ROW_HEIGHT;
 
         addOption(Checkbox.builder(
-                        Component.translatable("autoclicker.option.auto_eat_refill"), this.font)
+                        Component.translatable("oviclicker.option.auto_eat_refill"), this.font)
                 .pos(leftX, leftY).maxWidth(COLUMN_WIDTH).selected(working.autoEatRefillFromInventory)
                 .onValueChange((checkbox, selected) -> working.autoEatRefillFromInventory = selected).build());
         leftY += ROW_HEIGHT;
 
         addOption(Checkbox.builder(
-                        Component.translatable("autoclicker.option.auto_eat_golden_apples"), this.font)
+                        Component.translatable("oviclicker.option.auto_eat_golden_apples"), this.font)
                 .pos(leftX, leftY).maxWidth(COLUMN_WIDTH).selected(working.autoEatAllowGoldenApples)
                 .onValueChange((checkbox, selected) -> working.autoEatAllowGoldenApples = selected).build());
         leftY += ROW_HEIGHT;
 
         addOption(Checkbox.builder(
-                        Component.translatable("autoclicker.option.auto_eat_enchanted_golden_apples"), this.font)
+                        Component.translatable("oviclicker.option.auto_eat_enchanted_golden_apples"), this.font)
                 .pos(leftX, leftY).maxWidth(COLUMN_WIDTH).selected(working.autoEatAllowEnchantedGoldenApples)
                 .onValueChange((checkbox, selected) ->
                         working.autoEatAllowEnchantedGoldenApples = selected).build());
 
         // --- Rechte Spalte: gemeinsame Bedingungen ---
         addOption(Checkbox.builder(
-                        Component.translatable("autoclicker.option.master_enabled"), this.font)
+                        Component.translatable("oviclicker.option.master_enabled"), this.font)
                 .pos(rightX, rightY).maxWidth(COLUMN_WIDTH).selected(working.masterEnabled)
                 .onValueChange((checkbox, selected) -> working.masterEnabled = selected).build());
         rightY += ROW_HEIGHT;
 
         addOption(Checkbox.builder(
-                        Component.translatable("autoclicker.option.only_while_attack_key"), this.font)
+                        Component.translatable("oviclicker.option.only_while_attack_key"), this.font)
                 .pos(rightX, rightY).maxWidth(COLUMN_WIDTH).selected(working.onlyWhileAttackKeyHeld)
                 .onValueChange((checkbox, selected) -> working.onlyWhileAttackKeyHeld = selected).build());
         rightY += ROW_HEIGHT;
 
         addOption(Checkbox.builder(
-                        Component.translatable("autoclicker.option.respect_cooldown"), this.font)
+                        Component.translatable("oviclicker.option.respect_cooldown"), this.font)
                 .pos(rightX, rightY).maxWidth(COLUMN_WIDTH).selected(working.respectAttackCooldown)
                 .onValueChange((checkbox, selected) -> working.respectAttackCooldown = selected).build());
         rightY += ROW_HEIGHT;
 
         addOption(Checkbox.builder(
-                        Component.translatable("autoclicker.option.require_weapon"), this.font)
+                        Component.translatable("oviclicker.option.require_weapon"), this.font)
                 .pos(rightX, rightY).maxWidth(COLUMN_WIDTH).selected(working.requireWeapon)
                 .onValueChange((checkbox, selected) -> working.requireWeapon = selected).build());
         rightY += ROW_HEIGHT;
 
         addOption(Checkbox.builder(
-                        Component.translatable("autoclicker.option.hold_instead_of_tap"), this.font)
+                        Component.translatable("oviclicker.option.hold_instead_of_tap"), this.font)
                 .pos(rightX, rightY).maxWidth(COLUMN_WIDTH).selected(working.holdInsteadOfTap)
                 .onValueChange((checkbox, selected) -> working.holdInsteadOfTap = selected).build());
         rightY += ROW_HEIGHT;
 
         addOption(new DoubleSliderWidget(rightX, rightY, COLUMN_WIDTH, WIDGET_HEIGHT,
-                "autoclicker.option.tap_duration", working.tapDurationTicks, 1.0, 20.0, 0,
+                "oviclicker.option.tap_duration", working.tapDurationTicks, 1.0, 20.0, 0,
                 value -> working.tapDurationTicks = (int) Math.round(value)));
         rightY += ROW_HEIGHT;
 
         // --- Rechte Spalte: HUD ---
         addOption(Checkbox.builder(
-                        Component.translatable("autoclicker.option.hud_enabled"), this.font)
+                        Component.translatable("oviclicker.option.hud_enabled"), this.font)
                 .pos(rightX, rightY).maxWidth(COLUMN_WIDTH).selected(working.hudEnabled)
                 .onValueChange((checkbox, selected) -> working.hudEnabled = selected).build());
         rightY += ROW_HEIGHT;
 
         addOption(Checkbox.builder(
-                        Component.translatable("autoclicker.option.hud_hide_when_off"), this.font)
+                        Component.translatable("oviclicker.option.hud_hide_when_off"), this.font)
                 .pos(rightX, rightY).maxWidth(COLUMN_WIDTH).selected(working.hudHideWhenOff)
                 .onValueChange((checkbox, selected) -> working.hudHideWhenOff = selected).build());
         rightY += ROW_HEIGHT;
 
         addOption(Button.builder(
-                        Component.translatable("autoclicker.option.hud_corner",
+                        Component.translatable("oviclicker.option.hud_corner",
                                 Component.translatable(working.getHudCorner().getTranslationKey())),
                         button -> {
                             HudCorner next = working.getHudCorner().next();
                             working.setHudCorner(next);
-                            button.setMessage(Component.translatable("autoclicker.option.hud_corner",
+                            button.setMessage(Component.translatable("oviclicker.option.hud_corner",
                                     Component.translatable(next.getTranslationKey())));
                         })
                 .bounds(rightX, rightY, COLUMN_WIDTH, WIDGET_HEIGHT).build());
         rightY += ROW_HEIGHT;
 
         addOption(new DoubleSliderWidget(rightX, rightY, COLUMN_WIDTH, WIDGET_HEIGHT,
-                "autoclicker.option.hud_offset_x", working.hudOffsetX, 0.0, 200.0, 0,
+                "oviclicker.option.hud_offset_x", working.hudOffsetX, 0.0, 200.0, 0,
                 value -> working.hudOffsetX = (int) Math.round(value)));
         rightY += ROW_HEIGHT;
 
         addOption(new DoubleSliderWidget(rightX, rightY, COLUMN_WIDTH, WIDGET_HEIGHT,
-                "autoclicker.option.hud_offset_y", working.hudOffsetY, 0.0, 200.0, 0,
+                "oviclicker.option.hud_offset_y", working.hudOffsetY, 0.0, 200.0, 0,
                 value -> working.hudOffsetY = (int) Math.round(value)));
 
         // --- Fusszeile, scrollt nicht mit ---
         int footerY = this.height - 28;
         int buttonWidth = 100;
 
-        addRenderableWidget(Button.builder(Component.translatable("autoclicker.gui.save"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("oviclicker.gui.save"), button -> {
             ConfigManager.replaceAndSave(working);
-            AutoClickerEngine.resetTimer();
+            OviClickerEngine.resetTimer();
             onClose();
         }).bounds(this.width / 2 - buttonWidth - 55, footerY, buttonWidth, WIDGET_HEIGHT).build());
 
-        addRenderableWidget(Button.builder(Component.translatable("autoclicker.gui.reset"), button -> {
-            working.copyFrom(new AutoClickerConfig());
+        addRenderableWidget(Button.builder(Component.translatable("oviclicker.gui.reset"), button -> {
+            working.copyFrom(new OviClickerConfig());
             rebuildWidgets();
         }).bounds(this.width / 2 - buttonWidth / 2, footerY, buttonWidth, WIDGET_HEIGHT).build());
 
-        addRenderableWidget(Button.builder(Component.translatable("autoclicker.gui.cancel"),
+        addRenderableWidget(Button.builder(Component.translatable("oviclicker.gui.cancel"),
                         button -> onClose())
                 .bounds(this.width / 2 + 55, footerY, buttonWidth, WIDGET_HEIGHT).build());
 
