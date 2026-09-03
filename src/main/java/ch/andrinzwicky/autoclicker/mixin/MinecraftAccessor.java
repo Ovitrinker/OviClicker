@@ -13,7 +13,8 @@ import org.spongepowered.asm.mixin.gen.Invoker;
  *
  * <p>Die Namen stammen aus den offiziellen Mojang-Mappings und sind in allen Zielversionen
  * (1.21.11, 26.1.x, 26.2) identisch:
- * {@code startAttack()}, {@code continueAttack(boolean)} und {@code missTime}.</p>
+ * {@code startAttack()}, {@code continueAttack(boolean)}, {@code startUseItem()},
+ * {@code missTime} und {@code rightClickDelay}.</p>
  */
 @Mixin(Minecraft.class)
 public interface MinecraftAccessor {
@@ -47,4 +48,24 @@ public interface MinecraftAccessor {
      */
     @Accessor("missTime")
     int autoclicker$getMissTime();
+
+    /**
+     * Setzt die verbleibende Sperrzeit nach einem Fehlschlag.
+     *
+     * <p>Minecraft setzt das Feld auf 10000, solange ein Bildschirm offen ist, und blockiert
+     * damit jeden Angriff. Der Mod fuehrt die echte Sperrzeit in dieser Zeit selbst weiter
+     * und schreibt sie hier zurueck, siehe {@code AutoClickerEngine}.</p>
+     *
+     * @param value Anzahl Ticks bis zum naechsten erlaubten Angriff
+     */
+    @Accessor("missTime")
+    void autoclicker$setMissTime(int value);
+
+    /**
+     * Liest die Wartezeit bis zum naechsten automatischen Rechtsklick in Ticks.
+     *
+     * @return Anzahl Ticks, in denen Minecraft kein weiteres Benutzen zulaesst
+     */
+    @Accessor("rightClickDelay")
+    int autoclicker$getRightClickDelay();
 }

@@ -101,7 +101,55 @@ belegst du „Vorwärts" auf `Z`, drückt der Mod `Z`.
   oder Ablegen reicht 1, für manches braucht es mehr.
 
 Es ist immer höchstens eine Taste gleichzeitig gedrückt, und sie wird zuverlässig
-losgelassen, sobald der Mod abschaltet, ein Bildschirm aufgeht oder du die Welt verlässt.
+losgelassen, sobald der Mod abschaltet, das Spiel anhält oder du die Welt verlässt.
+
+### Automatisch essen (AutoEat)
+
+Fällt der Hunger unter die eingestellte Schwelle (Standard 6 Keulen), unterbricht der Mod
+das Klicken und isst, bis die Hungerleiste wieder voll ist. Danach läuft der AutoClicker von
+selbst weiter. Solange gegessen wird, zeigt das HUD „· isst“.
+
+* **Nur gutes Essen.** Gegessen wird nur, was einen Nährwert hat und beim Verzehr keinen
+  schädlichen Statuseffekt auslöst. Verfaultes Fleisch, Spinnenauge, giftige Kartoffel,
+  Kugelfisch und rohes Huhn fallen dadurch von selbst weg – geprüft werden die
+  Verzehr-Effekte des Gegenstands, nicht eine feste Liste, deshalb greift das auch bei
+  Essen aus anderen Mods.
+* Zusätzlich gesperrt sind Chorusfrucht (teleportiert) und verdächtiger Eintopf
+  (unbekannter Effekt). Die beiden goldenen Äpfel haben je eine eigene Option und sind
+  standardmässig gesperrt: **Goldene Äpfel erlauben** und **Verzauberte goldene Äpfel
+  erlauben** lassen sich unabhängig voneinander einschalten.
+* **Essen aus dem Inventar holen** – ist in der Hotbar nichts Essbares mehr, legt der Mod
+  Nachschub aus dem Inventar dorthin. Das ist derselbe Tausch, den eine Hotbar-Taste im
+  offenen Inventar auslöst. Ist ein Platz frei, wird dieser genommen und der Rest des
+  Stapels bleibt danach dort liegen; ist die Hotbar voll, weicht der gewählte Gegenstand
+  vorübergehend ins Inventar und kommt nach dem Essen an seinen Platz zurück. Bei einem
+  offenen fremden Behälter (Truhe, Ofen) wird nicht umgelegt.
+* Gewählt wird der nahrhafteste Gegenstand, der noch vollständig in die Hungerleiste passt;
+  passt keiner hinein, der schwächste – so verfällt möglichst wenig Nährwert.
+* Der Spieler hat Vorrang: benutzt er selbst gerade einen Gegenstand, fängt der Mod gar
+  nicht erst an, und wechselt er während des Essens den Hotbar-Platz, bricht der Vorgang ab.
+* AutoEat hängt am Master-Schalter, nicht am Modus: es arbeitet auch im Modus `OFF`.
+
+### Offene Bildschirme und Fensterwechsel
+
+Der AutoClicker läuft weiter, wenn ein Bildschirm offen ist – Esc-Menü, Inventar, Chat, der
+eigene Einstellungsbildschirm – und auch dann, wenn du in ein anderes Fenster wechselst.
+
+Minecraft überspringt in diesen Fällen seine eigene Tastenverarbeitung und setzt zusätzlich
+`missTime` auf 10000, was jeden Angriff blockiert. Der Mod stösst Angriff, Benutzen und
+Ablegen deshalb selbst genau so an, wie es Minecraft täte, und führt die Angriffs-Sperrzeit
+selbst weiter (`AutoClickerEngine.trackMissTime`). Bewegungstasten wirken ohnehin, weil der
+Spieler den gehaltenen Zustand direkt ausliest.
+
+Zwei Grenzen bleiben:
+
+* **Einzelspieler**: Minecraft hält dort das ganze Spiel an, sobald ein Bildschirm offen ist.
+  Dann tickt weder Welt noch Server – der AutoClicker pausiert mit und setzt seinen Timer neu
+  an. Auf einem Server (auch bei „Für LAN öffnen") läuft alles weiter. Für den Fensterwechsel
+  hilft im Einzelspieler `Optionen → *Pause bei Fokusverlust* → AUS`: dann geht beim
+  Alt-Tab gar kein Bildschirm auf und das Spiel läuft samt AutoClicker weiter.
+* **Nur bei gedrückter Angriffstaste**: der Zustand wird direkt bei GLFW abgefragt. Verliert
+  das Fenster den Fokus, meldet GLFW die Taste als losgelassen, und die Bedingung greift.
 
 ### Einstellungen
 
@@ -115,6 +163,8 @@ losgelassen, sobald der Mod abschaltet, ein Bildschirm aufgeht oder du die Welt 
 * **Nur mit Waffe in der Hand** – Schwert, Axt, Dreizack oder Keule
 * **Maximale Reichweite** für AUTOATTACK (1 – 6 Blöcke)
 * **Entity-Blacklist**: Spieler, Dorfbewohner, gezähmte Tiere, friedliche Tiere
+* **AutoEat**: automatisch essen an/aus, Schwelle in Hungerkeulen (1 – 9), Essen aus dem
+  Inventar holen, goldene Äpfel erlauben, verzauberte goldene Äpfel erlauben
 * **HUD**: an/aus, Ecke, Abstand X und Y, Ausblenden im Zustand OFF
 
 Änderungen im Bildschirm greifen erst mit **Speichern**. **Zurücksetzen** stellt die
@@ -141,15 +191,21 @@ Start des Clients nicht.
 
 * Einstiegspunkt `ClientModInitializer`, Tick-Logik in `ClientTickEvents.END_CLIENT_TICK`,
   kein eigener Thread
-* Klick-Auslösung über Mixin-Invoker auf `Minecraft.startAttack()` und
-  `Minecraft.startUseItem()`; zusätzlich gelesen werden `Minecraft.missTime` und
-  `Player.getAttackStrengthScale(float)`
+* Klick-Auslösung über Mixin-Invoker auf `Minecraft.startAttack()`,
+  `Minecraft.startUseItem()` und `Minecraft.continueAttack(boolean)`; gelesen werden
+  `Minecraft.rightClickDelay` und `Player.getAttackStrengthScale(float)`,
+  gelesen und geschrieben wird `Minecraft.missTime`
 * Tastenaktionen über `KeyMapping.setDown(boolean)` plus `KeyMapping.click(key)` für
   Aktionen, die Klickzähler statt Haltezustand auswerten (z. B. Ablegen)
 * Die Prüfung „nur bei gedrückter Angriffstaste" liest den Tastenzustand direkt bei GLFW
   (`InputConstants.isKeyDown` bzw. `glfwGetMouseButton`), nicht über `KeyMapping.isDown()` –
   sonst würde der Mod im Halte-Modus seinen eigenen simulierten Druck als Spielereingabe
   lesen und sich selbst am Leben halten
+* AutoEat isst über `MultiPlayerGameMode.useItem(player, hand)` und hält dabei die Taste
+  „Benutzen“ gedrückt, weil Minecraft das Essen sonst im nächsten Tick abbricht. Bewusst
+  nicht über `Minecraft.startUseItem()`: der würde zuerst den anvisierten Block bedienen
+  und statt zu essen eine Truhe öffnen. Das Umlegen von Essen läuft über
+  `handleContainerInput(…, SWAP, …)`, also über ein reguläres Klick-Paket
 * Keine Reflection auf verschleierte Namen, keine gefälschten Netzwerkpakete, kein Umgehen von
   Serverlogik – der Mod simuliert ausschliesslich lokale Eingaben
 * Null-Prüfung auf `client.player`, `client.level` und `client.gameMode` in jedem Tick
@@ -166,6 +222,7 @@ Alle Unterschiede sind über Stonecutter-Kommentare gelöst:
 | Keybind-Kategorie | `KeyMapping.Category` | gleich | gleich |
 | HUD und Screen | `GuiGraphics.drawString(…)` | `GuiGraphicsExtractor.text(…)` | wie 26.1 |
 | Screen öffnen | `Minecraft.setScreen` | gleich | `Minecraft.gui.setScreen` |
+| Inventar-Klick | `handleInventoryMouseClick(…, ClickType.SWAP, …)` | `handleContainerInput(…, ContainerInput.SWAP, …)` | wie 26.1 |
 
 Die Kategorie der Tastenbelegungen ist seit 1.21.11 keine freie Zeichenkette mehr, sondern ein
 `KeyMapping.Category` mit `Identifier`. Der daraus gebildete Übersetzungsschlüssel lautet
@@ -180,8 +237,11 @@ src/main/java/ch/andrinzwicky/autoclicker/
   KeybindManager.java         Tastenbelegungen und deren Auswertung
   HudRenderer.java            HUD-Element
   compat/ClientCompat.java    versionsabhängige Screen-Zugriffe
+  compat/ContainerCompat.java versionsabhängiger Inventar-Klick
   config/                     AutoClickerConfig, ConfigManager, HudCorner
-  feature/                    ClickMode, AutoClickerEngine
+  feature/                    ClickMode, ClickAction, InputSimulator, AutoClickerEngine
+  feature/AutoEatHandler.java automatisches Essen
+  feature/FoodFilter.java     Bewertung, welches Essen gut ist
   gui/                        AutoClickerScreen, DoubleSliderWidget
   mixin/                      MinecraftAccessor
 src/main/resources/

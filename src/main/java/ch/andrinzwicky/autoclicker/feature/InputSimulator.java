@@ -5,6 +5,7 @@ import ch.andrinzwicky.autoclicker.mixin.MinecraftAccessor;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.InteractionHand;
 import org.lwjgl.glfw.GLFW;
 
 /**
@@ -45,8 +46,9 @@ public final class InputSimulator {
      * @param client         die Client-Instanz
      * @param action         die auszuloesende Aktion
      * @param durationTicks  Anzahl Ticks, die eine Taste gedrueckt bleibt (mindestens 1)
+     * @param screenOpen     {@code true}, wenn gerade ein Bildschirm offen ist
      */
-    public static void tap(Minecraft client, ClickAction action, int durationTicks) {
+    public static void tap(Minecraft client, ClickAction action, int durationTicks, boolean screenOpen) {
         if (client == null || action == null) return;
 
         // Angriff und Benutzen laufen ueber die Vanilla-Methoden, damit Reichweite,
@@ -67,11 +69,19 @@ public final class InputSimulator {
 
         mapping.setDown(true);
 
-        // Aktionen wie das Ablegen von Gegenstaenden werten nicht den gehaltenen Zustand,
-        // sondern die Anzahl Klicks aus. Das geht nur ueber die tatsaechlich belegte Taste.
-        InputConstants.Key key = KeybindManager.boundKeyOf(mapping);
-        if (key != null && !key.equals(InputConstants.UNKNOWN)) {
-            KeyMapping.click(key);
+        if (screenOpen) {
+            // Solange ein Bildschirm offen ist, wertet Minecraft keine Klickzaehler aus.
+            // Gezaehlte Klicks wuerden sich anstauen und beim Schliessen auf einen Schlag
+            // ausgeloest. Das Ablegen wird deshalb direkt so ausgefuehrt, wie es Minecraft
+            // beim Druck auf die Ablegen-Taste tut.
+            if (action == ClickAction.DROP) drop(client);
+        } else {
+            // Aktionen wie das Ablegen von Gegenstaenden werten nicht den gehaltenen Zustand,
+            // sondern die Anzahl Klicks aus. Das geht nur ueber die tatsaechlich belegte Taste.
+            InputConstants.Key key = KeybindManager.boundKeyOf(mapping);
+            if (key != null && !key.equals(InputConstants.UNKNOWN)) {
+                KeyMapping.click(key);
+            }
         }
 
         heldMapping = mapping;
@@ -81,10 +91,11 @@ public final class InputSimulator {
     /**
      * Haelt die Taste einer Aktion gedrueckt. Wiederholte Aufrufe halten sie weiterhin.
      *
-     * @param client die Client-Instanz
-     * @param action die zu haltende Aktion
+     * @param client     die Client-Instanz
+     * @param action     die zu haltende Aktion
+     * @param screenOpen {@code true}, wenn gerade ein Bildschirm offen ist
      */
-    public static void hold(Minecraft client, ClickAction action) {
+    public static void hold(Minecraft client, ClickAction action, boolean screenOpen) {
         if (client == null || action == null) return;
 
         KeyMapping mapping = action.getMapping(client.options);
@@ -95,11 +106,38 @@ public final class InputSimulator {
         mapping.setDown(true);
         heldMapping = mapping;
         releaseCountdown = 0;
+
+        if (!screenOpen || client.player == null) return;
+
+        // Solange ein Bildschirm offen ist, ueberspringt Minecraft seine eigene
+        // Tastenverarbeitung. Die Bewegungstasten wirken trotzdem, weil der Spieler den
+        // gehaltenen Zustand direkt ausliest. Angriff und Benutzen laufen dagegen ueber
+        // die uebersprungene Verarbeitung und werden hier genau gleich angestossen.
+        MinecraftAccessor accessor = (MinecraftAccessor) (Object) client;
+        if (action == ClickAction.ATTACK) {
+            accessor.autoclicker$continueAttack(true);
+        } else if (action == ClickAction.USE
+                && accessor.autoclicker$getRightClickDelay() == 0
+                && !client.player.isUsingItem()) {
+            accessor.autoclicker$startUseItem();
+        }
+    }
+
+    /**
+     * Legt einen Gegenstand ab, genau wie es Minecraft beim Druck auf die Ablegen-Taste tut.
+     *
+     * @param client die Client-Instanz
+     */
+    private static void drop(Minecraft client) {
+        if (client.player == null || client.player.isSpectator()) return;
+        if (client.player.drop(false)) {
+            client.player.swing(InteractionHand.MAIN_HAND);
+        }
     }
 
     /**
      * Laesst eine allenfalls gehaltene Taste los. Wird auch beim Abschalten des Mods, beim
-     * Oeffnen eines Bildschirms und beim Verlassen der Welt aufgerufen, damit keine Taste
+     * Anhalten des Spiels und beim Verlassen der Welt aufgerufen, damit keine Taste
      * haengen bleibt.
      */
     public static void release() {

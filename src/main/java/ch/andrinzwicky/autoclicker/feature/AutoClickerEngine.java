@@ -27,6 +27,14 @@ import java.util.Random;
  * solange alle Bedingungen erfuellt sind, sonst wird sie im eingestellten Intervall
  * angetippt.</p>
  *
+ * <p>Offene Bildschirme halten den AutoClicker nicht an: er laeuft im Esc-Menue, im Inventar
+ * und auch dann weiter, wenn das Fenster den Fokus verliert, weil du in einem anderen
+ * Programm bist. Minecraft ueberspringt in diesen Faellen seine eigene Tastenverarbeitung,
+ * deshalb stoesst der Mod Angriff und Benutzen selbst an und fuehrt die Angriffs-Sperrzeit
+ * selbst weiter. Nur wenn Minecraft das Spiel wirklich anhaelt – im Einzelspieler, sobald
+ * ein Bildschirm offen ist –, pausiert auch der AutoClicker, denn dann laeuft die Welt
+ * nicht.</p>
+ *
  * <p>Der Zustand (Modus und Master-Schalter) liegt in der Konfiguration und wird beim
  * Verlassen eines Servers bewusst nicht zurueckgesetzt. Wer den Server verlaesst und
  * wieder beitritt, findet den AutoClicker unveraendert aktiv vor; lediglich der
@@ -42,6 +50,9 @@ public final class AutoClickerEngine {
 
     /** Merkt sich, ob im letzten Tick eine Welt geladen war. */
     private static boolean inWorld = false;
+
+    /** Selbst weitergefuehrte Angriffs-Sperrzeit, solange ein Bildschirm offen ist. */
+    private static int missTime = 0;
 
     private AutoClickerEngine() {
     }
@@ -75,8 +86,21 @@ public final class AutoClickerEngine {
             return;
         }
 
+        // Im Einzelspieler haelt Minecraft das ganze Spiel an, sobald ein Bildschirm offen
+        // ist oder das Fenster den Fokus verliert. Dann tickt weder die Welt noch der
+        // Server, es gibt also nichts auszuloesen; ein Klick wuerde nur in der Warteschlange
+        // liegen und beim Fortsetzen nachgeholt. Der Timer startet deshalb frisch.
+        if (client.isPaused()) {
+            InputSimulator.release();
+            resetTimer();
+            return;
+        }
+
         ClickMode mode = config.getMode();
         ClickAction action = config.getAction(mode);
+
+        boolean screenOpen = ClientCompat.getCurrentScreen(client) != null;
+        trackMissTime(client, screenOpen, config.masterEnabled && mode != ClickMode.OFF);
 
         if (!isAllowed(client, config, mode, action)) {
             InputSimulator.release();
@@ -85,14 +109,46 @@ public final class AutoClickerEngine {
 
         // Halte-Modus: Taste bleibt gedrueckt, das Intervall spielt keine Rolle
         if (config.holdInsteadOfTap) {
-            InputSimulator.hold(client, action);
+            InputSimulator.hold(client, action, screenOpen);
+        } else if (System.currentTimeMillis() >= nextClickAtMs) {
+            InputSimulator.tap(client, action, config.tapDurationTicks, screenOpen);
+            resetTimer();
+        }
+
+        // Ein Fehlschlag setzt die Sperrzeit neu. Bei offenem Bildschirm muss der Mod sie
+        // uebernehmen, weil Minecraft den Wert im naechsten Tick wieder ueberschreibt.
+        if (screenOpen) {
+            missTime = ((MinecraftAccessor) (Object) client).autoclicker$getMissTime();
+        }
+    }
+
+    /**
+     * Fuehrt die Angriffs-Sperrzeit ueber offene Bildschirme hinweg weiter.
+     *
+     * <p>Minecraft setzt {@code missTime} in jedem Tick auf 10000, solange ein Bildschirm
+     * offen ist, und blockiert damit jeden Angriff. Weil der AutoClicker auch im Esc-Menue
+     * weiterlaeuft, zaehlt der Mod den echten Wert selbst herunter und schreibt ihn zurueck.
+     * Ausserhalb von Bildschirmen wird nur mitgelesen.</p>
+     *
+     * <p>Zurueckgeschrieben wird ausschliesslich, solange der Mod tatsaechlich ausloesen
+     * kann. Ist er abgeschaltet oder im Modus OFF, bleibt der Vanilla-Wert unberuehrt: er
+     * verhindert unter anderem, dass ein noch gedrueckter Angriff nach dem Schliessen eines
+     * Bildschirms sofort weiter abbaut.</p>
+     *
+     * @param client     die Client-Instanz
+     * @param screenOpen {@code true}, wenn gerade ein Bildschirm offen ist
+     * @param active     {@code true}, wenn der Mod eingeschaltet und nicht im Modus OFF ist
+     */
+    private static void trackMissTime(Minecraft client, boolean screenOpen, boolean active) {
+        MinecraftAccessor accessor = (MinecraftAccessor) (Object) client;
+
+        if (!screenOpen) {
+            missTime = accessor.autoclicker$getMissTime();
             return;
         }
 
-        if (System.currentTimeMillis() < nextClickAtMs) return;
-
-        InputSimulator.tap(client, action, config.tapDurationTicks);
-        resetTimer();
+        if (missTime > 0) missTime--;
+        if (active) accessor.autoclicker$setMissTime(missTime);
     }
 
     /**
@@ -109,8 +165,8 @@ public final class AutoClickerEngine {
         if (!config.masterEnabled) return false;
         if (mode == ClickMode.OFF) return false;
 
-        // Nichts ausloesen, solange ein Bildschirm offen ist (Inventar, Chat, eigenes GUI)
-        if (ClientCompat.getCurrentScreen(client) != null) return false;
+        // Waehrend des automatischen Essens wird nicht geschlagen
+        if (AutoEatHandler.isEating()) return false;
 
         if (config.onlyWhileAttackKeyHeld
                 && !InputSimulator.isPhysicallyDown(client, client.options.keyAttack)) {

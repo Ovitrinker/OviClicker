@@ -78,6 +78,34 @@ public class AutoClickerConfig {
     public int tapDurationTicks = 1;
 
     // ------------------------------------------------------------------
+    // AutoEat
+    // ------------------------------------------------------------------
+
+    /**
+     * Isst automatisch, sobald der Hunger unter die Schwelle faellt. Waehrend des Essens
+     * pausiert der AutoClicker, danach laeuft er von selbst weiter.
+     */
+    public boolean autoEatEnabled = true;
+
+    /**
+     * Schwelle in ganzen Hungerkeulen (1 - 9). Gegessen wird, sobald der Hunger unter
+     * diesen Wert faellt, und zwar so lange, bis die Hungerleiste wieder voll ist.
+     */
+    public int autoEatThresholdHaunches = 6;
+
+    /** Holt Essen aus dem Inventar in die Hotbar, wenn dort keines mehr liegt. */
+    public boolean autoEatRefillFromInventory = true;
+
+    /** Erlaubt den gewoehnlichen goldenen Apfel. */
+    public boolean autoEatAllowGoldenApples = false;
+
+    /**
+     * Erlaubt den verzauberten goldenen Apfel. Steht bewusst getrennt vom gewoehnlichen
+     * goldenen Apfel, weil er ungleich wertvoller ist.
+     */
+    public boolean autoEatAllowEnchantedGoldenApples = false;
+
+    // ------------------------------------------------------------------
     // Entity-Blacklist (nur Modus AUTOATTACK)
     // ------------------------------------------------------------------
 
@@ -194,6 +222,7 @@ public class AutoClickerConfig {
         hudOffsetX = clampInt(hudOffsetX, 0, 200, 4);
         hudOffsetY = clampInt(hudOffsetY, 0, 200, 4);
         tapDurationTicks = clampInt(tapDurationTicks, 1, 20, 1);
+        autoEatThresholdHaunches = clampInt(autoEatThresholdHaunches, 1, 9, 6);
 
         // Repariert unbekannte oder fehlende Namen der Aufzaehlungen
         setMode(getMode());
@@ -223,6 +252,11 @@ public class AutoClickerConfig {
         copy.requireWeapon = requireWeapon;
         copy.holdInsteadOfTap = holdInsteadOfTap;
         copy.tapDurationTicks = tapDurationTicks;
+        copy.autoEatEnabled = autoEatEnabled;
+        copy.autoEatThresholdHaunches = autoEatThresholdHaunches;
+        copy.autoEatRefillFromInventory = autoEatRefillFromInventory;
+        copy.autoEatAllowGoldenApples = autoEatAllowGoldenApples;
+        copy.autoEatAllowEnchantedGoldenApples = autoEatAllowEnchantedGoldenApples;
         copy.blacklistPlayers = blacklistPlayers;
         copy.blacklistVillagers = blacklistVillagers;
         copy.blacklistTamed = blacklistTamed;
@@ -256,6 +290,11 @@ public class AutoClickerConfig {
         requireWeapon = other.requireWeapon;
         holdInsteadOfTap = other.holdInsteadOfTap;
         tapDurationTicks = other.tapDurationTicks;
+        autoEatEnabled = other.autoEatEnabled;
+        autoEatThresholdHaunches = other.autoEatThresholdHaunches;
+        autoEatRefillFromInventory = other.autoEatRefillFromInventory;
+        autoEatAllowGoldenApples = other.autoEatAllowGoldenApples;
+        autoEatAllowEnchantedGoldenApples = other.autoEatAllowEnchantedGoldenApples;
         blacklistPlayers = other.blacklistPlayers;
         blacklistVillagers = other.blacklistVillagers;
         blacklistTamed = other.blacklistTamed;

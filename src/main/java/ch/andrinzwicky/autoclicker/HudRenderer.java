@@ -3,6 +3,7 @@ package ch.andrinzwicky.autoclicker;
 import ch.andrinzwicky.autoclicker.config.AutoClickerConfig;
 import ch.andrinzwicky.autoclicker.config.ConfigManager;
 import ch.andrinzwicky.autoclicker.config.HudCorner;
+import ch.andrinzwicky.autoclicker.feature.AutoEatHandler;
 import ch.andrinzwicky.autoclicker.feature.ClickMode;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
@@ -86,9 +87,16 @@ public final class HudRenderer {
      * @return der fertige Text
      */
     private static Component buildText(AutoClickerConfig config, ClickMode mode) {
-        if (!config.masterEnabled) {
-            return Component.translatable("autoclicker.hud.disabled");
+        Component base = config.masterEnabled
+                ? Component.translatable("autoclicker.hud.mode",
+                        Component.translatable(mode.getTranslationKey()))
+                : Component.translatable("autoclicker.hud.disabled");
+
+        // Waehrend des automatischen Essens ist sichtbar, warum gerade nicht geklickt wird
+        if (AutoEatHandler.isEating()) {
+            return Component.translatable("autoclicker.hud.eating", base);
         }
-        return Component.translatable("autoclicker.hud.mode", Component.translatable(mode.getTranslationKey()));
+
+        return base;
     }
 }

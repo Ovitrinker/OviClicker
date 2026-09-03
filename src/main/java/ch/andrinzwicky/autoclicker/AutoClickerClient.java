@@ -2,6 +2,7 @@ package ch.andrinzwicky.autoclicker;
 
 import ch.andrinzwicky.autoclicker.config.ConfigManager;
 import ch.andrinzwicky.autoclicker.feature.AutoClickerEngine;
+import ch.andrinzwicky.autoclicker.feature.AutoEatHandler;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import org.slf4j.Logger;
@@ -37,10 +38,13 @@ public class AutoClickerClient implements ClientModInitializer {
         KeybindManager.register();
         HudRenderer.register();
 
-        // Die gesamte Klick-Logik laeuft im Client-Tick, nicht in einem eigenen Thread
+        // Die gesamte Klick-Logik laeuft im Client-Tick, nicht in einem eigenen Thread.
+        // Der AutoEat kommt bewusst nach dem AutoClicker: dieser gibt seine Taste zuerst
+        // frei, erst danach haelt der AutoEat die Taste "Benutzen" fuer den Bissen.
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             KeybindManager.handleInput(client);
             AutoClickerEngine.onEndClientTick(client);
+            AutoEatHandler.onEndClientTick(client);
         });
 
         LOGGER.info("AutoClicker {} fuer Minecraft {} geladen.", VERSION, MINECRAFT);

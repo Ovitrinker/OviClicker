@@ -172,6 +172,7 @@ public class AutoClickerScreen extends Screen {
                                 Component.translatable("autoclicker.option.blacklist_passive"), this.font)
                         .pos(leftX, leftY).maxWidth(COLUMN_WIDTH).selected(working.blacklistPassive)
                         .onValueChange((checkbox, selected) -> working.blacklistPassive = selected).build());
+                leftY += ROW_HEIGHT;
             }
             case TIMER -> {
                 addOption(new DoubleSliderWidget(leftX, leftY, COLUMN_WIDTH, WIDGET_HEIGHT,
@@ -182,11 +183,44 @@ public class AutoClickerScreen extends Screen {
                 addOption(new DoubleSliderWidget(leftX, leftY, COLUMN_WIDTH, WIDGET_HEIGHT,
                         "autoclicker.option.jitter", working.timerJitterPercent, 0.0, 100.0, 0,
                         value -> working.timerJitterPercent = value));
+                leftY += ROW_HEIGHT;
             }
             case OFF -> {
                 // Im Modus OFF gibt es keine weiteren Optionen
             }
         }
+
+        // --- Linke Spalte: AutoEat, unabhaengig vom gewaehlten Modus ---
+        leftY += ROW_HEIGHT / 2;
+
+        addOption(Checkbox.builder(
+                        Component.translatable("autoclicker.option.auto_eat"), this.font)
+                .pos(leftX, leftY).maxWidth(COLUMN_WIDTH).selected(working.autoEatEnabled)
+                .onValueChange((checkbox, selected) -> working.autoEatEnabled = selected).build());
+        leftY += ROW_HEIGHT;
+
+        addOption(new DoubleSliderWidget(leftX, leftY, COLUMN_WIDTH, WIDGET_HEIGHT,
+                "autoclicker.option.auto_eat_threshold", working.autoEatThresholdHaunches, 1.0, 9.0, 0,
+                value -> working.autoEatThresholdHaunches = (int) Math.round(value)));
+        leftY += ROW_HEIGHT;
+
+        addOption(Checkbox.builder(
+                        Component.translatable("autoclicker.option.auto_eat_refill"), this.font)
+                .pos(leftX, leftY).maxWidth(COLUMN_WIDTH).selected(working.autoEatRefillFromInventory)
+                .onValueChange((checkbox, selected) -> working.autoEatRefillFromInventory = selected).build());
+        leftY += ROW_HEIGHT;
+
+        addOption(Checkbox.builder(
+                        Component.translatable("autoclicker.option.auto_eat_golden_apples"), this.font)
+                .pos(leftX, leftY).maxWidth(COLUMN_WIDTH).selected(working.autoEatAllowGoldenApples)
+                .onValueChange((checkbox, selected) -> working.autoEatAllowGoldenApples = selected).build());
+        leftY += ROW_HEIGHT;
+
+        addOption(Checkbox.builder(
+                        Component.translatable("autoclicker.option.auto_eat_enchanted_golden_apples"), this.font)
+                .pos(leftX, leftY).maxWidth(COLUMN_WIDTH).selected(working.autoEatAllowEnchantedGoldenApples)
+                .onValueChange((checkbox, selected) ->
+                        working.autoEatAllowEnchantedGoldenApples = selected).build());
 
         // --- Rechte Spalte: gemeinsame Bedingungen ---
         addOption(Checkbox.builder(
