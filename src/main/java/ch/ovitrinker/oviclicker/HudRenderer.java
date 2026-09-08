@@ -76,6 +76,26 @@ public final class HudRenderer {
                     /*graphics.drawString(client.font, text, x, y, colour);
                     *///?} else
                     graphics.text(client.font, text, x, y, colour);
+
+                    // --- Zusaetzliche Zeilen anderer Mods ---
+                    boolean stacksDown = corner == HudCorner.TOP_LEFT || corner == HudCorner.TOP_RIGHT;
+                    int extraY = y;
+                    for (HudLineProvider provider : HudExtensions.all()) {
+                        Component extraLine = provider.extraLine();
+                        if (extraLine == null) continue;
+
+                        extraY += stacksDown ? 9 : -9;
+                        int extraWidth = client.font.width(extraLine);
+                        int extraX = switch (corner) {
+                            case TOP_LEFT, BOTTOM_LEFT -> config.hudOffsetX;
+                            case TOP_RIGHT, BOTTOM_RIGHT -> screenWidth - extraWidth - config.hudOffsetX;
+                        };
+
+                        //? if <26.1 {
+                        /*graphics.drawString(client.font, extraLine, extraX, extraY, colour);
+                        *///?} else
+                        graphics.text(client.font, extraLine, extraX, extraY, colour);
+                    }
                 });
     }
 

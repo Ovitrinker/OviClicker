@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.0 – 2026-09-08
+
+* Neuer Erweiterungspunkt für andere Mods: `ScreenExtension`/`ScreenExtensions` lassen sich
+  eigene Sektionen in den Einstellungsbildschirm einhängen (im selben scrollbaren Bereich wie
+  die eigenen Optionen), `HudLineProvider`/`HudExtensions` lassen sich zusätzliche Zeilen im
+  HUD anzeigen. Ohne installierte Erweiterung ändert sich am Verhalten nichts.
+
 ## 1.1.0 – 2026-09-03
 
 * Der Mod heisst neu **OviClicker** (vorher „AutoClicker"). Umbenannt sind die Mod-ID

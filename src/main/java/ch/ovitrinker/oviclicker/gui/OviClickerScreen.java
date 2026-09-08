@@ -7,9 +7,12 @@ import ch.ovitrinker.oviclicker.config.HudCorner;
 import ch.ovitrinker.oviclicker.feature.OviClickerEngine;
 import ch.ovitrinker.oviclicker.feature.ClickAction;
 import ch.ovitrinker.oviclicker.feature.ClickMode;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Checkbox;
+import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -292,6 +295,21 @@ public class OviClickerScreen extends Screen {
                 "oviclicker.option.hud_offset_y", working.hudOffsetY, 0.0, 200.0, 0,
                 value -> working.hudOffsetY = (int) Math.round(value)));
 
+        // --- Eingehaengte Sektionen anderer Mods ---
+        int addonX = leftX;
+        int addonWidth = COLUMN_WIDTH * 2 + COLUMN_GAP;
+        int addonY = Math.max(leftY, rightY) + ROW_HEIGHT / 2;
+
+        for (ScreenExtension extension : ScreenExtensions.all()) {
+            addOption(new StringWidget(addonX, addonY, addonWidth, WIDGET_HEIGHT,
+                    extension.sectionTitle(), this.font));
+            addonY += ROW_HEIGHT;
+
+            ExtensionApiImpl api = new ExtensionApiImpl(addonX, addonWidth, addonY);
+            extension.buildOptions(api);
+            addonY = api.cursorY;
+        }
+
         // --- Fusszeile, scrollt nicht mit ---
         int footerY = this.height - 28;
         int buttonWidth = 100;
@@ -299,6 +317,7 @@ public class OviClickerScreen extends Screen {
         addRenderableWidget(Button.builder(Component.translatable("oviclicker.gui.save"), button -> {
             ConfigManager.replaceAndSave(working);
             OviClickerEngine.resetTimer();
+            ScreenExtensions.all().forEach(ScreenExtension::onSave);
             onClose();
         }).bounds(this.width / 2 - buttonWidth - 55, footerY, buttonWidth, WIDGET_HEIGHT).build());
 
@@ -308,7 +327,10 @@ public class OviClickerScreen extends Screen {
         }).bounds(this.width / 2 - buttonWidth / 2, footerY, buttonWidth, WIDGET_HEIGHT).build());
 
         addRenderableWidget(Button.builder(Component.translatable("oviclicker.gui.cancel"),
-                        button -> onClose())
+                        button -> {
+                            ScreenExtensions.all().forEach(ScreenExtension::onCancel);
+                            onClose();
+                        })
                 .bounds(this.width / 2 + 55, footerY, buttonWidth, WIDGET_HEIGHT).build());
 
         updateScrollRange();
@@ -325,6 +347,70 @@ public class OviClickerScreen extends Screen {
     private <T extends AbstractWidget> T addOption(T widget) {
         entries.add(new ScrollEntry(widget, widget.getY()));
         return addRenderableWidget(widget);
+    }
+
+    /**
+     * Reicht den scrollbaren Bereich des Bildschirms an eingehaengte {@link ScreenExtension}en
+     * weiter.
+     */
+    private final class ExtensionApiImpl implements ExtensionApi {
+
+        private final int columnX;
+        private final int columnWidth;
+        private int cursorY;
+
+        private ExtensionApiImpl(int columnX, int columnWidth, int startY) {
+            this.columnX = columnX;
+            this.columnWidth = columnWidth;
+            this.cursorY = startY;
+        }
+
+        @Override
+        public <T extends AbstractWidget> T addOption(T widget) {
+            return OviClickerScreen.this.addOption(widget);
+        }
+
+        @Override
+        public int columnX() {
+            return columnX;
+        }
+
+        @Override
+        public int columnWidth() {
+            return columnWidth;
+        }
+
+        @Override
+        public int rowHeight() {
+            return ROW_HEIGHT;
+        }
+
+        @Override
+        public int widgetHeight() {
+            return WIDGET_HEIGHT;
+        }
+
+        @Override
+        public int nextRowY() {
+            int y = cursorY;
+            cursorY += ROW_HEIGHT;
+            return y;
+        }
+
+        @Override
+        public Font font() {
+            return OviClickerScreen.this.font;
+        }
+
+        @Override
+        public Minecraft minecraft() {
+            return OviClickerScreen.this.minecraft;
+        }
+
+        @Override
+        public void rebuild() {
+            OviClickerScreen.this.rebuildWidgets();
+        }
     }
 
     /**
