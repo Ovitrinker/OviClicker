@@ -118,4 +118,4 @@ Automated clicking is not allowed on every server. Check the rules of the server
 on before you use this mod there.
 
 Source code and issue tracker:
-https://github.com/andrinzwicky/Autoklicker-1.21.11---26.2 · MIT licensed.
+https://github.com/Ovitrinker/Autoklicker-1.21.11---26.2 · MIT licensed.
