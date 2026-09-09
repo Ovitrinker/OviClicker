@@ -1,4 +1,4 @@
-package ch.andrinzwicky.oviclicker.feature;
+package ch.ovitrinker.oviclicker.feature;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Options;

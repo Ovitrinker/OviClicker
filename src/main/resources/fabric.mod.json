@@ -17,7 +17,7 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "ch.andrinzwicky.oviclicker.OviClickerClient"
+      "ch.ovitrinker.oviclicker.OviClickerClient"
     ]
   },
   "mixins": [

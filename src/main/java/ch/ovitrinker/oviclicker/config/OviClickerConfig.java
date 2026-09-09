@@ -1,7 +1,7 @@
-package ch.andrinzwicky.oviclicker.config;
+package ch.ovitrinker.oviclicker.config;
 
-import ch.andrinzwicky.oviclicker.feature.ClickAction;
-import ch.andrinzwicky.oviclicker.feature.ClickMode;
+import ch.ovitrinker.oviclicker.feature.ClickAction;
+import ch.ovitrinker.oviclicker.feature.ClickMode;
 
 /**
  * Datenhalter aller Einstellungen des OviClickers.

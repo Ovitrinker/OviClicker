@@ -1,12 +1,12 @@
-package ch.andrinzwicky.oviclicker.gui;
+package ch.ovitrinker.oviclicker.gui;
 
-import ch.andrinzwicky.oviclicker.compat.ClientCompat;
-import ch.andrinzwicky.oviclicker.config.OviClickerConfig;
-import ch.andrinzwicky.oviclicker.config.ConfigManager;
-import ch.andrinzwicky.oviclicker.config.HudCorner;
-import ch.andrinzwicky.oviclicker.feature.OviClickerEngine;
-import ch.andrinzwicky.oviclicker.feature.ClickAction;
-import ch.andrinzwicky.oviclicker.feature.ClickMode;
+import ch.ovitrinker.oviclicker.compat.ClientCompat;
+import ch.ovitrinker.oviclicker.config.OviClickerConfig;
+import ch.ovitrinker.oviclicker.config.ConfigManager;
+import ch.ovitrinker.oviclicker.config.HudCorner;
+import ch.ovitrinker.oviclicker.feature.OviClickerEngine;
+import ch.ovitrinker.oviclicker.feature.ClickAction;
+import ch.ovitrinker.oviclicker.feature.ClickMode;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Checkbox;

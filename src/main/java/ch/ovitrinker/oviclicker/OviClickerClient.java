@@ -1,8 +1,8 @@
-package ch.andrinzwicky.oviclicker;
+package ch.ovitrinker.oviclicker;
 
-import ch.andrinzwicky.oviclicker.config.ConfigManager;
-import ch.andrinzwicky.oviclicker.feature.OviClickerEngine;
-import ch.andrinzwicky.oviclicker.feature.AutoEatHandler;
+import ch.ovitrinker.oviclicker.config.ConfigManager;
+import ch.ovitrinker.oviclicker.feature.OviClickerEngine;
+import ch.ovitrinker.oviclicker.feature.AutoEatHandler;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import org.slf4j.Logger;

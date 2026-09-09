@@ -1,4 +1,4 @@
-package ch.andrinzwicky.oviclicker.feature;
+package ch.ovitrinker.oviclicker.feature;
 
 /**
  * Die drei moeglichen Betriebsmodi des OviClickers. Es ist immer genau ein Modus aktiv.

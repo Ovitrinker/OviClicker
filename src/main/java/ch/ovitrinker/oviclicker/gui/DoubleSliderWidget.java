@@ -1,4 +1,4 @@
-package ch.andrinzwicky.oviclicker.gui;
+package ch.ovitrinker.oviclicker.gui;
 
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.network.chat.Component;

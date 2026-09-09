@@ -1,4 +1,4 @@
-package ch.andrinzwicky.oviclicker.config;
+package ch.ovitrinker.oviclicker.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

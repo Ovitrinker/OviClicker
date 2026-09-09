@@ -1,10 +1,10 @@
-package ch.andrinzwicky.oviclicker;
+package ch.ovitrinker.oviclicker;
 
-import ch.andrinzwicky.oviclicker.config.OviClickerConfig;
-import ch.andrinzwicky.oviclicker.config.ConfigManager;
-import ch.andrinzwicky.oviclicker.config.HudCorner;
-import ch.andrinzwicky.oviclicker.feature.AutoEatHandler;
-import ch.andrinzwicky.oviclicker.feature.ClickMode;
+import ch.ovitrinker.oviclicker.config.OviClickerConfig;
+import ch.ovitrinker.oviclicker.config.ConfigManager;
+import ch.ovitrinker.oviclicker.config.HudCorner;
+import ch.ovitrinker.oviclicker.feature.AutoEatHandler;
+import ch.ovitrinker.oviclicker.feature.ClickMode;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.Minecraft;

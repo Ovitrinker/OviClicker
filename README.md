@@ -232,7 +232,7 @@ Alias enthalten.
 ## Projektstruktur
 
 ```
-src/main/java/ch/andrinzwicky/oviclicker/
+src/main/java/ch/ovitrinker/oviclicker/
   OviClickerClient.java      Einstiegspunkt
   KeybindManager.java         Tastenbelegungen und deren Auswertung
   HudRenderer.java            HUD-Element

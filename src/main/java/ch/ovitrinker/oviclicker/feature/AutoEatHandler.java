@@ -1,8 +1,8 @@
-package ch.andrinzwicky.oviclicker.feature;
+package ch.ovitrinker.oviclicker.feature;
 
-import ch.andrinzwicky.oviclicker.compat.ContainerCompat;
-import ch.andrinzwicky.oviclicker.config.OviClickerConfig;
-import ch.andrinzwicky.oviclicker.config.ConfigManager;
+import ch.ovitrinker.oviclicker.compat.ContainerCompat;
+import ch.ovitrinker.oviclicker.config.OviClickerConfig;
+import ch.ovitrinker.oviclicker.config.ConfigManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;

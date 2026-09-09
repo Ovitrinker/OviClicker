@@ -1,4 +1,4 @@
-package ch.andrinzwicky.oviclicker.config;
+package ch.ovitrinker.oviclicker.config;
 
 /**
  * Bildschirmecke, an der die HUD-Anzeige verankert wird.

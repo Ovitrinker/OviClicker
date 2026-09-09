@@ -1,11 +1,11 @@
-package ch.andrinzwicky.oviclicker;
+package ch.ovitrinker.oviclicker;
 
-import ch.andrinzwicky.oviclicker.compat.ClientCompat;
-import ch.andrinzwicky.oviclicker.config.OviClickerConfig;
-import ch.andrinzwicky.oviclicker.config.ConfigManager;
-import ch.andrinzwicky.oviclicker.feature.OviClickerEngine;
-import ch.andrinzwicky.oviclicker.feature.ClickMode;
-import ch.andrinzwicky.oviclicker.gui.OviClickerScreen;
+import ch.ovitrinker.oviclicker.compat.ClientCompat;
+import ch.ovitrinker.oviclicker.config.OviClickerConfig;
+import ch.ovitrinker.oviclicker.config.ConfigManager;
+import ch.ovitrinker.oviclicker.feature.OviClickerEngine;
+import ch.ovitrinker.oviclicker.feature.ClickMode;
+import ch.ovitrinker.oviclicker.gui.OviClickerScreen;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;

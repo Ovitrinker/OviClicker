@@ -1,4 +1,4 @@
-package ch.andrinzwicky.oviclicker.mixin;
+package ch.ovitrinker.oviclicker.mixin;
 
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;

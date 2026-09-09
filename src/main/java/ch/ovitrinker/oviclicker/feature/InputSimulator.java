@@ -1,7 +1,7 @@
-package ch.andrinzwicky.oviclicker.feature;
+package ch.ovitrinker.oviclicker.feature;
 
-import ch.andrinzwicky.oviclicker.KeybindManager;
-import ch.andrinzwicky.oviclicker.mixin.MinecraftAccessor;
+import ch.ovitrinker.oviclicker.KeybindManager;
+import ch.ovitrinker.oviclicker.mixin.MinecraftAccessor;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;

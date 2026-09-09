@@ -1,4 +1,4 @@
-package ch.andrinzwicky.oviclicker.compat;
+package ch.ovitrinker.oviclicker.compat;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
