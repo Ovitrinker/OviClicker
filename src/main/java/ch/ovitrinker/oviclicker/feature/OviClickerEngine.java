@@ -1,6 +1,7 @@
 package ch.ovitrinker.oviclicker.feature;
 
 import ch.ovitrinker.oviclicker.compat.ClientCompat;
+import ch.ovitrinker.oviclicker.compat.FreecamCompat;
 import ch.ovitrinker.oviclicker.config.OviClickerConfig;
 import ch.ovitrinker.oviclicker.config.ConfigManager;
 import ch.ovitrinker.oviclicker.mixin.MinecraftAccessor;
@@ -34,6 +35,10 @@ import java.util.Random;
  * selbst weiter. Nur wenn Minecraft das Spiel wirklich anhaelt – im Einzelspieler, sobald
  * ein Bildschirm offen ist –, pausiert auch der OviClicker, denn dann laeuft die Welt
  * nicht.</p>
+ *
+ * <p>Mit der Freecam-Mod laeuft der OviClicker ebenfalls weiter: solange die Kamera von
+ * der Spielfigur geloest ist, zielt und schlaegt er von der Spielfigur aus, siehe
+ * {@link FreecamCompat}.</p>
  *
  * <p>Der Zustand (Modus und Master-Schalter) liegt in der Konfiguration und wird beim
  * Verlassen eines Servers bewusst nicht zurueckgesetzt. Wer den Server verlaesst und
@@ -102,7 +107,12 @@ public final class OviClickerEngine {
         boolean screenOpen = ClientCompat.getCurrentScreen(client) != null;
         trackMissTime(client, screenOpen, config.masterEnabled && mode != ClickMode.OFF);
 
-        if (!isAllowed(client, config, mode, action)) {
+        // Mit Freecam zielt das Fadenkreuz von der Kamera aus, der OviClicker aber weiterhin
+        // von der Spielfigur aus
+        boolean freecam = FreecamCompat.isActive();
+        HitResult target = freecam ? FreecamCompat.pickEntityFromPlayer(client) : client.hitResult;
+
+        if (!isAllowed(client, config, mode, action, target)) {
             InputSimulator.release();
             return;
         }
@@ -111,7 +121,14 @@ public final class OviClickerEngine {
         if (config.holdInsteadOfTap) {
             InputSimulator.hold(client, action, screenOpen);
         } else if (System.currentTimeMillis() >= nextClickAtMs) {
-            InputSimulator.tap(client, action, config.tapDurationTicks, screenOpen);
+            if (freecam && action.isAttack()) {
+                // Freecam blockiert startAttack(), der Schlag geht deshalb direkt ans Ziel
+                if (target instanceof EntityHitResult entityHit) {
+                    FreecamCompat.attack(client, entityHit.getEntity());
+                }
+            } else {
+                InputSimulator.tap(client, action, config.tapDurationTicks, screenOpen);
+            }
             resetTimer();
         }
 
@@ -158,10 +175,11 @@ public final class OviClickerEngine {
      * @param config die aktiven Einstellungen
      * @param mode   der aktive Modus
      * @param action die eingestellte Aktion
+     * @param target das anvisierte Ziel, darf {@code null} sein
      * @return {@code true}, wenn ausgeloest werden darf
      */
     private static boolean isAllowed(Minecraft client, OviClickerConfig config,
-                                     ClickMode mode, ClickAction action) {
+                                     ClickMode mode, ClickAction action, HitResult target) {
         if (!config.masterEnabled) return false;
         if (mode == ClickMode.OFF) return false;
 
@@ -183,7 +201,7 @@ public final class OviClickerEngine {
             }
         }
 
-        return mode != ClickMode.AUTOATTACK || hasValidTarget(client, config);
+        return mode != ClickMode.AUTOATTACK || hasValidTarget(client, config, target);
     }
 
     /**
@@ -210,14 +228,14 @@ public final class OviClickerEngine {
     }
 
     /**
-     * Prueft, ob das Fadenkreuz auf einer erlaubten Entity in Reichweite liegt.
+     * Prueft, ob das Ziel eine erlaubte Entity in Reichweite ist.
      *
-     * @param client die Client-Instanz
-     * @param config die aktiven Einstellungen
+     * @param client    die Client-Instanz
+     * @param config    die aktiven Einstellungen
+     * @param hitResult das anvisierte Ziel, darf {@code null} sein
      * @return {@code true}, wenn ein gueltiges Ziel anvisiert ist
      */
-    private static boolean hasValidTarget(Minecraft client, OviClickerConfig config) {
-        HitResult hitResult = client.hitResult;
+    private static boolean hasValidTarget(Minecraft client, OviClickerConfig config, HitResult hitResult) {
         if (!(hitResult instanceof EntityHitResult entityHitResult)) return false;
 
         Entity target = entityHitResult.getEntity();
