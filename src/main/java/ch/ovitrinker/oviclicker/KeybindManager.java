@@ -11,7 +11,6 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import org.lwjgl.glfw.GLFW;
 
 //? if <26.1 {
 /*import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -54,6 +53,15 @@ public final class KeybindManager {
     /** Schaltet den Modus weiter: OFF -&gt; AUTOATTACK -&gt; TIMER -&gt; OFF. */
     public static KeyMapping cycleModeKey;
 
+    /** Standardtasten; ab 26.3 sind Tastenbelegungen SDL-Scancodes statt GLFW-Keycodes. */
+    //? if <26.3 {
+    private static final int KEY_OPEN_GUI = org.lwjgl.glfw.GLFW.GLFW_KEY_BACKSLASH;
+    private static final int KEY_TOGGLE = org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT_SHIFT;
+    //?} else {
+    /*private static final int KEY_OPEN_GUI = InputConstants.KEY_BACKSLASH;
+    private static final int KEY_TOGGLE = InputConstants.KEY_RSHIFT;
+    *///?}
+
     private KeybindManager() {
     }
 
@@ -62,14 +70,14 @@ public final class KeybindManager {
      */
     public static void register() {
         openGuiKey = register(new KeyMapping(
-                "key.oviclicker.open_gui", GLFW.GLFW_KEY_BACKSLASH, CATEGORY));
+                "key.oviclicker.open_gui", KEY_OPEN_GUI, CATEGORY));
 
         toggleKey = register(new KeyMapping(
-                "key.oviclicker.toggle", GLFW.GLFW_KEY_RIGHT_SHIFT, CATEGORY));
+                "key.oviclicker.toggle", KEY_TOGGLE, CATEGORY));
 
         // Ohne Standardbelegung, damit es keine Konflikte gibt
         cycleModeKey = register(new KeyMapping(
-                "key.oviclicker.cycle_mode", GLFW.GLFW_KEY_UNKNOWN, CATEGORY));
+                "key.oviclicker.cycle_mode", InputConstants.UNKNOWN.getValue(), CATEGORY));
     }
 
     /**

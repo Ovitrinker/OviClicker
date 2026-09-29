@@ -29,10 +29,11 @@ stonecutter {
         version("1.21.11", "1.21.11")
         version("26.1.x", "26.1.2")
         version("26.2.x", "26.2")
+        version("26.3.x", "26.3")
 
         // Version, die im Git/IDE-Zustand aktiv ist
         vcsVersion = "26.2.x"
     }
 }
 
-rootProject.name = "AutoClicker"
+rootProject.name = "OviClicker"

@@ -3,7 +3,6 @@ package ch.ovitrinker.oviclicker.compat;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
@@ -132,6 +131,6 @@ public final class FreecamCompat {
         if (player.isHandsBusy()) return;
 
         client.gameMode.attack(player, target);
-        player.swing(InteractionHand.MAIN_HAND);
+        ClientCompat.swingMainHand(player);
     }
 }

@@ -13,6 +13,7 @@ Autor: **Ovitrinker** · Lizenz: **MIT**
 | `1.21.11` | 1.21.11 | 1.21.11 | 0.141.6+1.21.11 | 21 | Mojang (auf obfuskierter Version) |
 | `26.1.x` | 26.1.2 | 26.1, 26.1.1, 26.1.2 | 0.155.2+26.1.2 | 25 | Mojang (unobfuskiert) |
 | `26.2.x` | 26.2 | 26.2 | 0.157.0+26.2 | 25 | Mojang (unobfuskiert) |
+| `26.3.x` | 26.3 | 26.3 | 0.161.0+26.3 | 25 | Mojang (unobfuskiert) |
 
 Fabric Loader ab 0.17, empfohlen 0.19.3. Die Fabric API wird zur Laufzeit benötigt.
 
@@ -34,15 +35,16 @@ Voraussetzung: JDK 21 oder neuer (Gradle lädt fehlende JDKs über den Foojay-Re
 ./gradlew :26.2.x:build
 
 # Alle Versionen bauen und die Jars einsammeln
-./gradlew :1.21.11:buildAndCollect :26.1.x:buildAndCollect :26.2.x:buildAndCollect
+./gradlew :1.21.11:buildAndCollect :26.1.x:buildAndCollect :26.2.x:buildAndCollect :26.3.x:buildAndCollect
 ```
 
-Die fertigen Jars liegen anschliessend unter `build/libs/1.1.0/`:
+Die fertigen Jars liegen anschliessend unter `build/libs/1.3.0/`:
 
 ```
-oviclicker-1.1.0+1.21.11.jar
-oviclicker-1.1.0+26.1.2.jar
-oviclicker-1.1.0+26.2.jar
+oviclicker-1.3.0+1.21.11.jar
+oviclicker-1.3.0+26.1.2.jar
+oviclicker-1.3.0+26.2.jar
+oviclicker-1.3.0+26.3.jar
 ```
 
 Aktive Version im Entwicklungszustand wechseln:
@@ -51,7 +53,7 @@ Aktive Version im Entwicklungszustand wechseln:
 ./gradlew "Set active project to 1.21.11"
 ```
 
-Testen im Spiel: `./gradlew :26.2.x:runClient`
+Testen im Spiel: `./gradlew :26.3.x:runClient`
 
 ## Bedienung
 
@@ -216,13 +218,15 @@ Start des Clients nicht.
 
 Alle Unterschiede sind über Stonecutter-Kommentare gelöst:
 
-| Bereich | 1.21.11 | 26.1.x | 26.2 |
-|---|---|---|---|
-| Keybind-Modul | `fabric-key-binding-api-v1` / `KeyBindingHelper` | `fabric-key-mapping-api-v1` / `KeyMappingHelper` | wie 26.1 |
-| Keybind-Kategorie | `KeyMapping.Category` | gleich | gleich |
-| HUD und Screen | `GuiGraphics.drawString(…)` | `GuiGraphicsExtractor.text(…)` | wie 26.1 |
-| Screen öffnen | `Minecraft.setScreen` | gleich | `Minecraft.gui.setScreen` |
-| Inventar-Klick | `handleInventoryMouseClick(…, ClickType.SWAP, …)` | `handleContainerInput(…, ContainerInput.SWAP, …)` | wie 26.1 |
+| Bereich | 1.21.11 | 26.1.x | 26.2 | 26.3 |
+|---|---|---|---|---|
+| Keybind-Modul | `fabric-key-binding-api-v1` / `KeyBindingHelper` | `fabric-key-mapping-api-v1` / `KeyMappingHelper` | wie 26.1 | wie 26.1 |
+| Keybind-Kategorie | `KeyMapping.Category` | gleich | gleich | gleich |
+| HUD und Screen | `GuiGraphics.drawString(…)` | `GuiGraphicsExtractor.text(…)` | wie 26.1 | wie 26.1 |
+| Screen öffnen | `Minecraft.setScreen` | gleich | `Minecraft.gui.setScreen` | wie 26.2 |
+| Inventar-Klick | `handleInventoryMouseClick(…, ClickType.SWAP, …)` | `handleContainerInput(…, ContainerInput.SWAP, …)` | wie 26.1 | wie 26.1 |
+| Fenstersystem | GLFW (`GLFW.glfwGetMouseButton`, Keycodes) | gleich | gleich | SDL3 (`SDLMouse`, Scancodes) |
+| Schwingen / Ablegen | `swing(hand)` / `player.drop(false)` | gleich | gleich | `swing(hand, animation, false)` / `gameMode.dropItem(…)` |
 
 Die Kategorie der Tastenbelegungen ist seit 1.21.11 keine freie Zeichenkette mehr, sondern ein
 `KeyMapping.Category` mit `Identifier`. Der daraus gebildete Übersetzungsschlüssel lautet
@@ -282,7 +286,7 @@ Danach die drei Jars hochladen. Von Hand geht das über den Reiter *Files*, auto
 
 ```bash
 export CURSEFORGE_TOKEN=...     # Konto-Einstellungen -> API Tokens
-./gradlew :1.21.11:buildAndCollect :26.1.x:buildAndCollect :26.2.x:buildAndCollect
+./gradlew :1.21.11:buildAndCollect :26.1.x:buildAndCollect :26.2.x:buildAndCollect :26.3.x:buildAndCollect
 python tools/publish_curseforge.py --project-id 123456 --dry-run
 python tools/publish_curseforge.py --project-id 123456
 ```

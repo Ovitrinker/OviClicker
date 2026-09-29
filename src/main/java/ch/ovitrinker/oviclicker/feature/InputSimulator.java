@@ -1,12 +1,11 @@
 package ch.ovitrinker.oviclicker.feature;
 
 import ch.ovitrinker.oviclicker.KeybindManager;
+import ch.ovitrinker.oviclicker.compat.ClientCompat;
 import ch.ovitrinker.oviclicker.mixin.MinecraftAccessor;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.InteractionHand;
-import org.lwjgl.glfw.GLFW;
 
 /**
  * Simuliert lokale Eingaben.
@@ -129,10 +128,8 @@ public final class InputSimulator {
      * @param client die Client-Instanz
      */
     private static void drop(Minecraft client) {
-        if (client.player == null || client.player.isSpectator()) return;
-        if (client.player.drop(false)) {
-            client.player.swing(InteractionHand.MAIN_HAND);
-        }
+        if (client.player == null || client.gameMode == null || client.player.isSpectator()) return;
+        ClientCompat.dropOne(client);
     }
 
     /**
@@ -160,7 +157,7 @@ public final class InputSimulator {
     /**
      * Prueft, ob die Taste einer Belegung tatsaechlich am Geraet gedrueckt ist.
      *
-     * <p>Der Zustand wird direkt bei GLFW abgefragt und nicht ueber
+     * <p>Der Zustand wird direkt beim Fenstersystem (GLFW bzw. ab 26.3 SDL) abgefragt und nicht ueber
      * {@code KeyMapping.isDown()}. Andernfalls wuerde der Mod im Halte-Modus seinen eigenen
      * simulierten Tastendruck als Eingabe des Spielers lesen und sich selbst am Leben
      * halten.</p>
@@ -176,11 +173,10 @@ public final class InputSimulator {
         if (key == null || key.equals(InputConstants.UNKNOWN)) return false;
 
         if (key.getType() == InputConstants.Type.MOUSE) {
-            return GLFW.glfwGetMouseButton(client.getWindow().handle(), key.getValue()) == GLFW.GLFW_PRESS;
+            return ClientCompat.isMouseButtonDown(client, key.getValue());
         }
-        if (key.getType() == InputConstants.Type.KEYSYM) {
-            return InputConstants.isKeyDown(client.getWindow(), key.getValue());
-        }
+        Boolean keyDown = ClientCompat.isKeyboardKeyDown(client, key);
+        if (keyDown != null) return keyDown;
 
         // Scancode-Belegungen lassen sich nicht direkt abfragen
         return mapping.isDown();

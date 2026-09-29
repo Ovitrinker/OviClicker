@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.3.0 – 2026-09-29
+
+* Unterstützung für **Minecraft 26.3** (neuer Build-Knoten `26.3.x`, Fabric API
+  0.161.0+26.3). Minecraft hat mit 26.3 GLFW durch SDL3 ersetzt: die physische Tasten- und
+  Mausabfrage, die Standardtasten und die Aufrufe zum Schwingen und Ablegen sind dafür
+  angepasst.
+* **Freecam-Kompatibilität**: Ist Freecam (xolt) aktiv, greift AUTOATTACK weiterhin an. Der
+  Mod zielt dann selbst vom Spieler aus, weil Freecam den normalen Angriff blockiert. Nur
+  Einzel-Angriffe auf Wesen; Halten, Block-Abbau und Rechtsklick bleiben unter Freecam
+  blockiert.
+
 ## 1.2.0 – 2026-09-08
 
 * Neuer Erweiterungspunkt für andere Mods: `ScreenExtension`/`ScreenExtensions` lassen sich

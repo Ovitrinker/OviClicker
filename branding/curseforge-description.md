@@ -11,7 +11,7 @@ Beschreibung.
 ## SUMMARY
 
 Client-side auto clicker for Fabric: auto attack, timed clicks, any key you like, plus
-automatic eating. One build for 1.21.11, 26.1 and 26.2.
+automatic eating. One build for 1.21.11, 26.1, 26.2 and 26.3.
 
 ## DESCRIPTION
 
@@ -107,7 +107,7 @@ the window loses focus.
 * Fabric API
 * Client-side only — nothing needs to be installed on the server
 
-Supported: Minecraft 1.21.11, 26.1, 26.1.1, 26.1.2 and 26.2, all from a single code base.
+Supported: Minecraft 1.21.11, 26.1, 26.1.1, 26.1.2, 26.2 and 26.3, all from a single code base.
 
 Settings live in `config/oviclicker.json` and are written atomically, so a crash mid-save
 cannot leave you with an unreadable config.
