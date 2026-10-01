@@ -1,9 +1,9 @@
 plugins {
-    // Wendet je nach Minecraft-Version die passende Loom-Variante an
+    // Applies the matching Loom variant depending on the Minecraft version
     id("dev.kikugie.loom-back-compat")
 }
 
-// group darf nicht gesetzt werden - Stonecutter/Loom regeln das
+// group must not be set - Stonecutter/Loom handle it
 version = "${property("mod.version")}+${sc.current.version}"
 base.archivesName = property("mod.id") as String
 
@@ -33,21 +33,21 @@ dependencies {
     }
 
     minecraft("com.mojang:minecraft:${sc.current.version}")
-    // Mojang-Mappings auch auf der obfuskierten Version 1.21.11 (Yarn ist eingestellt)
+    // Mojang mappings on the obfuscated 1.21.11 too (Yarn is discontinued)
     loomx.applyMojangMappings()
 
-    // "mod..."-Konfigurationen auch auf 26.1+ - loom-back-compat setzt sie um
+    // "mod..." configurations on 26.1+ too - loom-back-compat translates them
     modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
 
     fapi(
         "fabric-lifecycle-events-v1",
         "fabric-rendering-v1",
-        // Das Keybind-Modul wurde mit 26.1 von "key-binding" zu "key-mapping" umbenannt
+        // The key bind module was renamed from "key-binding" to "key-mapping" in 26.1
         if (isModern) "fabric-key-mapping-api-v1" else "fabric-key-binding-api-v1"
     )
 
-    // Nur fuer den Entwicklungsclient: die vollstaendige Fabric API, damit das Bundle-Mod
-    // "fabric-api" vorhanden ist, das die fabric.mod.json voraussetzt. Landet nicht im Jar.
+    // Dev client only: the full Fabric API, so the "fabric-api" bundle mod required by
+    // fabric.mod.json is present. Not included in the jar.
     val fabricApiVersion: String = sc.properties["deps.fabric_api"]
     modLocalRuntime("net.fabricmc.fabric-api:fabric-api:$fabricApiVersion")
 }
@@ -56,7 +56,7 @@ loom {
     runConfigs.all {
         preferGradleTask = true
         generateRunConfig = true
-        runDirectory = rootProject.file("run") // Gemeinsames Run-Verzeichnis aller Versionen
+        runDirectory = rootProject.file("run") // Shared run directory for all versions
         jvmArguments.add("-Dmixin.debug.export=true")
     }
 }
@@ -95,7 +95,7 @@ tasks {
 
     register<Copy>("buildAndCollect") {
         group = "build"
-        description = "Baut das Mod-Jar und sammelt es unter build/libs/{mod version}/"
+        description = "Builds the mod jar and collects it in build/libs/{mod version}/"
 
         inputs.property("version", project.property("mod.version"))
         from(loomx.modJar.flatMap { it.archiveFile })

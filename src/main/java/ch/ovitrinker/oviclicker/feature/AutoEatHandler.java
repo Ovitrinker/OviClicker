@@ -12,83 +12,80 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Isst automatisch, sobald der Hunger unter die eingestellte Schwelle faellt, und hoert
- * erst wieder auf, wenn die Hungerleiste voll ist.
+ * Eats automatically as soon as hunger drops below the configured threshold, and only stops
+ * once the hunger bar is full.
  *
- * <p>Solange gegessen wird, pausiert der OviClicker: {@code OviClickerEngine} fragt dazu
- * {@link #isEating()} ab und laesst in dieser Zeit jede gehaltene Taste los. Nach dem
- * Essen laeuft er ohne Zutun weiter.</p>
+ * <p>While eating, OviClicker pauses: {@code OviClickerEngine} checks {@link #isEating()} and
+ * releases any held key during that time. After eating it resumes on its own.</p>
  *
- * <p>Liegt kein passendes Essen in der Hotbar, holt der Mod welches aus dem Inventar. Der
- * Tausch entspricht exakt dem Druck auf eine Hotbar-Taste im offenen Inventar (siehe
- * {@link ContainerCompat}). Musste dafuer ein Gegenstand aus der Hotbar weichen, wandert
- * er nach dem Essen wieder an seinen Platz zurueck; war der Platz vorher leer, bleibt der
- * Rest des Stapels einfach dort liegen.</p>
+ * <p>If there is no suitable food in the hotbar, the mod fetches some from the inventory. The
+ * swap is exactly the same as pressing a hotbar key in the open inventory (see
+ * {@link ContainerCompat}). If an item had to leave the hotbar for this, it is moved back to
+ * its slot after eating; if the slot was empty before, the rest of the stack simply stays
+ * there.</p>
  *
- * <p>Gegessen wird bewusst ueber {@code MultiPlayerGameMode.useItem} und nicht ueber den
- * allgemeinen Rechtsklick des Spiels. Der allgemeine Rechtsklick wuerde zuerst den
- * anvisierten Block bedienen und damit womoeglich eine Truhe oeffnen oder einen Block
- * setzen, statt zu essen. Die Taste "Benutzen" wird trotzdem gedrueckt gehalten, weil
- * Minecraft das Essen sonst nach einem Tick wieder abbricht.</p>
+ * <p>Eating deliberately uses {@code MultiPlayerGameMode.useItem} and not the game's general
+ * right click. The general right click would interact with the targeted block first and
+ * might open a chest or place a block instead of eating. The "Use" key is still held down,
+ * because Minecraft would otherwise cancel eating after one tick.</p>
  *
- * <p>Der Spieler behaelt jederzeit die Oberhand: wechselt er selbst den Hotbar-Platz oder
- * benutzt er selbst einen Gegenstand, bricht der Vorgang sauber ab.</p>
+ * <p>The player always stays in control: if they switch the hotbar slot or use an item
+ * themselves, the process is cancelled cleanly.</p>
  */
 public final class AutoEatHandler {
 
-    /** Voller Hungerbalken in halben Keulen. */
+    /** Full hunger bar in half haunches. */
     private static final int FULL_FOOD = 20;
 
-    /** Wartezeit in Ticks, bis nach erfolgloser Suche erneut gesucht wird. */
+    /** Ticks to wait before searching again after an unsuccessful search. */
     private static final int RETRY_TICKS = 20;
 
-    /** Wartezeit in Ticks, bis nach einem Slotwechsel der erste Bissen ausgeloest wird. */
+    /** Ticks to wait after a slot change before the first bite is triggered. */
     private static final int SETTLE_TICKS = 2;
 
-    /** {@code true}, solange ein Ess-Vorgang laeuft. */
+    /** {@code true} while eating is in progress. */
     private static boolean eating = false;
 
-    /** Hotbar-Platz, der vor dem Essen gewaehlt war, oder -1. */
+    /** Hotbar slot that was selected before eating, or -1. */
     private static int previousSlot = -1;
 
-    /** Hotbar-Platz, aus dem gerade gegessen wird, oder -1. */
+    /** Hotbar slot currently being eaten from, or -1. */
     private static int eatingSlot = -1;
 
-    /** Inventarplatz, aus dem Essen geholt wurde, oder -1 wenn nichts geholt wurde. */
+    /** Inventory slot food was fetched from, or -1 if nothing was fetched. */
     private static int borrowedFromSlot = -1;
 
-    /** Hotbar-Platz, in den geholt wurde, oder -1. */
+    /** Hotbar slot food was fetched into, or -1. */
     private static int borrowedToSlot = -1;
 
-    /** Gegenstand, der dabei aus der Hotbar weichen musste, oder {@code null}. */
+    /** Item that had to leave the hotbar for it, or {@code null}. */
     private static Item displacedItem = null;
 
-    /** {@code true}, solange der Mod die Taste "Benutzen" gedrueckt haelt. */
+    /** {@code true} while the mod is holding the "Use" key. */
     private static boolean holdingUse = false;
 
-    /** Verbleibende Wartezeit in Ticks. */
+    /** Remaining wait time in ticks. */
     private static int delayTicks = 0;
 
     private AutoEatHandler() {
     }
 
     /**
-     * Gibt an, ob gerade ein Ess-Vorgang laeuft.
+     * Returns whether eating is currently in progress.
      *
-     * @return {@code true}, wenn der OviClicker pausieren soll
+     * @return {@code true} if OviClicker should pause
      */
     public static boolean isEating() {
         return eating;
     }
 
     /**
-     * Wird am Ende jedes Client-Ticks aufgerufen, nach der Klick-Logik.
+     * Called at the end of every client tick, after the click logic.
      *
-     * <p>Die Reihenfolge ist wichtig: der OviClicker laesst seine Taste erst los, danach
-     * darf der AutoEat die Taste "Benutzen" halten, ohne dass sie im selben Tick wieder
-     * losgelassen wird.</p>
+     * <p>The order matters: OviClicker releases its key first, then AutoEat may hold the
+     * "Use" key without it being released again in the same tick.</p>
      *
-     * @param client die Client-Instanz, darf {@code null} sein
+     * @param client the client instance, may be {@code null}
      */
     public static void onEndClientTick(Minecraft client) {
         if (client == null || client.player == null || client.level == null || client.gameMode == null) {
@@ -104,15 +101,15 @@ public final class AutoEatHandler {
             return;
         }
 
-        // Im Einzelspieler steht mit offenem Bildschirm die ganze Welt still. Ein Bissen
-        // wuerde nur in der Warteschlange liegen, deshalb passiert hier nichts.
+        // In singleplayer the whole world stands still while a screen is open. A bite
+        // would just sit in the queue, so nothing happens here.
         if (client.isPaused()) return;
 
         if (delayTicks > 0) {
             delayTicks--;
-            // Die Taste darf nur gehalten werden, solange wirklich gegessen wird. Haelt
-            // Minecraft sie waehrend einer Pause gedrueckt, loest es einen gewoehnlichen
-            // Rechtsklick aus und wuerde damit den anvisierten Block bedienen.
+            // The key may only be held while actually eating. If Minecraft keeps it pressed
+            // during a pause, it triggers a regular right click and would interact with the
+            // targeted block.
             if (eating && player.isUsingItem()) {
                 holdUseKey(client);
             } else {
@@ -124,17 +121,17 @@ public final class AutoEatHandler {
         int foodLevel = player.getFoodData().getFoodLevel();
 
         if (!eating) {
-            // Erst ab der eingestellten Schwelle wird ueberhaupt gesucht
+            // Only search once the configured threshold is reached
             if (foodLevel >= config.autoEatThresholdHaunches * 2) return;
 
-            // Isst oder benutzt der Spieler gerade selbst etwas, wird nicht dazwischengefunkt
+            // If the player is eating or using something themselves, don't interfere
             if (player.isUsingItem()) return;
 
             begin(client, player, config, foodLevel);
             return;
         }
 
-        // "bis man keinen Hunger mehr hat": erst bei vollem Balken ist Schluss
+        // "until you're no longer hungry": only stop once the bar is full
         if (foodLevel >= FULL_FOOD) {
             stop(client, player);
             return;
@@ -144,12 +141,12 @@ public final class AutoEatHandler {
     }
 
     /**
-     * Sucht Essen, legt es notfalls in die Hotbar und waehlt es aus.
+     * Looks for food, moves it to the hotbar if needed and selects it.
      *
-     * @param client    die Client-Instanz
-     * @param player    der Spieler
-     * @param config    die aktiven Einstellungen
-     * @param foodLevel der aktuelle Hungerstand in halben Keulen
+     * @param client    the client instance
+     * @param player    the player
+     * @param config    the active settings
+     * @param foodLevel the current food level in half haunches
      */
     private static void begin(Minecraft client, LocalPlayer player,
                               OviClickerConfig config, int foodLevel) {
@@ -165,7 +162,7 @@ public final class AutoEatHandler {
         }
 
         if (slot < 0) {
-            // Nichts Essbares gefunden: nicht in jedem Tick erneut das Inventar durchgehen
+            // Nothing edible found: don't scan the inventory again every tick
             delayTicks = RETRY_TICKS;
             return;
         }
@@ -175,24 +172,24 @@ public final class AutoEatHandler {
 
         eatingSlot = slot;
         eating = true;
-        // Dem Server einen Moment Zeit lassen, den Slotwechsel und den Tausch zu uebernehmen
+        // Give the server a moment to apply the slot change and the swap
         delayTicks = fetched ? SETTLE_TICKS : 1;
     }
 
     /**
-     * Holt Essen aus dem Inventar in die Hotbar.
+     * Fetches food from the inventory into the hotbar.
      *
-     * @param client  die Client-Instanz
-     * @param player  der Spieler
-     * @param config  die aktiven Einstellungen
-     * @param missing die Anzahl fehlender halber Hungerkeulen
-     * @return der Hotbar-Platz mit dem Essen, oder -1 wenn nichts geholt werden konnte
+     * @param client  the client instance
+     * @param player  the player
+     * @param config  the active settings
+     * @param missing the number of missing half haunches
+     * @return the hotbar slot with the food, or -1 if nothing could be fetched
      */
     private static int fetchFromInventory(Minecraft client, LocalPlayer player,
                                           OviClickerConfig config, int missing) {
         if (!config.autoEatRefillFromInventory) return -1;
 
-        // Ist ein anderer Behaelter offen (Truhe, Ofen), gehoert das Klick-Paket dorthin
+        // If another container is open (chest, furnace), the click packet belongs there
         if (player.containerMenu != player.inventoryMenu) return -1;
 
         Inventory inventory = player.getInventory();
@@ -202,7 +199,7 @@ public final class AutoEatHandler {
 
         int target = freeHotbarSlot(inventory);
         if (target >= 0) {
-            // Freier Platz: der Rest des Stapels darf danach einfach dort liegen bleiben
+            // Free slot: the rest of the stack may simply stay there afterwards
             ContainerCompat.swapWithHotbar(client, player, source, target);
             borrowedFromSlot = -1;
             borrowedToSlot = -1;
@@ -210,7 +207,7 @@ public final class AutoEatHandler {
             return target;
         }
 
-        // Hotbar voll: der aktuell gewaehlte Gegenstand weicht und kommt spaeter zurueck
+        // Hotbar full: the currently selected item moves aside and comes back later
         target = inventory.getSelectedSlot();
         ItemStack displaced = inventory.getItem(target);
         if (displaced.isEmpty()) return -1;
@@ -223,16 +220,16 @@ public final class AutoEatHandler {
     }
 
     /**
-     * Fuehrt einen laufenden Ess-Vorgang weiter.
+     * Continues an ongoing eating process.
      *
-     * @param client die Client-Instanz
-     * @param player der Spieler
-     * @param config die aktiven Einstellungen
+     * @param client the client instance
+     * @param player the player
+     * @param config the active settings
      */
     private static void keepEating(Minecraft client, LocalPlayer player, OviClickerConfig config) {
         Inventory inventory = player.getInventory();
 
-        // Hat der Spieler selbst umgeschaltet, gehoert ihm die Steuerung
+        // If the player switched slots themselves, they're in control
         if (inventory.getSelectedSlot() != eatingSlot) {
             stop(client, player);
             return;
@@ -240,7 +237,7 @@ public final class AutoEatHandler {
 
         if (!FoodFilter.isGoodFood(inventory.getItem(eatingSlot),
                 config.autoEatAllowGoldenApples, config.autoEatAllowEnchantedGoldenApples)) {
-            // Stapel aufgebraucht: aufraeumen und gleich darauf neu suchen
+            // Stack used up: clean up and search again right after
             stop(client, player);
             delayTicks = SETTLE_TICKS;
             return;
@@ -251,23 +248,23 @@ public final class AutoEatHandler {
             return;
         }
 
-        // Gezielt den Gegenstand benutzen, nicht den anvisierten Block
+        // Use the item specifically, not the targeted block
         client.gameMode.useItem(player, InteractionHand.MAIN_HAND);
 
         if (player.isUsingItem()) {
             holdUseKey(client);
         } else {
-            // Der Bissen kam nicht zustande, etwa weil der Server ihn abgelehnt hat
+            // The bite didn't happen, e.g. because the server rejected it
             releaseUseKey(client);
             delayTicks = SETTLE_TICKS;
         }
     }
 
     /**
-     * Beendet einen Ess-Vorgang, raeumt die Hotbar auf und gibt die Taste frei.
+     * Ends an eating process, tidies up the hotbar and releases the key.
      *
-     * @param client die Client-Instanz
-     * @param player der Spieler
+     * @param client the client instance
+     * @param player the player
      */
     private static void stop(Minecraft client, LocalPlayer player) {
         releaseUseKey(client);
@@ -292,14 +289,14 @@ public final class AutoEatHandler {
     }
 
     /**
-     * Legt einen Gegenstand, der fuer das Essen aus der Hotbar weichen musste, zurueck.
+     * Puts back an item that had to leave the hotbar for eating.
      *
-     * <p>Getauscht wird nur, wenn beide Plaetze noch so aussehen wie erwartet. Hat sich in
-     * der Zwischenzeit etwas anderes dorthin verirrt, bleibt alles unberuehrt, damit der
-     * Mod niemals fremde Gegenstaende verschiebt.</p>
+     * <p>Swaps only if both slots still look as expected. If something else ended up there
+     * in the meantime, everything stays untouched, so the mod never moves items it doesn't
+     * own.</p>
      *
-     * @param client die Client-Instanz
-     * @param player der Spieler
+     * @param client the client instance
+     * @param player the player
      */
     private static void returnDisplacedItem(Minecraft client, LocalPlayer player) {
         if (borrowedFromSlot < 0 || borrowedToSlot < 0 || displacedItem == null) return;
@@ -323,10 +320,9 @@ public final class AutoEatHandler {
     }
 
     /**
-     * Haelt die Taste "Benutzen" gedrueckt. Ohne sie bricht Minecraft das Essen im
-     * naechsten Tick wieder ab.
+     * Holds the "Use" key down. Without it, Minecraft cancels eating in the next tick.
      *
-     * @param client die Client-Instanz
+     * @param client the client instance
      */
     private static void holdUseKey(Minecraft client) {
         client.options.keyUse.setDown(true);
@@ -334,12 +330,12 @@ public final class AutoEatHandler {
     }
 
     /**
-     * Gibt die Taste "Benutzen" wieder frei.
+     * Releases the "Use" key again.
      *
-     * <p>Haelt der Spieler die Taste in diesem Moment selbst gedrueckt, bleibt sie
-     * gedrueckt: sonst wuerde der Mod eine echte Eingabe verschlucken.</p>
+     * <p>If the player is holding the key themselves at that moment, it stays pressed:
+     * otherwise the mod would swallow real input.</p>
      *
-     * @param client die Client-Instanz
+     * @param client the client instance
      */
     private static void releaseUseKey(Minecraft client) {
         if (!holdingUse) return;
@@ -351,18 +347,18 @@ public final class AutoEatHandler {
     }
 
     /**
-     * Sucht in einem Bereich des Inventars das passendste Essen.
+     * Finds the most suitable food in a range of the inventory.
      *
-     * <p>Bevorzugt wird der naehrreichste Gegenstand, der noch vollstaendig in die
-     * Hungerleiste passt. Passt keiner hinein, wird der schwaechste genommen, damit
-     * moeglichst wenig Naehrwert verfaellt.</p>
+     * <p>The most nutritious item that still fits completely into the hunger bar is
+     * preferred. If none fits, the weakest one is taken, so as little nutrition as possible
+     * is wasted.</p>
      *
-     * @param inventory   das Inventar des Spielers
-     * @param from        erster zu pruefender Platz
-     * @param toExclusive erster Platz, der nicht mehr geprueft wird
-     * @param missing     die Anzahl fehlender halber Hungerkeulen
-     * @param config      die aktiven Einstellungen
-     * @return der gefundene Platz oder -1
+     * @param inventory   the player's inventory
+     * @param from        first slot to check
+     * @param toExclusive first slot that is no longer checked
+     * @param missing     the number of missing half haunches
+     * @param config      the active settings
+     * @return the slot found, or -1
      */
     private static int findFood(Inventory inventory, int from, int toExclusive,
                                 int missing, OviClickerConfig config) {
@@ -394,10 +390,10 @@ public final class AutoEatHandler {
     }
 
     /**
-     * Sucht einen leeren Platz in der Hotbar.
+     * Looks for an empty hotbar slot.
      *
-     * @param inventory das Inventar des Spielers
-     * @return der Platz oder -1, wenn die Hotbar voll ist
+     * @param inventory the player's inventory
+     * @return the slot, or -1 if the hotbar is full
      */
     private static int freeHotbarSlot(Inventory inventory) {
         for (int slot = 0; slot < Inventory.SELECTION_SIZE; slot++) {
@@ -407,8 +403,8 @@ public final class AutoEatHandler {
     }
 
     /**
-     * Setzt den Zustand zurueck, ohne noch etwas an der Welt zu aendern. Wird beim
-     * Verlassen einer Welt aufgerufen, wo Spieler und Inventar nicht mehr existieren.
+     * Resets the state without changing anything in the world. Called when leaving a world,
+     * where player and inventory no longer exist.
      */
     private static void forget() {
         resetState();
@@ -416,7 +412,7 @@ public final class AutoEatHandler {
     }
 
     /**
-     * Setzt alle Merker eines Ess-Vorgangs zurueck.
+     * Resets all markers of an eating process.
      */
     private static void resetState() {
         eating = false;

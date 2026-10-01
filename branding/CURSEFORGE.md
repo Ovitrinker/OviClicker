@@ -1,38 +1,34 @@
-# CurseForge veröffentlichen
+# Publishing on CurseForge
 
-Das Projekt selbst muss **von Hand** im Autoren-Konto angelegt werden – die Upload-API
-kann Dateien hochladen, aber keine Projekte erstellen. Anzulegen unter
-<https://authors.curseforge.com/#/projects/create/choose-game>, Spiel *Minecraft*.
-Dafür bereit liegen:
+The project itself has to be created **by hand** in the author account – the upload API can
+upload files but cannot create projects. Create it at
+<https://authors.curseforge.com/#/projects/create/choose-game>, game *Minecraft*.
+Prepared for this:
 
-| Feld | Quelle |
+| Field | Source |
 |---|---|
 | Name | `OviClicker` |
-| Summary | Block `SUMMARY` in `branding/curseforge-description.md` |
-| Description | alles ab `DESCRIPTION` in derselben Datei (CurseForge verlangt Englisch) |
+| Summary | `SUMMARY` block in `branding/curseforge-description.md` |
+| Description | everything from `DESCRIPTION` on in the same file |
 | Project License | MIT |
-| Logo Image | `branding/oviclicker-logo.png` (512×512, CurseForge verlangt mindestens 400×400 im Verhältnis 1:1) |
+| Logo Image | `branding/oviclicker-logo.png` (512×512, CurseForge requires at least 400×400 at a 1:1 ratio) |
 
-Danach die drei Jars hochladen. Von Hand geht das über den Reiter *Files*, automatisch
-über das Skript:
+Then upload the jars. By hand via the *Files* tab, or automatically with the script:
 
 ```bash
-export CURSEFORGE_TOKEN=...     # Konto-Einstellungen -> API Tokens
+export CURSEFORGE_TOKEN=...     # account settings -> API Tokens
 ./gradlew :1.21.11:buildAndCollect :26.1.x:buildAndCollect :26.2.x:buildAndCollect :26.3.x:buildAndCollect
 python tools/publish_curseforge.py --project-id 123456 --dry-run
 python tools/publish_curseforge.py --project-id 123456
 ```
 
-Das Skript lädt jedes Jar mit den Minecraft-Versionen hoch, die in
-`stonecutter.properties.toml` unter `mod.mc_releases` stehen, ergänzt den Modloader
-`Fabric` und die passende Java-Version und nimmt den Text aus
-`branding/curseforge-changelog.md` als Changelog. Die numerischen Versions-IDs holt es
-zur Laufzeit von der API, damit hier keine veraltete Liste gepflegt werden muss. Ist die
-Projekt-ID einmal bekannt, kann sie oben im Skript in `PROJECT_ID` fest eingetragen
-werden.
+The script uploads each jar with the Minecraft versions listed under `mod.mc_releases` in
+`stonecutter.properties.toml`, adds the `Fabric` mod loader and the matching Java version, and
+uses the text from `branding/curseforge-changelog.md` as the changelog. It fetches the numeric
+version IDs from the API at runtime, so no outdated list has to be maintained here. Once the
+project ID is known, it can be hard-coded in `PROJECT_ID` at the top of the script.
 
-Jede hochgeladene Datei geht bei CurseForge zuerst in die Prüfung und ist erst danach
-öffentlich sichtbar.
+Every uploaded file goes through CurseForge review first and only becomes public afterwards.
 
-Beschreibung der API:
+API documentation:
 <https://support.curseforge.com/support/solutions/articles/9000197321-curseforge-upload-api>

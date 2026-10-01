@@ -8,30 +8,30 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 
 /**
- * Simuliert lokale Eingaben.
+ * Simulates local input.
  *
- * <p>Es wird ausschliesslich der Zustand der Vanilla-Tastenbelegungen gesetzt oder eine
- * Vanilla-Methode aufgerufen. Es werden keine Netzwerkpakete erzeugt und keine Serverlogik
- * umgangen: das Spiel verarbeitet die simulierte Eingabe genau gleich wie eine echte.</p>
+ * <p>Only the state of vanilla key binds is set or a vanilla method is called. No network
+ * packets are created and no server logic is bypassed: the game processes the simulated
+ * input exactly like real input.</p>
  *
- * <p>Es ist immer hoechstens eine Taste gleichzeitig gedrueckt. Beim Antippen wird sie nach
- * der eingestellten Anzahl Ticks automatisch wieder losgelassen, im Halte-Modus erst, wenn
- * die Bedingungen nicht mehr erfuellt sind oder der Mod abgeschaltet wird.</p>
+ * <p>At most one key is pressed at a time. When tapping, it is released automatically after
+ * the configured number of ticks; in hold mode only once the conditions are no longer met or
+ * the mod is turned off.</p>
  */
 public final class InputSimulator {
 
-    /** Aktuell gedrueckt gehaltene Tastenbelegung, {@code null} wenn keine. */
+    /** Key bind currently held down, {@code null} if none. */
     private static KeyMapping heldMapping = null;
 
-    /** Verbleibende Ticks, bis eine angetippte Taste wieder losgelassen wird. */
+    /** Remaining ticks until a tapped key is released again. */
     private static int releaseCountdown = 0;
 
     private InputSimulator() {
     }
 
     /**
-     * Zaehlt die Haltedauer eines Tastendrucks herunter. Muss in jedem Client-Tick
-     * aufgerufen werden, damit angetippte Tasten zuverlaessig wieder losgelassen werden.
+     * Counts down the hold duration of a key press. Must be called every client tick so tapped
+     * keys are reliably released again.
      */
     public static void tick() {
         if (releaseCountdown > 0 && --releaseCountdown <= 0) {
@@ -40,18 +40,18 @@ public final class InputSimulator {
     }
 
     /**
-     * Loest eine Aktion einmalig aus.
+     * Triggers an action once.
      *
-     * @param client         die Client-Instanz
-     * @param action         die auszuloesende Aktion
-     * @param durationTicks  Anzahl Ticks, die eine Taste gedrueckt bleibt (mindestens 1)
-     * @param screenOpen     {@code true}, wenn gerade ein Bildschirm offen ist
+     * @param client         the client instance
+     * @param action         the action to trigger
+     * @param durationTicks  number of ticks a key stays pressed (at least 1)
+     * @param screenOpen     {@code true} if a screen is currently open
      */
     public static void tap(Minecraft client, ClickAction action, int durationTicks, boolean screenOpen) {
         if (client == null || action == null) return;
 
-        // Angriff und Benutzen laufen ueber die Vanilla-Methoden, damit Reichweite,
-        // Cooldown und Animation exakt der Vanilla-Logik entsprechen.
+        // Attack and use go through the vanilla methods, so reach, cooldown and animation
+        // match the vanilla logic exactly.
         if (action == ClickAction.ATTACK) {
             ((MinecraftAccessor) (Object) client).oviclicker$startAttack();
             return;
@@ -69,14 +69,13 @@ public final class InputSimulator {
         mapping.setDown(true);
 
         if (screenOpen) {
-            // Solange ein Bildschirm offen ist, wertet Minecraft keine Klickzaehler aus.
-            // Gezaehlte Klicks wuerden sich anstauen und beim Schliessen auf einen Schlag
-            // ausgeloest. Das Ablegen wird deshalb direkt so ausgefuehrt, wie es Minecraft
-            // beim Druck auf die Ablegen-Taste tut.
+            // While a screen is open, Minecraft doesn't evaluate click counters. Counted
+            // clicks would pile up and fire all at once on close. So dropping is executed
+            // directly, the same way Minecraft does when the drop key is pressed.
             if (action == ClickAction.DROP) drop(client);
         } else {
-            // Aktionen wie das Ablegen von Gegenstaenden werten nicht den gehaltenen Zustand,
-            // sondern die Anzahl Klicks aus. Das geht nur ueber die tatsaechlich belegte Taste.
+            // Actions like dropping items evaluate the number of clicks, not the held state.
+            // That only works through the key that is actually bound.
             InputConstants.Key key = KeybindManager.boundKeyOf(mapping);
             if (key != null && !key.equals(InputConstants.UNKNOWN)) {
                 KeyMapping.click(key);
@@ -88,11 +87,11 @@ public final class InputSimulator {
     }
 
     /**
-     * Haelt die Taste einer Aktion gedrueckt. Wiederholte Aufrufe halten sie weiterhin.
+     * Holds the key of an action down. Repeated calls keep holding it.
      *
-     * @param client     die Client-Instanz
-     * @param action     die zu haltende Aktion
-     * @param screenOpen {@code true}, wenn gerade ein Bildschirm offen ist
+     * @param client     the client instance
+     * @param action     the action to hold
+     * @param screenOpen {@code true} if a screen is currently open
      */
     public static void hold(Minecraft client, ClickAction action, boolean screenOpen) {
         if (client == null || action == null) return;
@@ -108,10 +107,9 @@ public final class InputSimulator {
 
         if (!screenOpen || client.player == null) return;
 
-        // Solange ein Bildschirm offen ist, ueberspringt Minecraft seine eigene
-        // Tastenverarbeitung. Die Bewegungstasten wirken trotzdem, weil der Spieler den
-        // gehaltenen Zustand direkt ausliest. Angriff und Benutzen laufen dagegen ueber
-        // die uebersprungene Verarbeitung und werden hier genau gleich angestossen.
+        // While a screen is open, Minecraft skips its own key handling. Movement keys still
+        // work because the player reads the held state directly. Attack and use, however, go
+        // through the skipped handling and are triggered here in exactly the same way.
         MinecraftAccessor accessor = (MinecraftAccessor) (Object) client;
         if (action == ClickAction.ATTACK) {
             accessor.oviclicker$continueAttack(true);
@@ -123,9 +121,9 @@ public final class InputSimulator {
     }
 
     /**
-     * Legt einen Gegenstand ab, genau wie es Minecraft beim Druck auf die Ablegen-Taste tut.
+     * Drops an item, exactly like Minecraft does when the drop key is pressed.
      *
-     * @param client die Client-Instanz
+     * @param client the client instance
      */
     private static void drop(Minecraft client) {
         if (client.player == null || client.gameMode == null || client.player.isSpectator()) return;
@@ -133,9 +131,8 @@ public final class InputSimulator {
     }
 
     /**
-     * Laesst eine allenfalls gehaltene Taste los. Wird auch beim Abschalten des Mods, beim
-     * Anhalten des Spiels und beim Verlassen der Welt aufgerufen, damit keine Taste
-     * haengen bleibt.
+     * Releases a key that may be held. Also called when the mod is turned off, the game is
+     * paused and the world is left, so no key gets stuck.
      */
     public static void release() {
         if (heldMapping != null) {
@@ -146,25 +143,24 @@ public final class InputSimulator {
     }
 
     /**
-     * Gibt an, ob der Mod gerade eine Taste gedrueckt haelt.
+     * Returns whether the mod is currently holding a key.
      *
-     * @return {@code true}, wenn eine Taste gehalten wird
+     * @return {@code true} if a key is held
      */
     public static boolean isHolding() {
         return heldMapping != null;
     }
 
     /**
-     * Prueft, ob die Taste einer Belegung tatsaechlich am Geraet gedrueckt ist.
+     * Checks whether the key of a binding is actually pressed on the device.
      *
-     * <p>Der Zustand wird direkt beim Fenstersystem (GLFW bzw. ab 26.3 SDL) abgefragt und nicht ueber
-     * {@code KeyMapping.isDown()}. Andernfalls wuerde der Mod im Halte-Modus seinen eigenen
-     * simulierten Tastendruck als Eingabe des Spielers lesen und sich selbst am Leben
-     * halten.</p>
+     * <p>The state is polled directly from the window system (GLFW, or SDL from 26.3 on) and
+     * not via {@code KeyMapping.isDown()}. Otherwise the mod would read its own simulated key
+     * press as player input in hold mode and keep itself alive.</p>
      *
-     * @param client  die Client-Instanz
-     * @param mapping die zu pruefende Tastenbelegung
-     * @return {@code true}, wenn die Taste physisch gedrueckt ist
+     * @param client  the client instance
+     * @param mapping the key bind to check
+     * @return {@code true} if the key is physically pressed
      */
     public static boolean isPhysicallyDown(Minecraft client, KeyMapping mapping) {
         if (client == null || mapping == null) return false;
@@ -178,7 +174,7 @@ public final class InputSimulator {
         Boolean keyDown = ClientCompat.isKeyboardKeyDown(client, key);
         if (keyDown != null) return keyDown;
 
-        // Scancode-Belegungen lassen sich nicht direkt abfragen
+        // Scancode bindings can't be polled directly
         return mapping.isDown();
     }
 }

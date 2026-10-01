@@ -14,31 +14,29 @@ import net.minecraft.world.item.consume_effects.ConsumeEffect;
 import java.util.Set;
 
 /**
- * Entscheidet, welche Gegenstaende der AutoEat essen darf.
+ * Decides which items AutoEat may eat.
  *
- * <p>Die Pruefung laeuft in drei Stufen:</p>
+ * <p>The check runs in three stages:</p>
  * <ol>
- *   <li>Der Gegenstand muss ueberhaupt Nahrung sein, also eine {@code FoodProperties}-
- *       Komponente mit einem Naehrwert groesser null besitzen. Damit fallen Milcheimer,
- *       Traenke und Kuchen (ein Block, kein Nahrungsmittel) von selbst weg.</li>
- *   <li>Nahrung, die beim Essen einen schaedlichen Statuseffekt ausloest, wird
- *       ausgeschlossen. Das wird nicht aus einer Liste gelesen, sondern direkt aus den
- *       Verzehr-Effekten des Gegenstands: verfaultes Fleisch (Hunger), Spinnenauge
- *       (Vergiftung), giftige Kartoffel, Kugelfisch und rohes Huhn fallen dadurch
- *       automatisch heraus, ebenso jedes Essen aus anderen Mods mit derselben
- *       Eigenschaft.</li>
- *   <li>Zusaetzlich sperrt eine kurze Liste jene Nahrung, die zwar keinen schaedlichen
- *       Effekt hat, aber trotzdem nichts fuer das automatische Essen ist.</li>
+ *   <li>The item has to be food at all, i.e. have a {@code FoodProperties} component with a
+ *       nutrition value above zero. This rules out milk buckets, potions and cake (a block,
+ *       not a food item) automatically.</li>
+ *   <li>Food that applies a harmful status effect when eaten is excluded. This isn't read
+ *       from a list but directly from the item's consumption effects: rotten flesh (hunger),
+ *       spider eye (poison), poisonous potato, pufferfish and raw chicken drop out
+ *       automatically, as does any food from other mods with the same property.</li>
+ *   <li>Additionally, a short list blocks food that has no harmful effect but still isn't
+ *       suitable for automatic eating.</li>
  * </ol>
  */
 public final class FoodFilter {
 
     /**
-     * Nahrung ohne schaedlichen Effekt, die der AutoEat trotzdem nie anruehrt.
+     * Food without a harmful effect that AutoEat still never touches.
      *
-     * <p>Die Chorusfrucht teleportiert und der verdaechtige Eintopf hat einen erst beim
-     * Essen bekannten Effekt. Die beiden goldenen Aepfel stehen bewusst nicht hier: fuer
-     * sie gibt es je eine eigene Einstellung.</p>
+     * <p>Chorus fruit teleports, and suspicious stew has an effect that is only known when
+     * eaten. The two golden apples are deliberately not listed here: each has its own
+     * setting.</p>
      */
     private static final Set<Item> NEVER = Set.of(
             Items.CHORUS_FRUIT,
@@ -48,14 +46,14 @@ public final class FoodFilter {
     }
 
     /**
-     * Prueft, ob ein Gegenstand gutes Essen ist.
+     * Checks whether an item is good food.
      *
-     * @param stack                      der zu pruefende Gegenstand, darf {@code null} sein
-     * @param allowGoldenApples          {@code true}, wenn der gewoehnliche goldene Apfel
-     *                                   gegessen werden darf
-     * @param allowEnchantedGoldenApples {@code true}, wenn der verzauberte goldene Apfel
-     *                                   gegessen werden darf
-     * @return {@code true}, wenn der AutoEat den Gegenstand essen darf
+     * @param stack                      the item to check, may be {@code null}
+     * @param allowGoldenApples          {@code true} if the regular golden apple may be
+     *                                   eaten
+     * @param allowEnchantedGoldenApples {@code true} if the enchanted golden apple may be
+     *                                   eaten
+     * @return {@code true} if AutoEat may eat the item
      */
     public static boolean isGoodFood(ItemStack stack, boolean allowGoldenApples,
                                      boolean allowEnchantedGoldenApples) {
@@ -72,10 +70,10 @@ public final class FoodFilter {
     }
 
     /**
-     * Gibt den Naehrwert eines Gegenstands in halben Hungerkeulen zurueck.
+     * Returns an item's nutrition value in half haunches.
      *
-     * @param stack der Gegenstand, darf {@code null} sein
-     * @return der Naehrwert, oder 0 wenn es keine Nahrung ist
+     * @param stack the item, may be {@code null}
+     * @return the nutrition value, or 0 if it isn't food
      */
     public static int nutritionOf(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return 0;
@@ -84,15 +82,14 @@ public final class FoodFilter {
     }
 
     /**
-     * Prueft, ob das Essen einen schaedlichen Statuseffekt ausloest.
+     * Checks whether the food applies a harmful status effect.
      *
-     * <p>Seit den Datenkomponenten liegen die Effekte nicht mehr in den
-     * {@code FoodProperties}, sondern als Verzehr-Effekte in der Komponente
-     * {@code Consumable}. Gewertet wird nur die Kategorie des Effekts, damit auch
-     * Nahrung aus anderen Mods richtig eingeordnet wird.</p>
+     * <p>Since data components, the effects no longer live in {@code FoodProperties} but as
+     * consumption effects in the {@code Consumable} component. Only the effect's category is
+     * evaluated, so food from other mods is classified correctly too.</p>
      *
-     * @param stack der zu pruefende Gegenstand
-     * @return {@code true}, wenn beim Essen ein schaedlicher Effekt entsteht
+     * @param stack the item to check
+     * @return {@code true} if eating it causes a harmful effect
      */
     private static boolean hasHarmfulEffect(ItemStack stack) {
         Consumable consumable = stack.get(DataComponents.CONSUMABLE);

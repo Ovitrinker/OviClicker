@@ -20,70 +20,66 @@ import net.minecraft.world.phys.HitResult;
 import java.util.Random;
 
 /**
- * Die eigentliche Klick-Logik. Sie laeuft ausschliesslich im Client-Tick und niemals in
- * einem eigenen Thread.
+ * The actual click logic. It runs exclusively in the client tick and never in a thread of
+ * its own.
  *
- * <p>Welche Aktion ausgeloest wird, legt die Einstellung pro Modus fest: Linksklick,
- * Rechtsklick oder eine der Bewegungstasten. Im Halte-Modus bleibt die Taste gedrueckt,
- * solange alle Bedingungen erfuellt sind, sonst wird sie im eingestellten Intervall
- * angetippt.</p>
+ * <p>Which action is triggered is set per mode: left click, right click or one of the
+ * movement keys. In hold mode the key stays pressed as long as all conditions are met;
+ * otherwise it is tapped at the configured interval.</p>
  *
- * <p>Offene Bildschirme halten den OviClicker nicht an: er laeuft im Esc-Menue, im Inventar
- * und auch dann weiter, wenn das Fenster den Fokus verliert, weil du in einem anderen
- * Programm bist. Minecraft ueberspringt in diesen Faellen seine eigene Tastenverarbeitung,
- * deshalb stoesst der Mod Angriff und Benutzen selbst an und fuehrt die Angriffs-Sperrzeit
- * selbst weiter. Nur wenn Minecraft das Spiel wirklich anhaelt – im Einzelspieler, sobald
- * ein Bildschirm offen ist –, pausiert auch der OviClicker, denn dann laeuft die Welt
- * nicht.</p>
+ * <p>Open screens don't stop OviClicker: it keeps running in the pause menu, in the inventory
+ * and also when the window loses focus because you're in another program. Minecraft skips its
+ * own key handling in these cases, so the mod triggers attack and use itself and keeps track
+ * of the attack cooldown itself. Only when Minecraft really pauses the game – in singleplayer,
+ * as soon as a screen is open – does OviClicker pause too, because then the world isn't
+ * running.</p>
  *
- * <p>Mit der Freecam-Mod laeuft der OviClicker ebenfalls weiter: solange die Kamera von
- * der Spielfigur geloest ist, zielt und schlaegt er von der Spielfigur aus, siehe
- * {@link FreecamCompat}.</p>
+ * <p>OviClicker also keeps running with the Freecam mod: while the camera is detached from the
+ * player, it aims and attacks from the player, see {@link FreecamCompat}.</p>
  *
- * <p>Der Zustand (Modus und Master-Schalter) liegt in der Konfiguration und wird beim
- * Verlassen eines Servers bewusst nicht zurueckgesetzt. Wer den Server verlaesst und
- * wieder beitritt, findet den OviClicker unveraendert aktiv vor; lediglich der
- * Intervall-Timer startet frisch, damit nach dem Beitritt kein Klick-Stau entsteht.</p>
+ * <p>The state (mode and master switch) lives in the config and is deliberately not reset when
+ * leaving a server. Leave the server and rejoin and OviClicker is still active as before; only
+ * the interval timer starts fresh, so there is no burst of clicks after joining.</p>
  */
 public final class OviClickerEngine {
 
-    /** Zufallsgenerator fuer den Jitter. */
+    /** Random generator for the jitter. */
     private static final Random RANDOM = new Random();
 
-    /** Zeitpunkt des naechsten erlaubten Klicks in Millisekunden. */
+    /** Time of the next allowed click in milliseconds. */
     private static long nextClickAtMs = 0L;
 
-    /** Merkt sich, ob im letzten Tick eine Welt geladen war. */
+    /** Remembers whether a world was loaded in the last tick. */
     private static boolean inWorld = false;
 
-    /** Selbst weitergefuehrte Angriffs-Sperrzeit, solange ein Bildschirm offen ist. */
+    /** Attack cooldown tracked by the mod itself while a screen is open. */
     private static int missTime = 0;
 
     private OviClickerEngine() {
     }
 
     /**
-     * Wird am Ende jedes Client-Ticks aufgerufen und loest bei Bedarf eine Aktion aus.
+     * Called at the end of every client tick; triggers an action if needed.
      *
-     * @param client die Client-Instanz, darf {@code null} sein
+     * @param client the client instance, may be {@code null}
      */
     public static void onEndClientTick(Minecraft client) {
         if (client == null) return;
 
-        // Laesst angetippte Tasten nach Ablauf ihrer Haltedauer wieder los
+        // Releases tapped keys once their hold duration has passed
         InputSimulator.tick();
 
         OviClickerConfig config = ConfigManager.get();
 
-        // Ohne Spieler, Welt oder Interaktionsmanager gibt es nichts zu tun.
-        // Der gewaehlte Modus bleibt dabei erhalten.
+        // Without player, world or interaction manager there's nothing to do.
+        // The selected mode is kept.
         if (client.player == null || client.level == null || client.gameMode == null) {
             InputSimulator.release();
             inWorld = false;
             return;
         }
 
-        // Erster Tick nach dem (Wieder-)Betreten einer Welt: Timer neu ansetzen
+        // First tick after (re)entering a world: restart the timer
         if (!inWorld) {
             inWorld = true;
             InputSimulator.release();
@@ -91,10 +87,10 @@ public final class OviClickerEngine {
             return;
         }
 
-        // Im Einzelspieler haelt Minecraft das ganze Spiel an, sobald ein Bildschirm offen
-        // ist oder das Fenster den Fokus verliert. Dann tickt weder die Welt noch der
-        // Server, es gibt also nichts auszuloesen; ein Klick wuerde nur in der Warteschlange
-        // liegen und beim Fortsetzen nachgeholt. Der Timer startet deshalb frisch.
+        // In singleplayer Minecraft pauses the whole game as soon as a screen is open or the
+        // window loses focus. Then neither world nor server ticks, so there's nothing to
+        // trigger; a click would just sit in the queue and fire on resume. So the timer
+        // starts fresh.
         if (client.isPaused()) {
             InputSimulator.release();
             resetTimer();
@@ -107,8 +103,8 @@ public final class OviClickerEngine {
         boolean screenOpen = ClientCompat.getCurrentScreen(client) != null;
         trackMissTime(client, screenOpen, config.masterEnabled && mode != ClickMode.OFF);
 
-        // Mit Freecam zielt das Fadenkreuz von der Kamera aus, der OviClicker aber weiterhin
-        // von der Spielfigur aus
+        // With Freecam the crosshair aims from the camera, but OviClicker still aims from
+        // the player
         boolean freecam = FreecamCompat.isActive();
         HitResult target = freecam ? FreecamCompat.pickEntityFromPlayer(client) : client.hitResult;
 
@@ -117,12 +113,12 @@ public final class OviClickerEngine {
             return;
         }
 
-        // Halte-Modus: Taste bleibt gedrueckt, das Intervall spielt keine Rolle
+        // Hold mode: key stays pressed, the interval doesn't matter
         if (config.holdInsteadOfTap) {
             InputSimulator.hold(client, action, screenOpen);
         } else if (System.currentTimeMillis() >= nextClickAtMs) {
             if (freecam && action.isAttack()) {
-                // Freecam blockiert startAttack(), der Schlag geht deshalb direkt ans Ziel
+                // Freecam blocks startAttack(), so the hit goes straight to the target
                 if (target instanceof EntityHitResult entityHit) {
                     FreecamCompat.attack(client, entityHit.getEntity());
                 }
@@ -132,29 +128,27 @@ public final class OviClickerEngine {
             resetTimer();
         }
 
-        // Ein Fehlschlag setzt die Sperrzeit neu. Bei offenem Bildschirm muss der Mod sie
-        // uebernehmen, weil Minecraft den Wert im naechsten Tick wieder ueberschreibt.
+        // A miss resets the cooldown. With a screen open the mod has to take it over,
+        // because Minecraft overwrites the value again in the next tick.
         if (screenOpen) {
             missTime = ((MinecraftAccessor) (Object) client).oviclicker$getMissTime();
         }
     }
 
     /**
-     * Fuehrt die Angriffs-Sperrzeit ueber offene Bildschirme hinweg weiter.
+     * Keeps the attack cooldown running across open screens.
      *
-     * <p>Minecraft setzt {@code missTime} in jedem Tick auf 10000, solange ein Bildschirm
-     * offen ist, und blockiert damit jeden Angriff. Weil der OviClicker auch im Esc-Menue
-     * weiterlaeuft, zaehlt der Mod den echten Wert selbst herunter und schreibt ihn zurueck.
-     * Ausserhalb von Bildschirmen wird nur mitgelesen.</p>
+     * <p>Minecraft sets {@code missTime} to 10000 every tick while a screen is open, which
+     * blocks every attack. Because OviClicker keeps running in the pause menu, the mod counts
+     * the real value down itself and writes it back. Outside of screens it only reads along.</p>
      *
-     * <p>Zurueckgeschrieben wird ausschliesslich, solange der Mod tatsaechlich ausloesen
-     * kann. Ist er abgeschaltet oder im Modus OFF, bleibt der Vanilla-Wert unberuehrt: er
-     * verhindert unter anderem, dass ein noch gedrueckter Angriff nach dem Schliessen eines
-     * Bildschirms sofort weiter abbaut.</p>
+     * <p>It only writes back while the mod can actually trigger. When it is turned off or in
+     * OFF mode, the vanilla value stays untouched: among other things it prevents a still-held
+     * attack from continuing to mine right after a screen is closed.</p>
      *
-     * @param client     die Client-Instanz
-     * @param screenOpen {@code true}, wenn gerade ein Bildschirm offen ist
-     * @param active     {@code true}, wenn der Mod eingeschaltet und nicht im Modus OFF ist
+     * @param client     the client instance
+     * @param screenOpen {@code true} if a screen is currently open
+     * @param active     {@code true} if the mod is turned on and not in OFF mode
      */
     private static void trackMissTime(Minecraft client, boolean screenOpen, boolean active) {
         MinecraftAccessor accessor = (MinecraftAccessor) (Object) client;
@@ -169,21 +163,21 @@ public final class OviClickerEngine {
     }
 
     /**
-     * Prueft alle Bedingungen, unter denen der Mod ueberhaupt ausloesen darf.
+     * Checks all conditions under which the mod may trigger at all.
      *
-     * @param client die Client-Instanz
-     * @param config die aktiven Einstellungen
-     * @param mode   der aktive Modus
-     * @param action die eingestellte Aktion
-     * @param target das anvisierte Ziel, darf {@code null} sein
-     * @return {@code true}, wenn ausgeloest werden darf
+     * @param client the client instance
+     * @param config the active settings
+     * @param mode   the active mode
+     * @param action the configured action
+     * @param target the targeted object, may be {@code null}
+     * @return {@code true} if it may trigger
      */
     private static boolean isAllowed(Minecraft client, OviClickerConfig config,
                                      ClickMode mode, ClickAction action, HitResult target) {
         if (!config.masterEnabled) return false;
         if (mode == ClickMode.OFF) return false;
 
-        // Waehrend des automatischen Essens wird nicht geschlagen
+        // No attacking while eating automatically
         if (AutoEatHandler.isEating()) return false;
 
         if (config.onlyWhileAttackKeyHeld
@@ -193,7 +187,7 @@ public final class OviClickerEngine {
 
         if (config.requireWeapon && !isWeapon(client.player.getMainHandItem())) return false;
 
-        // Cooldown und Sperrzeit betreffen nur den Angriff
+        // Cooldown and miss time only affect attacking
         if (action.isAttack()) {
             if (((MinecraftAccessor) (Object) client).oviclicker$getMissTime() > 0) return false;
             if (config.respectAttackCooldown && client.player.getAttackStrengthScale(0.0F) < 1.0F) {
@@ -205,8 +199,8 @@ public final class OviClickerEngine {
     }
 
     /**
-     * Setzt den Intervall-Timer neu. Wird nach jedem Ausloesen, nach dem Betreten einer Welt
-     * und nach jeder Aenderung der Einstellungen aufgerufen.
+     * Restarts the interval timer. Called after every trigger, after entering a world and
+     * after every settings change.
      */
     public static void resetTimer() {
         OviClickerConfig config = ConfigManager.get();
@@ -222,18 +216,18 @@ public final class OviClickerEngine {
             jitterPercent = config.autoAttackJitterPercent;
         }
 
-        // Zufaellige Abweichung nach oben und unten
+        // Random deviation up and down
         double factor = 1.0 + (RANDOM.nextDouble() * 2.0 - 1.0) * (jitterPercent / 100.0);
         nextClickAtMs = System.currentTimeMillis() + Math.max(1L, Math.round(baseMs * factor));
     }
 
     /**
-     * Prueft, ob das Ziel eine erlaubte Entity in Reichweite ist.
+     * Checks whether the target is an allowed entity within reach.
      *
-     * @param client    die Client-Instanz
-     * @param config    die aktiven Einstellungen
-     * @param hitResult das anvisierte Ziel, darf {@code null} sein
-     * @return {@code true}, wenn ein gueltiges Ziel anvisiert ist
+     * @param client    the client instance
+     * @param config    the active settings
+     * @param hitResult the targeted object, may be {@code null}
+     * @return {@code true} if a valid target is aimed at
      */
     private static boolean hasValidTarget(Minecraft client, OviClickerConfig config, HitResult hitResult) {
         if (!(hitResult instanceof EntityHitResult entityHitResult)) return false;
@@ -247,11 +241,11 @@ public final class OviClickerEngine {
     }
 
     /**
-     * Prueft, ob eine Entity durch die Blacklist ausgeschlossen ist.
+     * Checks whether an entity is excluded by the blacklist.
      *
-     * @param entity die zu pruefende Entity
-     * @param config die aktiven Einstellungen
-     * @return {@code true}, wenn die Entity nicht angegriffen werden darf
+     * @param entity the entity to check
+     * @param config the active settings
+     * @return {@code true} if the entity must not be attacked
      */
     private static boolean isBlacklisted(Entity entity, OviClickerConfig config) {
         if (config.blacklistPlayers && entity instanceof Player) return true;
@@ -262,10 +256,10 @@ public final class OviClickerEngine {
     }
 
     /**
-     * Prueft, ob ein Gegenstand als Waffe gilt (Schwert, Axt, Dreizack oder Keule).
+     * Checks whether an item counts as a weapon (sword, axe, trident or mace).
      *
-     * @param stack der Gegenstand in der Haupthand
-     * @return {@code true}, wenn es sich um eine Waffe handelt
+     * @param stack the item in the main hand
+     * @return {@code true} if it is a weapon
      */
     private static boolean isWeapon(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return false;

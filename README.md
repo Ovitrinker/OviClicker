@@ -1,44 +1,44 @@
 # OviClicker
 
-Client-seitiger Auto-Klicker für Fabric mit drei Modi, automatischem Essen, eigenem
-Einstellungsbildschirm, HUD-Anzeige und frei belegbaren Tasten. Mehrere Minecraft-Versionen aus einer
-Codebasis, verwaltet mit [Stonecutter](https://stonecutter.kikugie.dev).
+Client-side auto-clicker for Fabric with three modes, automatic eating, its own settings screen,
+a HUD and freely rebindable keys. Several Minecraft versions from a single codebase, managed with
+[Stonecutter](https://stonecutter.kikugie.dev).
 
-Autor: **Ovitrinker** · Lizenz: **MIT** · Download: [mods.ovitrinker.ch/oviclicker](https://mods.ovitrinker.ch/oviclicker/)
+Author: **Ovitrinker** · License: **MIT** · Download: [mods.ovitrinker.ch/oviclicker](https://mods.ovitrinker.ch/oviclicker/)
 
-## Versionsmatrix
+## Version matrix
 
-| Build-Knoten | Kompiliert gegen | Deckt ab | Fabric API | Java | Mappings |
+| Build node | Compiled against | Covers | Fabric API | Java | Mappings |
 |---|---|---|---|---|---|
-| `1.21.11` | 1.21.11 | 1.21.11 | 0.141.6+1.21.11 | 21 | Mojang (auf obfuskierter Version) |
-| `26.1.x` | 26.1.2 | 26.1, 26.1.1, 26.1.2 | 0.155.2+26.1.2 | 25 | Mojang (unobfuskiert) |
-| `26.2.x` | 26.2 | 26.2 | 0.157.0+26.2 | 25 | Mojang (unobfuskiert) |
-| `26.3.x` | 26.3 | 26.3 | 0.161.0+26.3 | 25 | Mojang (unobfuskiert) |
+| `1.21.11` | 1.21.11 | 1.21.11 | 0.141.6+1.21.11 | 21 | Mojang (on an obfuscated version) |
+| `26.1.x` | 26.1.2 | 26.1, 26.1.1, 26.1.2 | 0.155.2+26.1.2 | 25 | Mojang (unobfuscated) |
+| `26.2.x` | 26.2 | 26.2 | 0.157.0+26.2 | 25 | Mojang (unobfuscated) |
+| `26.3.x` | 26.3 | 26.3 | 0.161.0+26.3 | 25 | Mojang (unobfuscated) |
 
-Fabric Loader ab 0.17, empfohlen 0.19.3. Die Fabric API wird zur Laufzeit benötigt.
+Fabric Loader 0.17 or newer, 0.19.3 recommended. Fabric API is required at runtime.
 
-**Warum kein Yarn?** 1.21.11 ist die letzte obfuskierte Minecraft-Version. Ab 26.1 ist das
-Spiel unobfuskiert, Yarn und Intermediary werden von Fabric nicht mehr gepflegt. Damit eine
-einzige Codebasis alle Zielversionen bedienen kann, wird durchgehend mit den offiziellen
-Mojang-Mappings kompiliert – auch für 1.21.11. Loom remappt die Mixin-Annotationen des
-1.21.11-Jars beim Bauen automatisch nach Intermediary.
+**Why no Yarn?** 1.21.11 is the last obfuscated Minecraft version. From 26.1 on the game is
+unobfuscated, and Fabric no longer maintains Yarn and Intermediary. So that a single codebase can
+serve every target version, everything is compiled against the official Mojang mappings – including
+1.21.11. Loom automatically remaps the mixin annotations of the 1.21.11 jar to Intermediary at
+build time.
 
-Zwischen 1.21.11 und 26.1 existiert keine weitere Version; Mojang ist mit 26.1 auf eine
-Jahres-Versionierung umgestiegen.
+There is no other version between 1.21.11 and 26.1; with 26.1 Mojang switched to year-based
+versioning.
 
-## Bauen
+## Building
 
-Voraussetzung: JDK 21 oder neuer (Gradle lädt fehlende JDKs über den Foojay-Resolver nach).
+Requirement: JDK 21 or newer (Gradle fetches missing JDKs via the Foojay resolver).
 
 ```bash
-# Eine Version
+# One version
 ./gradlew :26.2.x:build
 
-# Alle Versionen bauen und die Jars einsammeln
+# Build all versions and collect the jars
 ./gradlew :1.21.11:buildAndCollect :26.1.x:buildAndCollect :26.2.x:buildAndCollect :26.3.x:buildAndCollect
 ```
 
-Die fertigen Jars liegen anschliessend unter `build/libs/1.3.0/`:
+The finished jars end up in `build/libs/1.3.0/`:
 
 ```
 oviclicker-1.3.0+1.21.11.jar
@@ -47,232 +47,228 @@ oviclicker-1.3.0+26.2.jar
 oviclicker-1.3.0+26.3.jar
 ```
 
-Aktive Version im Entwicklungszustand wechseln:
+Switch the active version in the development workspace:
 
 ```bash
 ./gradlew "Set active project to 1.21.11"
 ```
 
-Testen im Spiel: `./gradlew :26.3.x:runClient`
+Test in game: `./gradlew :26.3.x:runClient`
 
-## Bedienung
+## Usage
 
-### Tasten
+### Keys
 
-Alle drei Tasten stehen unter *Optionen → Steuerung → Tastenbelegung* in der Kategorie
-**OviClicker** und lassen sich dort frei ändern.
+All three keys are listed under *Options → Controls → Key Binds* in the **OviClicker** category
+and can be changed freely there.
 
-| Aktion | Standard |
+| Action | Default |
 |---|---|
-| Einstellungen öffnen | `$` (Schweizer Layout) |
-| Ein- und ausschalten (Master-Toggle) | Rechte Umschalttaste |
-| Modus weiterschalten | nicht belegt |
+| Open settings | `$` (Swiss layout) |
+| Turn on and off (master toggle) | Right Shift |
+| Cycle mode | unbound |
 
-GLFW meldet Tasten immer in der Belegung des US-Layouts. Die Schweizer `$`-Taste liegt auf
-Scancode `0x2B`, also auf der ISO-Taste links von der Eingabetaste, im US-Layout der
-Backslash. Der verwendete GLFW-Code ist deshalb `GLFW_KEY_BACKSLASH` (92).
+Up to 26.2, GLFW always reports keys in the US layout. The Swiss `$` key sits on scancode `0x2B`,
+the ISO key left of Enter, which is backslash in the US layout. The GLFW code used is therefore
+`GLFW_KEY_BACKSLASH` (92). From 26.3 on, Minecraft uses SDL3 and works with scancodes.
 
-Der Einstellungsbildschirm öffnet nur, wenn kein anderer Bildschirm offen ist. Während einer
-Texteingabe (Chat, Schilder, Amboss) reicht Minecraft Tastendrücke gar nicht erst an
-Tastenbelegungen weiter.
+The settings screen only opens when no other screen is open. While typing (chat, signs, anvil),
+Minecraft doesn't pass key presses to key binds at all.
 
-### Modi
+### Modes
 
-| Modus | Verhalten |
+| Mode | Behaviour |
 |---|---|
-| `OFF` | Nichts. |
-| `AUTOATTACK` | Löst einen Linksklick aus, sobald das Fadenkreuz auf einer Entity liegt (`EntityHitResult`). |
-| `TIMER` | Löst einen Linksklick in festem Intervall aus, Standard 10 Sekunden. |
+| `OFF` | Nothing. |
+| `AUTOATTACK` | Triggers a left click as soon as the crosshair is on an entity (`EntityHitResult`). |
+| `TIMER` | Triggers a left click at a fixed interval, 10 seconds by default. |
 
-### Aktion
+### Action
 
-Welche Taste ausgelöst wird, ist **pro Modus** einstellbar (Knopf „Aktion" im Bildschirm):
+Which key is triggered can be set **per mode** ("Action" button in the screen):
 
-| Aktion | Was passiert |
+| Action | What happens |
 |---|---|
-| Linksklick (Angriff) | Angriff bzw. Block abbauen, über `Minecraft.startAttack()` |
-| Rechtsklick (Benutzen) | Gegenstand oder Block benutzen, über `Minecraft.startUseItem()` |
-| Springen, Vorwärts, Rückwärts, Nach links, Nach rechts, Schleichen, Sprinten, Ablegen | setzt die jeweilige Vanilla-Tastenbelegung |
+| Left click (attack) | Attack or break a block, via `Minecraft.startAttack()` |
+| Right click (use) | Use an item or block, via `Minecraft.startUseItem()` |
+| Jump, Forward, Back, Left, Right, Sneak, Sprint, Drop | presses the corresponding vanilla key bind |
 
-Alle Tastenaktionen benutzen die Belegung, die du in den Steuerungs-Optionen gesetzt hast –
-belegst du „Vorwärts" auf `Z`, drückt der Mod `Z`.
+All key actions use the binding you set in the controls options – if you bind "Forward" to `Z`,
+the mod presses `Z`.
 
-* **Gedrückt halten statt antippen** – die Taste bleibt gedrückt, solange alle Bedingungen
-  erfüllt sind (Autolauf, Dauerabbau). Das Intervall wird dabei ignoriert.
-* **Druckdauer** (1 – 20 Ticks) – wie lange eine angetippte Taste unten bleibt. Für Springen
-  oder Ablegen reicht 1, für manches braucht es mehr.
+* **Hold instead of tap** – the key stays pressed as long as all conditions are met (auto-walk,
+  continuous mining). The interval is ignored.
+* **Press duration** (1 – 20 ticks) – how long a tapped key stays down. 1 is enough for jumping or
+  dropping; some things need more.
 
-Es ist immer höchstens eine Taste gleichzeitig gedrückt, und sie wird zuverlässig
-losgelassen, sobald der Mod abschaltet, das Spiel anhält oder du die Welt verlässt.
+At most one key is pressed at a time, and it is reliably released as soon as the mod turns off,
+the game pauses or you leave the world.
 
-### Automatisch essen (AutoEat)
+### Automatic eating (AutoEat)
 
-Fällt der Hunger unter die eingestellte Schwelle (Standard 6 Keulen), unterbricht der Mod
-das Klicken und isst, bis die Hungerleiste wieder voll ist. Danach läuft der OviClicker von
-selbst weiter. Solange gegessen wird, zeigt das HUD „· isst“.
+When hunger drops below the configured threshold (6 haunches by default), the mod pauses clicking
+and eats until the hunger bar is full again. Then OviClicker resumes on its own. While eating, the
+HUD shows "· eating".
 
-* **Nur gutes Essen.** Gegessen wird nur, was einen Nährwert hat und beim Verzehr keinen
-  schädlichen Statuseffekt auslöst. Verfaultes Fleisch, Spinnenauge, giftige Kartoffel,
-  Kugelfisch und rohes Huhn fallen dadurch von selbst weg – geprüft werden die
-  Verzehr-Effekte des Gegenstands, nicht eine feste Liste, deshalb greift das auch bei
-  Essen aus anderen Mods.
-* Zusätzlich gesperrt sind Chorusfrucht (teleportiert) und verdächtiger Eintopf
-  (unbekannter Effekt). Die beiden goldenen Äpfel haben je eine eigene Option und sind
-  standardmässig gesperrt: **Goldene Äpfel erlauben** und **Verzauberte goldene Äpfel
-  erlauben** lassen sich unabhängig voneinander einschalten.
-* **Essen aus dem Inventar holen** – ist in der Hotbar nichts Essbares mehr, legt der Mod
-  Nachschub aus dem Inventar dorthin. Das ist derselbe Tausch, den eine Hotbar-Taste im
-  offenen Inventar auslöst. Ist ein Platz frei, wird dieser genommen und der Rest des
-  Stapels bleibt danach dort liegen; ist die Hotbar voll, weicht der gewählte Gegenstand
-  vorübergehend ins Inventar und kommt nach dem Essen an seinen Platz zurück. Bei einem
-  offenen fremden Behälter (Truhe, Ofen) wird nicht umgelegt.
-* Gewählt wird der nahrhafteste Gegenstand, der noch vollständig in die Hungerleiste passt;
-  passt keiner hinein, der schwächste – so verfällt möglichst wenig Nährwert.
-* Der Spieler hat Vorrang: benutzt er selbst gerade einen Gegenstand, fängt der Mod gar
-  nicht erst an, und wechselt er während des Essens den Hotbar-Platz, bricht der Vorgang ab.
-* AutoEat hängt am Master-Schalter, nicht am Modus: es arbeitet auch im Modus `OFF`.
+* **Good food only.** Only items with nutritional value and no harmful status effect on
+  consumption are eaten. Rotten flesh, spider eye, poisonous potato, pufferfish and raw chicken
+  drop out automatically – the item's consumption effects are checked rather than a fixed list,
+  so this also works for food from other mods.
+* Chorus fruit (teleports) and suspicious stew (unknown effect) are blocked as well. The two golden
+  apples each have their own option and are blocked by default: **Allow golden apples** and
+  **Allow enchanted golden apples** can be enabled independently.
+* **Take food from the inventory** – if there is nothing edible left in the hotbar, the mod moves
+  supplies there from the inventory. This is the same swap a hotbar key triggers in the open
+  inventory. If a slot is free, that one is used and the rest of the stack stays there afterwards;
+  if the hotbar is full, the selected item temporarily moves to the inventory and returns to its
+  slot after eating. Nothing is moved while a foreign container (chest, furnace) is open.
+* The most nutritious item that still fits completely into the hunger bar is chosen; if none fits,
+  the weakest one – so as little nutrition as possible is wasted.
+* The player has priority: if they are using an item themselves, the mod doesn't start, and if
+  they switch the hotbar slot while eating, the process is cancelled.
+* AutoEat depends on the master switch, not on the mode: it also works in `OFF` mode.
 
-### Offene Bildschirme und Fensterwechsel
+### Open screens and window switching
 
-Der OviClicker läuft weiter, wenn ein Bildschirm offen ist – Esc-Menü, Inventar, Chat, der
-eigene Einstellungsbildschirm – und auch dann, wenn du in ein anderes Fenster wechselst.
+OviClicker keeps running while a screen is open – pause menu, inventory, chat, its own settings
+screen – and also when you switch to another window.
 
-Minecraft überspringt in diesen Fällen seine eigene Tastenverarbeitung und setzt zusätzlich
-`missTime` auf 10000, was jeden Angriff blockiert. Der Mod stösst Angriff, Benutzen und
-Ablegen deshalb selbst genau so an, wie es Minecraft täte, und führt die Angriffs-Sperrzeit
-selbst weiter (`OviClickerEngine.trackMissTime`). Bewegungstasten wirken ohnehin, weil der
-Spieler den gehaltenen Zustand direkt ausliest.
+In these cases Minecraft skips its own key handling and additionally sets `missTime` to 10000,
+which blocks every attack. The mod therefore triggers attack, use and drop itself exactly the way
+Minecraft would, and keeps track of the attack cooldown itself (`OviClickerEngine.trackMissTime`).
+Movement keys work anyway, because the player reads the held state directly.
 
-Zwei Grenzen bleiben:
+Two limits remain:
 
-* **Einzelspieler**: Minecraft hält dort das ganze Spiel an, sobald ein Bildschirm offen ist.
-  Dann tickt weder Welt noch Server – der OviClicker pausiert mit und setzt seinen Timer neu
-  an. Auf einem Server (auch bei „Für LAN öffnen") läuft alles weiter. Für den Fensterwechsel
-  hilft im Einzelspieler `Optionen → *Pause bei Fokusverlust* → AUS`: dann geht beim
-  Alt-Tab gar kein Bildschirm auf und das Spiel läuft samt OviClicker weiter.
-* **Nur bei gedrückter Angriffstaste**: der Zustand wird direkt bei GLFW abgefragt. Verliert
-  das Fenster den Fokus, meldet GLFW die Taste als losgelassen, und die Bedingung greift.
+* **Singleplayer**: Minecraft pauses the whole game there as soon as a screen is open. Then neither
+  world nor server ticks – OviClicker pauses along with it and restarts its timer. On a server
+  (including "Open to LAN") everything keeps running. For window switching in singleplayer,
+  `Options → Pause on Lost Focus → OFF` helps: then no screen opens on Alt-Tab and the game, along
+  with OviClicker, keeps running.
+* **Only while the attack key is held**: the state is polled directly from the window system. If
+  the window loses focus, the key is reported as released and the condition applies.
 
-### Einstellungen
+### Settings
 
-* **Klicks pro Sekunde** (AUTOATTACK, 0.1 – 20) und **Intervall** (TIMER, 0.05 – 300 s) –
-  getrennt pro Modus
-* **Jitter** in Prozent – zufällige Abweichung des Intervalls nach oben und unten, ebenfalls
-  getrennt pro Modus
-* **Nur bei gedrückter Angriffstaste**
-* **Angriffs-Cooldown respektieren** – wartet, bis `getAttackStrengthScale` wieder 1.0 ist
-  (greift nur bei der Aktion Linksklick)
-* **Nur mit Waffe in der Hand** – Schwert, Axt, Dreizack oder Keule
-* **Maximale Reichweite** für AUTOATTACK (1 – 6 Blöcke)
-* **Entity-Blacklist**: Spieler, Dorfbewohner, gezähmte Tiere, friedliche Tiere
-* **AutoEat**: automatisch essen an/aus, Schwelle in Hungerkeulen (1 – 9), Essen aus dem
-  Inventar holen, goldene Äpfel erlauben, verzauberte goldene Äpfel erlauben
-* **HUD**: an/aus, Ecke, Abstand X und Y, Ausblenden im Zustand OFF
+* **Clicks per second** (AUTOATTACK, 0.1 – 20) and **interval** (TIMER, 0.05 – 300 s) – separate
+  per mode
+* **Jitter** in percent – random deviation of the interval up and down, also separate per mode
+* **Only while the attack key is held**
+* **Respect attack cooldown** – waits until `getAttackStrengthScale` is back at 1.0 (only applies
+  to the left-click action)
+* **Only with a weapon in hand** – sword, axe, trident or mace
+* **Maximum reach** for AUTOATTACK (1 – 6 blocks)
+* **Entity blacklist**: players, villagers, tamed animals, passive animals
+* **AutoEat**: eat automatically on/off, threshold in haunches (1 – 9), take food from the
+  inventory, allow golden apples, allow enchanted golden apples
+* **HUD**: on/off, corner, X and Y offset, hide while OFF
 
-Änderungen im Bildschirm greifen erst mit **Speichern**. **Zurücksetzen** stellt die
-Standardwerte her, **Abbrechen** verwirft die Änderungen.
+Changes in the screen only take effect on **Save**. **Reset** restores the defaults, **Cancel**
+discards the changes.
 
-### Zustand über Serverwechsel hinweg
+### State across server switches
 
-Modus und Master-Schalter werden bei jeder Änderung sofort in die Konfigurationsdatei
-geschrieben und beim Verlassen eines Servers nicht zurückgesetzt. Wer den Server verlässt und
-wieder beitritt – oder den Client neu startet – findet den OviClicker unverändert aktiv vor.
-Lediglich der Intervall-Timer startet beim Betreten einer Welt frisch, damit direkt nach dem
-Beitritt kein Klick-Stau entsteht.
+Mode and master switch are written to the config file immediately on every change and are not
+reset when leaving a server. Leave the server and rejoin – or restart the client – and OviClicker
+is still active as before. Only the interval timer starts fresh when entering a world, so there is
+no burst of clicks right after joining.
 
-## Konfiguration
+## Configuration
 
-`config/oviclicker.json`, geschrieben über die in Minecraft enthaltene GSON-Instanz.
+`config/oviclicker.json`, written with the GSON instance bundled with Minecraft.
 
-Geschrieben wird atomar: zuerst `oviclicker.json.tmp`, dann wird die bisherige Datei als
-`oviclicker.json.bak` gesichert und die temporäre Datei an ihre Stelle verschoben. Fehlende
-oder defekte Felder fallen auf die Standardwerte zurück, eine unlesbare Datei verhindert den
-Start des Clients nicht.
+Writes are atomic: first `oviclicker.json.tmp`, then the previous file is backed up as
+`oviclicker.json.bak` and the temporary file is moved into place. Missing or broken fields fall
+back to the defaults; an unreadable file does not prevent the client from starting.
 
-## Technik
+## Technical details
 
-* Einstiegspunkt `ClientModInitializer`, Tick-Logik in `ClientTickEvents.END_CLIENT_TICK`,
-  kein eigener Thread
-* Klick-Auslösung über Mixin-Invoker auf `Minecraft.startAttack()`,
-  `Minecraft.startUseItem()` und `Minecraft.continueAttack(boolean)`; gelesen werden
-  `Minecraft.rightClickDelay` und `Player.getAttackStrengthScale(float)`,
-  gelesen und geschrieben wird `Minecraft.missTime`
-* Tastenaktionen über `KeyMapping.setDown(boolean)` plus `KeyMapping.click(key)` für
-  Aktionen, die Klickzähler statt Haltezustand auswerten (z. B. Ablegen)
-* Die Prüfung „nur bei gedrückter Angriffstaste" liest den Tastenzustand direkt bei GLFW
-  (`InputConstants.isKeyDown` bzw. `glfwGetMouseButton`), nicht über `KeyMapping.isDown()` –
-  sonst würde der Mod im Halte-Modus seinen eigenen simulierten Druck als Spielereingabe
-  lesen und sich selbst am Leben halten
-* AutoEat isst über `MultiPlayerGameMode.useItem(player, hand)` und hält dabei die Taste
-  „Benutzen“ gedrückt, weil Minecraft das Essen sonst im nächsten Tick abbricht. Bewusst
-  nicht über `Minecraft.startUseItem()`: der würde zuerst den anvisierten Block bedienen
-  und statt zu essen eine Truhe öffnen. Das Umlegen von Essen läuft über
-  `handleContainerInput(…, SWAP, …)`, also über ein reguläres Klick-Paket
-* Keine Reflection auf verschleierte Namen, keine gefälschten Netzwerkpakete, kein Umgehen von
-  Serverlogik – der Mod simuliert ausschliesslich lokale Eingaben
-* Null-Prüfung auf `client.player`, `client.level` und `client.gameMode` in jedem Tick
-* Der Einstellungsbildschirm nutzt ausschliesslich das Vanilla-Screen-API, damit die
-  Multiversion-Builds an keiner Fremdabhängigkeit scheitern
+* Entry point `ClientModInitializer`, tick logic in `ClientTickEvents.END_CLIENT_TICK`, no extra
+  thread
+* Clicks are triggered via mixin invokers on `Minecraft.startAttack()`,
+  `Minecraft.startUseItem()` and `Minecraft.continueAttack(boolean)`; `Minecraft.rightClickDelay`
+  and `Player.getAttackStrengthScale(float)` are read, `Minecraft.missTime` is read and written
+* Key actions via `KeyMapping.setDown(boolean)` plus `KeyMapping.click(key)` for actions that
+  evaluate click counters instead of held state (e.g. drop)
+* The "only while the attack key is held" check reads the key state directly from the window
+  system (`InputConstants.isKeyDown` or the mouse button), not via `KeyMapping.isDown()` –
+  otherwise the mod would read its own simulated press as player input in hold mode and keep
+  itself alive
+* AutoEat eats via `MultiPlayerGameMode.useItem(player, hand)` and holds the "Use" key while doing
+  so, because Minecraft would otherwise cancel eating in the next tick. Deliberately not via
+  `Minecraft.startUseItem()`: that would interact with the targeted block first and open a chest
+  instead of eating. Moving food uses `handleContainerInput(…, SWAP, …)`, i.e. a regular click
+  packet
+* No reflection on obfuscated names, no forged network packets, no bypassing of server logic – the
+  mod only simulates local input
+* Null checks on `client.player`, `client.level` and `client.gameMode` every tick
+* The settings screen only uses the vanilla screen API, so the multi-version builds don't depend on
+  any third-party library
+* Freecam (xolt) is detected via reflection; while it is active, AUTOATTACK aims from the player
+  and attacks via `gameMode.attack()` + `swing()`, because Freecam blocks `startAttack()`
 
-### Versionsunterschiede im Code
+### Version differences in the code
 
-Alle Unterschiede sind über Stonecutter-Kommentare gelöst:
+All differences are handled with Stonecutter comments:
 
-| Bereich | 1.21.11 | 26.1.x | 26.2 | 26.3 |
+| Area | 1.21.11 | 26.1.x | 26.2 | 26.3 |
 |---|---|---|---|---|
-| Keybind-Modul | `fabric-key-binding-api-v1` / `KeyBindingHelper` | `fabric-key-mapping-api-v1` / `KeyMappingHelper` | wie 26.1 | wie 26.1 |
-| Keybind-Kategorie | `KeyMapping.Category` | gleich | gleich | gleich |
-| HUD und Screen | `GuiGraphics.drawString(…)` | `GuiGraphicsExtractor.text(…)` | wie 26.1 | wie 26.1 |
-| Screen öffnen | `Minecraft.setScreen` | gleich | `Minecraft.gui.setScreen` | wie 26.2 |
-| Inventar-Klick | `handleInventoryMouseClick(…, ClickType.SWAP, …)` | `handleContainerInput(…, ContainerInput.SWAP, …)` | wie 26.1 | wie 26.1 |
-| Fenstersystem | GLFW (`GLFW.glfwGetMouseButton`, Keycodes) | gleich | gleich | SDL3 (`SDLMouse`, Scancodes) |
-| Schwingen / Ablegen | `swing(hand)` / `player.drop(false)` | gleich | gleich | `swing(hand, animation, false)` / `gameMode.dropItem(…)` |
+| Key bind module | `fabric-key-binding-api-v1` / `KeyBindingHelper` | `fabric-key-mapping-api-v1` / `KeyMappingHelper` | like 26.1 | like 26.1 |
+| Key bind category | `KeyMapping.Category` | same | same | same |
+| HUD and screen | `GuiGraphics.drawString(…)` | `GuiGraphicsExtractor.text(…)` | like 26.1 | like 26.1 |
+| Open screen | `Minecraft.setScreen` | same | `Minecraft.gui.setScreen` | like 26.2 |
+| Inventory click | `handleInventoryMouseClick(…, ClickType.SWAP, …)` | `handleContainerInput(…, ContainerInput.SWAP, …)` | like 26.1 | like 26.1 |
+| Window system | GLFW (`GLFW.glfwGetMouseButton`, key codes) | same | same | SDL3 (`SDLMouse`, scancodes) |
+| Swing / drop | `swing(hand)` / `player.drop(false)` | same | same | `swing(hand, animation, false)` / `gameMode.dropItem(…)` |
 
-Die Kategorie der Tastenbelegungen ist seit 1.21.11 keine freie Zeichenkette mehr, sondern ein
-`KeyMapping.Category` mit `Identifier`. Der daraus gebildete Übersetzungsschlüssel lautet
-`key.category.oviclicker.main`; `key.categories.oviclicker` ist in den Sprachdateien als
-Alias enthalten.
+Since 1.21.11 the key bind category is no longer a free-form string but a `KeyMapping.Category`
+with an `Identifier`. The resulting translation key is `key.category.oviclicker.main`;
+`key.categories.oviclicker` is included in the language files as an alias.
 
-## Projektstruktur
+## Project structure
 
 ```
 src/main/java/ch/ovitrinker/oviclicker/
-  OviClickerClient.java      Einstiegspunkt
-  KeybindManager.java         Tastenbelegungen und deren Auswertung
-  HudRenderer.java            HUD-Element
-  compat/ClientCompat.java    versionsabhängige Screen-Zugriffe
-  compat/ContainerCompat.java versionsabhängiger Inventar-Klick
+  OviClickerClient.java       entry point
+  KeybindManager.java         key binds and their handling
+  HudRenderer.java            HUD element
+  HudExtensions.java,
+  HudLineProvider.java        extension point for extra HUD lines
+  compat/ClientCompat.java    version-dependent screen and input access
+  compat/ContainerCompat.java version-dependent inventory click
+  compat/FreecamCompat.java   Freecam detection
   config/                     OviClickerConfig, ConfigManager, HudCorner
   feature/                    ClickMode, ClickAction, InputSimulator, OviClickerEngine
-  feature/AutoEatHandler.java automatisches Essen
-  feature/FoodFilter.java     Bewertung, welches Essen gut ist
-  gui/                        OviClickerScreen, DoubleSliderWidget
+  feature/AutoEatHandler.java automatic eating
+  feature/FoodFilter.java     decides which food is good
+  gui/                        OviClickerScreen, DoubleSliderWidget,
+                              ScreenExtension(s), ExtensionApi
   mixin/                      MinecraftAccessor
 src/main/resources/
   fabric.mod.json, oviclicker.mixins.json
-  assets/oviclicker/icon.png       Mod-Icon, 128x128
+  assets/oviclicker/icon.png       mod icon, 128x128
   assets/oviclicker/lang/en_us.json, de_ch.json
-tools/make_icon.py                 erzeugt Icon und CurseForge-Logo
-tools/publish_curseforge.py        laedt die Jars auf CurseForge
-branding/                          Logo, Projekttexte und Anleitung für CurseForge
-CHANGELOG.md                       Aenderungen je Version
+tools/make_icon.py                 generates the icon and CurseForge logo
+tools/publish_curseforge.py        uploads the jars to CurseForge
+branding/                          logo, project texts and CurseForge guide
+CHANGELOG.md                       changes per version
 ```
 
-Sprachdateien: Englisch (`en_us`) und Schweizer Deutsch (`de_ch`, durchgehend „ss“).
+Languages: English (`en_us`) and Swiss German (`de_ch`).
 
 ## Download
 
-Fertige Jars für alle unterstützten Versionen gibt es auf
-[mods.ovitrinker.ch/oviclicker](https://mods.ovitrinker.ch/oviclicker/). Änderungen je Version
-stehen im [CHANGELOG](CHANGELOG.md).
+Ready-made jars for all supported versions are available at
+[mods.ovitrinker.ch/oviclicker](https://mods.ovitrinker.ch/oviclicker/). Changes per version are
+listed in the [CHANGELOG](CHANGELOG.md).
 
 ## Icon
 
-`assets/oviclicker/icon.png` (128×128, im Jar) und `branding/oviclicker-logo.png`
-(512×512, Projektbild für CurseForge) werden nicht von Hand gezeichnet, sondern beide aus
-derselben Zeichnung von `tools/make_icon.py` erzeugt (Pillow, mit Supersampling). Der Look folgt
-mods.ovitrinker.ch: schwarzer Grund mit Terminal-Raster, grüner Mauszeiger, hellblaue
-Klick-Wellen – grün für Inhalt, hellblau für alles Klickbare.
+`assets/oviclicker/icon.png` (128×128, in the jar) and `branding/oviclicker-logo.png` (512×512,
+CurseForge project image) are not drawn by hand; both are generated from the same drawing by
+`tools/make_icon.py` (Pillow, with supersampling). The look follows mods.ovitrinker.ch: black
+background with a terminal grid, green mouse cursor, light-blue click waves – green for content,
+light blue for everything clickable.
 
 ```bash
 python tools/make_icon.py

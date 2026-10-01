@@ -6,65 +6,65 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 /**
- * Zugriff auf die privaten Eingabe-Methoden von {@code Minecraft}.
+ * Access to the private input methods of {@code Minecraft}.
  *
- * <p>Der Mod loest damit exakt denselben lokalen Linksklick aus, den auch die Maustaste
- * ausloesen wuerde. Es werden keine Pakete gefaelscht und keine Serverlogik umgangen.</p>
+ * <p>The mod uses them to trigger exactly the same local left click the mouse button would
+ * trigger. No packets are forged and no server logic is bypassed.</p>
  *
- * <p>Die Namen stammen aus den offiziellen Mojang-Mappings und sind in allen Zielversionen
- * (1.21.11, 26.1.x, 26.2) identisch:
+ * <p>The names come from the official Mojang mappings and are identical in all target
+ * versions (1.21.11, 26.1.x, 26.2, 26.3):
  * {@code startAttack()}, {@code continueAttack(boolean)}, {@code startUseItem()},
- * {@code missTime} und {@code rightClickDelay}.</p>
+ * {@code missTime} and {@code rightClickDelay}.</p>
  */
 @Mixin(Minecraft.class)
 public interface MinecraftAccessor {
 
     /**
-     * Loest einen einzelnen Linksklick aus (Angriff beziehungsweise Block-Anschlag).
+     * Triggers a single left click (attack or start breaking a block).
      *
-     * @return {@code true}, wenn Minecraft den Klick als Angriff gewertet hat
+     * @return {@code true} if Minecraft counted the click as an attack
      */
     @Invoker("startAttack")
     boolean oviclicker$startAttack();
 
     /**
-     * Setzt das Halten der linken Maustaste fort, wird fuer das Abbauen von Bloecken genutzt.
+     * Continues holding the left mouse button, used for breaking blocks.
      *
-     * @param pressed {@code true}, solange die Taste gehalten wird
+     * @param pressed {@code true} while the button is held
      */
     @Invoker("continueAttack")
     void oviclicker$continueAttack(boolean pressed);
 
     /**
-     * Loest einen einzelnen Rechtsklick aus (Gegenstand oder Block benutzen).
+     * Triggers a single right click (use an item or block).
      */
     @Invoker("startUseItem")
     void oviclicker$startUseItem();
 
     /**
-     * Liest die verbleibende Sperrzeit nach einem Fehlschlag in Ticks.
+     * Reads the remaining miss cooldown in ticks.
      *
-     * @return Anzahl Ticks, in denen Minecraft keinen weiteren Angriff zulaesst
+     * @return number of ticks during which Minecraft doesn't allow another attack
      */
     @Accessor("missTime")
     int oviclicker$getMissTime();
 
     /**
-     * Setzt die verbleibende Sperrzeit nach einem Fehlschlag.
+     * Sets the remaining miss cooldown.
      *
-     * <p>Minecraft setzt das Feld auf 10000, solange ein Bildschirm offen ist, und blockiert
-     * damit jeden Angriff. Der Mod fuehrt die echte Sperrzeit in dieser Zeit selbst weiter
-     * und schreibt sie hier zurueck, siehe {@code OviClickerEngine}.</p>
+     * <p>Minecraft sets this field to 10000 while a screen is open, which blocks every attack.
+     * During that time the mod keeps track of the real cooldown itself and writes it back here,
+     * see {@code OviClickerEngine}.</p>
      *
-     * @param value Anzahl Ticks bis zum naechsten erlaubten Angriff
+     * @param value number of ticks until the next allowed attack
      */
     @Accessor("missTime")
     void oviclicker$setMissTime(int value);
 
     /**
-     * Liest die Wartezeit bis zum naechsten automatischen Rechtsklick in Ticks.
+     * Reads the wait time until the next automatic right click in ticks.
      *
-     * @return Anzahl Ticks, in denen Minecraft kein weiteres Benutzen zulaesst
+     * @return number of ticks during which Minecraft doesn't allow another use
      */
     @Accessor("rightClickDelay")
     int oviclicker$getRightClickDelay();

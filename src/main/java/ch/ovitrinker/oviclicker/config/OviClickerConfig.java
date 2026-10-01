@@ -4,77 +4,77 @@ import ch.ovitrinker.oviclicker.feature.ClickAction;
 import ch.ovitrinker.oviclicker.feature.ClickMode;
 
 /**
- * Datenhalter aller Einstellungen des OviClickers.
+ * Data holder for all OviClicker settings.
  *
- * <p>Die Klasse wird von GSON direkt aus {@code config/oviclicker.json} gelesen und
- * geschrieben. Alle Felder sind mit Standardwerten vorbelegt, damit fehlende oder
- * defekte Eintraege in der Datei automatisch auf den Standard zurueckfallen.</p>
+ * <p>GSON reads and writes this class directly from {@code config/oviclicker.json}. All
+ * fields have default values, so missing or broken entries in the file automatically fall
+ * back to the default.</p>
  *
- * <p>Modus und Master-Toggle werden bewusst mitgespeichert: der OviClicker soll nach
- * einem Server-Wechsel, einem Weltwechsel oder einem Client-Neustart im gleichen
- * Zustand weiterlaufen, ohne dass erneut umgeschaltet werden muss.</p>
+ * <p>Mode and master toggle are deliberately saved too: OviClicker should keep running in
+ * the same state after a server switch, a world switch or a client restart, without having
+ * to be toggled again.</p>
  */
 public class OviClickerConfig {
 
     // ------------------------------------------------------------------
-    // Allgemein
+    // General
     // ------------------------------------------------------------------
 
-    /** Master-Schalter. Ist er aus, klickt der Mod unabhaengig vom Modus nicht. */
+    /** Master switch. When off, the mod doesn't click regardless of the mode. */
     public boolean masterEnabled = true;
 
-    /** Aktiver Modus. Wird als Name gespeichert, damit unbekannte Werte abgefangen werden koennen. */
+    /** Active mode. Stored as a name so unknown values can be caught. */
     public String mode = ClickMode.OFF.name();
 
     // ------------------------------------------------------------------
-    // Modus AUTOATTACK
+    // AUTOATTACK mode
     // ------------------------------------------------------------------
 
-    /** Klicks pro Sekunde im Modus AUTOATTACK (0.1 - 20). */
+    /** Clicks per second in AUTOATTACK mode (0.1 - 20). */
     public double autoAttackCps = 8.0;
 
-    /** Zufaellige Abweichung des Intervalls im Modus AUTOATTACK in Prozent (0 - 100). */
+    /** Random deviation of the interval in AUTOATTACK mode, in percent (0 - 100). */
     public double autoAttackJitterPercent = 15.0;
 
-    /** Maximale Reichweite in Bloecken, bis zu der ein Ziel angegriffen wird (1 - 6). */
+    /** Maximum reach in blocks up to which a target is attacked (1 - 6). */
     public double maxReach = 3.0;
 
-    /** Aktion, die im Modus AUTOATTACK ausgeloest wird. Wird als Name gespeichert. */
+    /** Action triggered in AUTOATTACK mode. Stored as a name. */
     public String autoAttackAction = ClickAction.ATTACK.name();
 
     // ------------------------------------------------------------------
-    // Modus TIMER
+    // TIMER mode
     // ------------------------------------------------------------------
 
-    /** Klickintervall im Modus TIMER in Sekunden (0.05 - 300). */
+    /** Click interval in TIMER mode, in seconds (0.05 - 300). */
     public double timerIntervalSeconds = 10.0;
 
-    /** Zufaellige Abweichung des Intervalls im Modus TIMER in Prozent (0 - 100). */
+    /** Random deviation of the interval in TIMER mode, in percent (0 - 100). */
     public double timerJitterPercent = 0.0;
 
-    /** Aktion, die im Modus TIMER ausgeloest wird. Wird als Name gespeichert. */
+    /** Action triggered in TIMER mode. Stored as a name. */
     public String timerAction = ClickAction.ATTACK.name();
 
     // ------------------------------------------------------------------
-    // Gemeinsame Bedingungen
+    // Shared conditions
     // ------------------------------------------------------------------
 
-    /** Klickt nur, solange die Angriffstaste gedrueckt gehalten wird. */
+    /** Only clicks while the attack key is held down. */
     public boolean onlyWhileAttackKeyHeld = false;
 
-    /** Wartet, bis der Angriffs-Cooldown der Vanilla-Mechanik voll aufgeladen ist. */
+    /** Waits until the vanilla attack cooldown is fully charged. */
     public boolean respectAttackCooldown = true;
 
-    /** Klickt nur, wenn ein Schwert, eine Axt oder ein Dreizack in der Haupthand liegt. */
+    /** Only clicks while a sword, axe, trident or mace is in the main hand. */
     public boolean requireWeapon = false;
 
     /**
-     * Haelt die Taste gedrueckt, statt sie im Intervall anzutippen. Sinnvoll fuer
-     * Bewegungstasten (Autolauf) oder zum Dauerabbauen. Das Intervall wird dabei ignoriert.
+     * Holds the key down instead of tapping it at an interval. Useful for movement keys
+     * (auto-walk) or continuous mining. The interval is ignored.
      */
     public boolean holdInsteadOfTap = false;
 
-    /** Anzahl Ticks, die eine angetippte Taste gedrueckt bleibt (1 - 20). */
+    /** Number of ticks a tapped key stays pressed (1 - 20). */
     public int tapDurationTicks = 1;
 
     // ------------------------------------------------------------------
@@ -82,91 +82,91 @@ public class OviClickerConfig {
     // ------------------------------------------------------------------
 
     /**
-     * Isst automatisch, sobald der Hunger unter die Schwelle faellt. Waehrend des Essens
-     * pausiert der OviClicker, danach laeuft er von selbst weiter.
+     * Eats automatically as soon as hunger drops below the threshold. OviClicker pauses
+     * while eating and resumes on its own afterwards.
      */
     public boolean autoEatEnabled = true;
 
     /**
-     * Schwelle in ganzen Hungerkeulen (1 - 9). Gegessen wird, sobald der Hunger unter
-     * diesen Wert faellt, und zwar so lange, bis die Hungerleiste wieder voll ist.
+     * Threshold in whole haunches (1 - 9). Eating starts as soon as hunger drops below this
+     * value and continues until the hunger bar is full again.
      */
     public int autoEatThresholdHaunches = 6;
 
-    /** Holt Essen aus dem Inventar in die Hotbar, wenn dort keines mehr liegt. */
+    /** Moves food from the inventory into the hotbar when there is none left there. */
     public boolean autoEatRefillFromInventory = true;
 
-    /** Erlaubt den gewoehnlichen goldenen Apfel. */
+    /** Allows the regular golden apple. */
     public boolean autoEatAllowGoldenApples = false;
 
     /**
-     * Erlaubt den verzauberten goldenen Apfel. Steht bewusst getrennt vom gewoehnlichen
-     * goldenen Apfel, weil er ungleich wertvoller ist.
+     * Allows the enchanted golden apple. Deliberately separate from the regular golden apple,
+     * because it is far more valuable.
      */
     public boolean autoEatAllowEnchantedGoldenApples = false;
 
     // ------------------------------------------------------------------
-    // Entity-Blacklist (nur Modus AUTOATTACK)
+    // Entity blacklist (AUTOATTACK mode only)
     // ------------------------------------------------------------------
 
-    /** Greift keine Spieler an. */
+    /** Doesn't attack players. */
     public boolean blacklistPlayers = true;
 
-    /** Greift keine Dorfbewohner und fahrenden Haendler an. */
+    /** Doesn't attack villagers and wandering traders. */
     public boolean blacklistVillagers = true;
 
-    /** Greift keine gezaehmten Tiere an. */
+    /** Doesn't attack tamed animals. */
     public boolean blacklistTamed = true;
 
-    /** Greift keine friedlichen Tiere an. */
+    /** Doesn't attack passive animals. */
     public boolean blacklistPassive = false;
 
     // ------------------------------------------------------------------
     // HUD
     // ------------------------------------------------------------------
 
-    /** Zeigt den aktiven Modus im HUD an. */
+    /** Shows the active mode in the HUD. */
     public boolean hudEnabled = true;
 
-    /** Bildschirmecke der HUD-Anzeige. Wird als Name gespeichert. */
+    /** Screen corner of the HUD. Stored as a name. */
     public String hudCorner = HudCorner.TOP_LEFT.name();
 
-    /** Waagrechter Abstand der HUD-Anzeige zur gewaehlten Ecke (0 - 200). */
+    /** Horizontal offset of the HUD from the selected corner (0 - 200). */
     public int hudOffsetX = 4;
 
-    /** Senkrechter Abstand der HUD-Anzeige zur gewaehlten Ecke (0 - 200). */
+    /** Vertical offset of the HUD from the selected corner (0 - 200). */
     public int hudOffsetY = 4;
 
-    /** Blendet die HUD-Anzeige aus, solange der Modus OFF ist. */
+    /** Hides the HUD while the mode is OFF. */
     public boolean hudHideWhenOff = false;
 
     // ------------------------------------------------------------------
-    // Zugriff und Pruefung
+    // Access and validation
     // ------------------------------------------------------------------
 
     /**
-     * Gibt den aktiven Modus zurueck. Unbekannte Werte fallen auf {@link ClickMode#OFF} zurueck.
+     * Returns the active mode. Unknown values fall back to {@link ClickMode#OFF}.
      *
-     * @return der aktive Modus, nie {@code null}
+     * @return the active mode, never {@code null}
      */
     public ClickMode getMode() {
         return ClickMode.fromName(mode, ClickMode.OFF);
     }
 
     /**
-     * Setzt den aktiven Modus.
+     * Sets the active mode.
      *
-     * @param value der neue Modus, {@code null} wird als {@link ClickMode#OFF} behandelt
+     * @param value the new mode, {@code null} is treated as {@link ClickMode#OFF}
      */
     public void setMode(ClickMode value) {
         this.mode = (value == null ? ClickMode.OFF : value).name();
     }
 
     /**
-     * Gibt die Aktion des angegebenen Modus zurueck.
+     * Returns the action of the given mode.
      *
-     * @param mode der Modus, {@code null} wird als {@link ClickMode#OFF} behandelt
-     * @return die zugehoerige Aktion, nie {@code null}
+     * @param mode the mode, {@code null} is treated as {@link ClickMode#OFF}
+     * @return the corresponding action, never {@code null}
      */
     public ClickAction getAction(ClickMode mode) {
         if (mode == ClickMode.TIMER) {
@@ -176,10 +176,10 @@ public class OviClickerConfig {
     }
 
     /**
-     * Setzt die Aktion des angegebenen Modus.
+     * Sets the action of the given mode.
      *
-     * @param mode   der Modus, dessen Aktion gesetzt wird
-     * @param action die neue Aktion, {@code null} wird als Angriff behandelt
+     * @param mode   the mode whose action is set
+     * @param action the new action, {@code null} is treated as attack
      */
     public void setAction(ClickMode mode, ClickAction action) {
         String name = (action == null ? ClickAction.ATTACK : action).name();
@@ -191,27 +191,27 @@ public class OviClickerConfig {
     }
 
     /**
-     * Gibt die gewaehlte HUD-Ecke zurueck. Unbekannte Werte fallen auf oben links zurueck.
+     * Returns the selected HUD corner. Unknown values fall back to top left.
      *
-     * @return die HUD-Ecke, nie {@code null}
+     * @return the HUD corner, never {@code null}
      */
     public HudCorner getHudCorner() {
         return HudCorner.fromName(hudCorner, HudCorner.TOP_LEFT);
     }
 
     /**
-     * Setzt die HUD-Ecke.
+     * Sets the HUD corner.
      *
-     * @param value die neue Ecke, {@code null} wird als oben links behandelt
+     * @param value the new corner, {@code null} is treated as top left
      */
     public void setHudCorner(HudCorner value) {
         this.hudCorner = (value == null ? HudCorner.TOP_LEFT : value).name();
     }
 
     /**
-     * Begrenzt alle Zahlenwerte auf ihren gueltigen Bereich und repariert unbekannte
-     * Aufzaehlungswerte. Wird nach dem Laden und vor dem Speichern aufgerufen, damit eine
-     * von Hand bearbeitete Datei den Mod nicht in einen unsinnigen Zustand bringt.
+     * Clamps all numeric values to their valid range and repairs unknown enum values. Called
+     * after loading and before saving, so a hand-edited file can't put the mod into a
+     * nonsensical state.
      */
     public void clamp() {
         autoAttackCps = clampDouble(autoAttackCps, 0.1, 20.0, 8.0);
@@ -224,7 +224,7 @@ public class OviClickerConfig {
         tapDurationTicks = clampInt(tapDurationTicks, 1, 20, 1);
         autoEatThresholdHaunches = clampInt(autoEatThresholdHaunches, 1, 9, 6);
 
-        // Repariert unbekannte oder fehlende Namen der Aufzaehlungen
+        // Repairs unknown or missing enum names
         setMode(getMode());
         setHudCorner(getHudCorner());
         setAction(ClickMode.AUTOATTACK, getAction(ClickMode.AUTOATTACK));
@@ -232,9 +232,9 @@ public class OviClickerConfig {
     }
 
     /**
-     * Erstellt eine unabhaengige Kopie dieser Einstellungen.
+     * Creates an independent copy of these settings.
      *
-     * @return eine Kopie mit identischen Werten
+     * @return a copy with identical values
      */
     public OviClickerConfig copy() {
         OviClickerConfig copy = new OviClickerConfig();
@@ -270,9 +270,9 @@ public class OviClickerConfig {
     }
 
     /**
-     * Uebernimmt alle Werte aus einer anderen Instanz.
+     * Takes over all values from another instance.
      *
-     * @param other Quelle der Werte, {@code null} wird ignoriert
+     * @param other source of the values, {@code null} is ignored
      */
     public void copyFrom(OviClickerConfig other) {
         if (other == null) return;
@@ -307,13 +307,13 @@ public class OviClickerConfig {
     }
 
     /**
-     * Begrenzt einen Gleitkommawert und faengt {@code NaN} sowie Unendlich ab.
+     * Clamps a floating-point value and catches {@code NaN} and infinity.
      *
-     * @param value        der zu pruefende Wert
-     * @param min          untere Grenze
-     * @param max          obere Grenze
-     * @param defaultValue Ersatzwert bei {@code NaN} oder Unendlich
-     * @return der begrenzte Wert
+     * @param value        the value to check
+     * @param min          lower bound
+     * @param max          upper bound
+     * @param defaultValue fallback for {@code NaN} or infinity
+     * @return the clamped value
      */
     private static double clampDouble(double value, double min, double max, double defaultValue) {
         if (Double.isNaN(value) || Double.isInfinite(value)) return defaultValue;
@@ -321,13 +321,13 @@ public class OviClickerConfig {
     }
 
     /**
-     * Begrenzt einen Ganzzahlwert.
+     * Clamps an integer value.
      *
-     * @param value        der zu pruefende Wert
-     * @param min          untere Grenze
-     * @param max          obere Grenze
-     * @param defaultValue derzeit ungenutzt, dient der Einheitlichkeit
-     * @return der begrenzte Wert
+     * @param value        the value to check
+     * @param min          lower bound
+     * @param max          upper bound
+     * @param defaultValue currently unused, kept for consistency
+     * @return the clamped value
      */
     private static int clampInt(int value, int min, int max, int defaultValue) {
         return Math.max(min, Math.min(max, value));

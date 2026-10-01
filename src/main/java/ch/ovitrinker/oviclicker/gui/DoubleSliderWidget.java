@@ -7,42 +7,42 @@ import java.util.Locale;
 import java.util.function.DoubleConsumer;
 
 /**
- * Ein Schieberegler fuer einen Gleitkommawert innerhalb eines festen Bereichs.
+ * A slider for a floating-point value within a fixed range.
  *
- * <p>Die Vanilla-Klasse {@code AbstractSliderButton} rechnet intern immer mit einem Wert
- * zwischen 0 und 1. Diese Klasse rechnet ihn auf den gewuenschten Bereich um und zeigt
- * den echten Wert in der Beschriftung an.</p>
+ * <p>The vanilla class {@code AbstractSliderButton} always works internally with a value
+ * between 0 and 1. This class maps it to the desired range and shows the real value in the
+ * label.</p>
  */
 public class DoubleSliderWidget extends AbstractSliderButton {
 
-    /** Uebersetzungsschluessel der Beschriftung, erhaelt den Wert als Platzhalter. */
+    /** Translation key of the label, receives the value as a placeholder. */
     private final String labelKey;
 
-    /** Kleinster einstellbarer Wert. */
+    /** Smallest selectable value. */
     private final double minValue;
 
-    /** Groesster einstellbarer Wert. */
+    /** Largest selectable value. */
     private final double maxValue;
 
-    /** Anzahl Nachkommastellen in der Beschriftung. */
+    /** Number of decimal places in the label. */
     private final int decimals;
 
-    /** Empfaenger des geaenderten Werts. */
+    /** Receiver of the changed value. */
     private final DoubleConsumer applier;
 
     /**
-     * Erstellt einen Schieberegler.
+     * Creates a slider.
      *
-     * @param x        linke Kante
-     * @param y        obere Kante
-     * @param width    Breite in Pixeln
-     * @param height   Hoehe in Pixeln
-     * @param labelKey Uebersetzungsschluessel der Beschriftung mit einem Platzhalter
-     * @param value    aktueller Wert
-     * @param minValue kleinster erlaubter Wert
-     * @param maxValue groesster erlaubter Wert
-     * @param decimals Anzahl Nachkommastellen in der Anzeige
-     * @param applier  wird bei jeder Aenderung mit dem neuen Wert aufgerufen
+     * @param x        left edge
+     * @param y        top edge
+     * @param width    width in pixels
+     * @param height   height in pixels
+     * @param labelKey translation key of the label with one placeholder
+     * @param value    current value
+     * @param minValue smallest allowed value
+     * @param maxValue largest allowed value
+     * @param decimals number of decimal places shown
+     * @param applier  called with the new value on every change
      */
     public DoubleSliderWidget(int x, int y, int width, int height, String labelKey,
                               double value, double minValue, double maxValue, int decimals,
@@ -57,27 +57,27 @@ public class DoubleSliderWidget extends AbstractSliderButton {
     }
 
     /**
-     * Gibt den echten Wert des Reglers zurueck.
+     * Returns the slider's real value.
      *
-     * @return Wert zwischen {@code minValue} und {@code maxValue}
+     * @return value between {@code minValue} and {@code maxValue}
      */
     public double getRealValue() {
         return minValue + this.value * (maxValue - minValue);
     }
 
     /**
-     * Aktualisiert die Beschriftung mit dem aktuellen Wert.
+     * Updates the label with the current value.
      */
     @Override
     protected void updateMessage() {
-        // Wird vom Konstruktor der Oberklasse noch vor dem Setzen der Felder aufgerufen,
-        // deshalb der Schutz gegen einen noch fehlenden Schluessel.
+        // Called by the superclass constructor before the fields are set,
+        // hence the guard against a key that is still missing.
         if (labelKey == null) return;
         setMessage(Component.translatable(labelKey, format(getRealValue())));
     }
 
     /**
-     * Gibt den geaenderten Wert an die Einstellungen weiter.
+     * Passes the changed value on to the settings.
      */
     @Override
     protected void applyValue() {
@@ -85,22 +85,22 @@ public class DoubleSliderWidget extends AbstractSliderButton {
     }
 
     /**
-     * Formatiert einen Wert mit der eingestellten Anzahl Nachkommastellen.
+     * Formats a value with the configured number of decimal places.
      *
-     * @param value der anzuzeigende Wert
-     * @return der formatierte Text
+     * @param value the value to display
+     * @return the formatted text
      */
     private String format(double value) {
         return String.format(Locale.ROOT, "%." + decimals + "f", value);
     }
 
     /**
-     * Rechnet einen echten Wert auf den internen Bereich 0 bis 1 um.
+     * Maps a real value to the internal range 0 to 1.
      *
-     * @param value    der echte Wert
-     * @param minValue kleinster erlaubter Wert
-     * @param maxValue groesster erlaubter Wert
-     * @return Wert zwischen 0 und 1
+     * @param value    the real value
+     * @param minValue smallest allowed value
+     * @param maxValue largest allowed value
+     * @return value between 0 and 1
      */
     private static double toSliderValue(double value, double minValue, double maxValue) {
         if (maxValue <= minValue) return 0.0;

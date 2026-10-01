@@ -5,77 +5,75 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
 
 /**
- * Zugriff, den eine {@link ScreenExtension} beim Aufbau ihrer Bedienelemente erhaelt.
+ * Access a {@link ScreenExtension} gets while building its widgets.
  *
- * <p>Bedienelemente, die ueber {@link #addOption(AbstractWidget)} eingereicht werden, landen
- * im selben scrollbaren Bereich wie die eigenen Optionen des OviClickers und werden von
- * dessen bestehendem Scroll-Mechanismus mitverwaltet.</p>
+ * <p>Widgets submitted via {@link #addOption(AbstractWidget)} end up in the same scrollable
+ * area as OviClicker's own options and are managed by its existing scroll mechanism.</p>
  */
 public interface ExtensionApi {
 
     /**
-     * Nimmt ein Bedienelement in den scrollbaren Bereich des Bildschirms auf.
+     * Adds a widget to the screen's scrollable area.
      *
-     * @param widget das Bedienelement, dessen aktuelle Position als Grundposition gilt
-     * @param <T>    der Typ des Bedienelements
-     * @return dasselbe Bedienelement
+     * @param widget the widget, whose current position is used as its base position
+     * @param <T>    the widget type
+     * @return the same widget
      */
     <T extends AbstractWidget> T addOption(T widget);
 
     /**
-     * Linke Kante des Bereichs, den Erweiterungen fuer ihre Zeilen nutzen koennen.
+     * Left edge of the area extensions can use for their rows.
      *
-     * @return die waagrechte Position
+     * @return the horizontal position
      */
     int columnX();
 
     /**
-     * Volle Breite des Bereichs, den Erweiterungen fuer ihre Zeilen nutzen koennen.
+     * Full width of the area extensions can use for their rows.
      *
-     * @return die Breite in Pixeln
+     * @return the width in pixels
      */
     int columnWidth();
 
     /**
-     * Hoehe einer Zeile inklusive Abstand, wie sie der OviClicker selbst verwendet.
+     * Height of a row including spacing, as OviClicker itself uses it.
      *
-     * @return die Zeilenhoehe in Pixeln
+     * @return the row height in pixels
      */
     int rowHeight();
 
     /**
-     * Hoehe eines einzelnen Bedienelements, wie sie der OviClicker selbst verwendet.
+     * Height of a single widget, as OviClicker itself uses it.
      *
-     * @return die Elementhoehe in Pixeln
+     * @return the widget height in pixels
      */
     int widgetHeight();
 
     /**
-     * Gibt die naechste freie senkrechte Position zurueck und zaehlt den internen Zeiger
-     * anschliessend um {@link #rowHeight()} weiter.
+     * Returns the next free vertical position and then advances the internal cursor by
+     * {@link #rowHeight()}.
      *
-     * @return die senkrechte Position fuer die naechste Zeile
+     * @return the vertical position for the next row
      */
     int nextRowY();
 
     /**
-     * Schriftart des Bildschirms, fuer Bedienelemente, die sie benoetigen.
+     * The screen's font, for widgets that need it.
      *
-     * @return die Schriftart
+     * @return the font
      */
     Font font();
 
     /**
-     * Die Client-Instanz, fuer Bedienelemente, die sie benoetigen.
+     * The client instance, for widgets that need it.
      *
-     * @return die Client-Instanz
+     * @return the client instance
      */
     Minecraft minecraft();
 
     /**
-     * Baut den gesamten Bildschirm neu auf, inklusive aller eingehaengten Erweiterungen.
-     * Fuer Aenderungen, die zusaetzliche oder wegfallende Zeilen zur Folge haben, etwa
-     * das Anlegen oder Loeschen eines Eintrags.
+     * Rebuilds the whole screen, including all hooked-in extensions. For changes that add or
+     * remove rows, such as creating or deleting an entry.
      */
     void rebuild();
 }

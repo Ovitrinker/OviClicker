@@ -3,39 +3,39 @@ package ch.ovitrinker.oviclicker.gui;
 import net.minecraft.network.chat.Component;
 
 /**
- * Erweiterungspunkt fuer andere Mods, die eine eigene Sektion in den Einstellungsbildschirm
- * des OviClickers einhaengen wollen.
+ * Extension point for other mods that want to hook their own section into the OviClicker
+ * settings screen.
  *
- * <p>Registrierung ueber {@link ScreenExtensions#register(ScreenExtension)}, ueblicherweise
- * beim Start des Clients der erweiternden Mod. Der OviClicker selbst haengt von keiner
- * registrierten Erweiterung ab: bleibt die Registry leer, verhaelt sich der Bildschirm exakt
- * wie ohne diesen Erweiterungspunkt.</p>
+ * <p>Register via {@link ScreenExtensions#register(ScreenExtension)}, usually when the
+ * extending mod's client starts. OviClicker itself doesn't depend on any registered
+ * extension: if the registry stays empty, the screen behaves exactly as it would without
+ * this extension point.</p>
  */
 public interface ScreenExtension {
 
     /**
-     * Titel der Sektion, wird ueber den eingehaengten Bedienelementen angezeigt.
+     * Title of the section, shown above the hooked-in widgets.
      *
-     * @return der Titel als uebersetzbare Komponente
+     * @return the title as a translatable component
      */
     Component sectionTitle();
 
     /**
-     * Baut die Bedienelemente der Sektion auf. Wird bei jedem Aufbau des Bildschirms
-     * (auch nach einem Moduswechsel) erneut aufgerufen.
+     * Builds the section's widgets. Called again every time the screen is built (including
+     * after a mode change).
      *
-     * @param api Zugriff auf den scrollbaren Bereich des Bildschirms
+     * @param api access to the screen's scrollable area
      */
     void buildOptions(ExtensionApi api);
 
     /**
-     * Wird aufgerufen, nachdem der Nutzer im Bildschirm "Speichern" gewaehlt hat.
+     * Called after the user chose "Save" in the screen.
      */
     default void onSave() {
     }
 
     /**
-     * Wird aufgerufen, nachdem der Nutzer im Bildschirm "Abbrechen" gewaehlt hat.
+     * Called after the user chose "Cancel" in the screen.
      */
     default void onCancel() {
     }

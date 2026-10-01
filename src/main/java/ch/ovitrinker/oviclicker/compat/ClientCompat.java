@@ -12,17 +12,15 @@ import org.lwjgl.glfw.GLFW;
 /*import org.lwjgl.sdl.SDLMouse;*/
 
 /**
- * Buendelt die wenigen Stellen, an denen sich die Minecraft-API zwischen den Zielversionen
- * unterscheidet.
+ * Bundles the few places where the Minecraft API differs between the target versions.
  *
- * <p>Mit 26.2 ist die Screen-Verwaltung von {@code Minecraft} in die Klasse
- * {@code net.minecraft.client.gui.Gui} gewandert. In 1.21.11 und 26.1.x liegt sie noch
- * direkt auf {@code Minecraft}. Die Fallunterscheidung passiert ueber Stonecutter, damit
- * jede Version genau den Aufruf kompiliert, den sie kennt.</p>
+ * <p>With 26.2, screen management moved from {@code Minecraft} into the class
+ * {@code net.minecraft.client.gui.Gui}. In 1.21.11 and 26.1.x it still lives directly on
+ * {@code Minecraft}. The case distinction is done with Stonecutter, so each version compiles
+ * exactly the call it knows.</p>
  *
- * <p>Mit 26.3 hat Minecraft GLFW durch SDL3 ersetzt. Tastenbelegungen speichern seither
- * Scancodes, Maustasten werden bei SDL abgefragt, und {@code swing}/{@code drop} haben
- * neue Signaturen bekommen.</p>
+ * <p>With 26.3, Minecraft replaced GLFW with SDL3. Since then key binds store scancodes,
+ * mouse buttons are polled from SDL, and {@code swing}/{@code drop} have new signatures.</p>
  */
 public final class ClientCompat {
 
@@ -30,10 +28,10 @@ public final class ClientCompat {
     }
 
     /**
-     * Gibt den aktuell offenen Bildschirm zurueck.
+     * Returns the currently open screen.
      *
-     * @param client die Client-Instanz
-     * @return der offene Screen oder {@code null}, wenn keiner offen ist
+     * @param client the client instance
+     * @return the open screen, or {@code null} if none is open
      */
     public static Screen getCurrentScreen(Minecraft client) {
         //? if <26.2 {
@@ -43,10 +41,10 @@ public final class ClientCompat {
     }
 
     /**
-     * Oeffnet einen Bildschirm.
+     * Opens a screen.
      *
-     * @param client die Client-Instanz
-     * @param screen der zu oeffnende Screen, {@code null} schliesst den aktuellen
+     * @param client the client instance
+     * @param screen the screen to open, {@code null} closes the current one
      */
     public static void openScreen(Minecraft client, Screen screen) {
         //? if <26.2 {
@@ -56,9 +54,9 @@ public final class ClientCompat {
     }
 
     /**
-     * Schwingt die Haupthand, wie es Minecraft nach einem Angriff tut.
+     * Swings the main hand, as Minecraft does after an attack.
      *
-     * @param player der lokale Spieler
+     * @param player the local player
      */
     public static void swingMainHand(LocalPlayer player) {
         //? if <26.3 {
@@ -68,9 +66,9 @@ public final class ClientCompat {
     }
 
     /**
-     * Legt einen einzelnen Gegenstand ab, wie es Minecraft beim Druck auf die Ablegen-Taste tut.
+     * Drops a single item, as Minecraft does when the drop key is pressed.
      *
-     * @param client die Client-Instanz, {@code player} und {@code gameMode} muessen gesetzt sein
+     * @param client the client instance, {@code player} and {@code gameMode} must be set
      */
     public static void dropOne(Minecraft client) {
         //? if <26.3 {
@@ -82,11 +80,11 @@ public final class ClientCompat {
     }
 
     /**
-     * Prueft, ob eine Maustaste physisch gedrueckt ist.
+     * Checks whether a mouse button is physically pressed.
      *
-     * @param client die Client-Instanz
-     * @param button die Maustaste im Zaehlschema von {@code InputConstants.MOUSE_BUTTON_*}
-     * @return {@code true}, wenn die Taste gedrueckt ist
+     * @param client the client instance
+     * @param button the mouse button in the numbering of {@code InputConstants.MOUSE_BUTTON_*}
+     * @return {@code true} if the button is pressed
      */
     public static boolean isMouseButtonDown(Minecraft client, int button) {
         //? if <26.3 {
@@ -96,12 +94,12 @@ public final class ClientCompat {
     }
 
     /**
-     * Prueft, ob eine Tastatur-Taste physisch gedrueckt ist.
+     * Checks whether a keyboard key is physically pressed.
      *
-     * @param client die Client-Instanz
-     * @param key    die Taste einer Tastenbelegung
-     * @return {@code true}, wenn die Taste gedrueckt ist; {@code null}, wenn sie sich nicht
-     *         direkt abfragen laesst
+     * @param client the client instance
+     * @param key    the key of a key bind
+     * @return {@code true} if the key is pressed; {@code null} if it can't be polled
+     *         directly
      */
     public static Boolean isKeyboardKeyDown(Minecraft client, InputConstants.Key key) {
         //? if <26.3 {

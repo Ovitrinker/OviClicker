@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Statische Registry der {@link HudLineProvider} anderer Mods.
+ * Static registry of other mods' {@link HudLineProvider}s.
  *
- * <p>Bleibt die Registry leer, verhaelt sich {@link HudRenderer} exakt wie ohne diesen
- * Erweiterungspunkt.</p>
+ * <p>If the registry stays empty, {@link HudRenderer} behaves exactly as it would without
+ * this extension point.</p>
  */
 public final class HudExtensions {
 
@@ -17,10 +17,9 @@ public final class HudExtensions {
     }
 
     /**
-     * Registriert einen Zeilen-Anbieter. Ueblicherweise beim Start des Clients der
-     * erweiternden Mod.
+     * Registers a line provider. Usually when the extending mod's client starts.
      *
-     * @param provider der zu registrierende Anbieter, {@code null} wird ignoriert
+     * @param provider the provider to register, {@code null} is ignored
      */
     public static void register(HudLineProvider provider) {
         if (provider == null) return;
@@ -28,9 +27,9 @@ public final class HudExtensions {
     }
 
     /**
-     * Gibt alle registrierten Zeilen-Anbieter zurueck.
+     * Returns all registered line providers.
      *
-     * @return unveraenderliche Sicht auf die registrierten Anbieter
+     * @return the registered providers
      */
     public static List<HudLineProvider> all() {
         return REGISTRY;

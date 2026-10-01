@@ -3,17 +3,17 @@ package ch.ovitrinker.oviclicker;
 import net.minecraft.network.chat.Component;
 
 /**
- * Erweiterungspunkt fuer andere Mods, die eine zusaetzliche Zeile im HUD des OviClickers
- * anzeigen wollen, ohne ein eigenes HUD-Element zu registrieren.
+ * Extension point for other mods that want to show an extra line in the OviClicker HUD
+ * without registering a HUD element of their own.
  *
- * <p>Registrierung ueber {@link HudExtensions#register(HudLineProvider)}.</p>
+ * <p>Register via {@link HudExtensions#register(HudLineProvider)}.</p>
  */
 public interface HudLineProvider {
 
     /**
-     * Gibt die anzuzeigende Zeile zurueck, oder {@code null}, wenn gerade nichts anzuzeigen ist.
+     * Returns the line to display, or {@code null} if there is nothing to show right now.
      *
-     * @return die Zeile oder {@code null}
+     * @return the line or {@code null}
      */
     Component extraLine();
 }

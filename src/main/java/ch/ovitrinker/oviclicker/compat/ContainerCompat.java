@@ -9,16 +9,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerInput;
 
 /**
- * Kapselt den einen Aufruf, mit dem ein Gegenstand zwischen Inventar und Hotbar
- * getauscht wird.
+ * Wraps the single call that swaps an item between inventory and hotbar.
  *
- * <p>Ausgeloest wird genau derselbe Tausch, den ein Druck auf eine Hotbar-Taste im
- * offenen Inventar ausloesen wuerde. Der Client schickt dazu ein regulaeres
- * Klick-Paket an den Server; es wird nichts gefaelscht und nichts umgangen.</p>
+ * <p>It triggers exactly the same swap that pressing a hotbar key in the open inventory would.
+ * The client sends a regular click packet to the server for this; nothing is forged and
+ * nothing is bypassed.</p>
  *
- * <p>Mit 26.1 wurde die Aufzaehlung {@code ClickType} in {@code ContainerInput}
- * umbenannt und die Methode {@code handleInventoryMouseClick} in
- * {@code handleContainerInput}. Die Fallunterscheidung passiert ueber Stonecutter.</p>
+ * <p>With 26.1 the enum {@code ClickType} was renamed to {@code ContainerInput} and the method
+ * {@code handleInventoryMouseClick} to {@code handleContainerInput}. The case distinction is
+ * done with Stonecutter.</p>
  */
 public final class ContainerCompat {
 
@@ -26,16 +25,16 @@ public final class ContainerCompat {
     }
 
     /**
-     * Tauscht den Inhalt eines Inventarplatzes mit einem Hotbar-Platz.
+     * Swaps the contents of an inventory slot with a hotbar slot.
      *
-     * <p>Im Inventarmenue des Spielers tragen die Plaetze des Hauptinventars (9 bis 35)
-     * dieselben Nummern wie im Inventar selbst, deshalb kann der Inventarindex direkt
-     * als Platznummer im Menue verwendet werden.</p>
+     * <p>In the player's inventory menu, the slots of the main inventory (9 to 35) have the
+     * same numbers as in the inventory itself, so the inventory index can be used directly as
+     * the menu slot number.</p>
      *
-     * @param client       die Client-Instanz
-     * @param player       der Spieler
-     * @param menuSlot     Platznummer im Inventarmenue (9 bis 35 fuer das Hauptinventar)
-     * @param hotbarIndex  Ziel-Platz in der Hotbar (0 bis 8)
+     * @param client       the client instance
+     * @param player       the player
+     * @param menuSlot     slot number in the inventory menu (9 to 35 for the main inventory)
+     * @param hotbarIndex  target slot in the hotbar (0 to 8)
      */
     public static void swapWithHotbar(Minecraft client, Player player, int menuSlot, int hotbarIndex) {
         if (client == null || client.gameMode == null || player == null) return;

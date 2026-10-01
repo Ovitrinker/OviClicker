@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Statische Registry der {@link ScreenExtension}en anderer Mods.
+ * Static registry of other mods' {@link ScreenExtension}s.
  *
- * <p>Bleibt die Registry leer, verhaelt sich {@link OviClickerScreen} exakt wie ohne diesen
- * Erweiterungspunkt.</p>
+ * <p>If the registry stays empty, {@link OviClickerScreen} behaves exactly as it would
+ * without this extension point.</p>
  */
 public final class ScreenExtensions {
 
@@ -17,9 +17,9 @@ public final class ScreenExtensions {
     }
 
     /**
-     * Registriert eine Erweiterung. Ueblicherweise beim Start des Clients der erweiternden Mod.
+     * Registers an extension. Usually when the extending mod's client starts.
      *
-     * @param extension die zu registrierende Erweiterung, {@code null} wird ignoriert
+     * @param extension the extension to register, {@code null} is ignored
      */
     public static void register(ScreenExtension extension) {
         if (extension == null) return;
@@ -27,9 +27,9 @@ public final class ScreenExtensions {
     }
 
     /**
-     * Gibt alle registrierten Erweiterungen zurueck.
+     * Returns all registered extensions.
      *
-     * @return unveraenderliche Sicht auf die registrierten Erweiterungen
+     * @return the registered extensions
      */
     public static List<ScreenExtension> all() {
         return REGISTRY;

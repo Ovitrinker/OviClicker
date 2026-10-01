@@ -14,55 +14,53 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 /**
- * Laedt und speichert die Einstellungen als JSON unter {@code config/oviclicker.json}.
+ * Loads and saves the settings as JSON in {@code config/oviclicker.json}.
  *
- * <p>Geschrieben wird immer atomar: zuerst in eine {@code .tmp}-Datei, danach wird die
- * bisherige Datei als {@code .bak} gesichert und die temporaere Datei an ihre Stelle
- * verschoben. Damit bleibt bei einem Absturz waehrend des Schreibens immer eine
- * gueltige Datei uebrig.</p>
+ * <p>Writes are always atomic: first into a {@code .tmp} file, then the previous file is
+ * backed up as {@code .bak} and the temporary file is moved into place. That way a valid file
+ * always remains if the game crashes while writing.</p>
  *
- * <p>Fehlende oder defekte Felder fuehren nie zu einem Absturz: GSON laesst unbekannte
- * Felder auf ihrem Standardwert stehen, und eine unlesbare Datei wird verworfen.</p>
+ * <p>Missing or broken fields never cause a crash: GSON leaves unknown fields at their
+ * default value, and an unreadable file is discarded.</p>
  */
 public final class ConfigManager {
 
-    /** Logger des Mods. */
+    /** The mod's logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger("oviclicker");
 
-    /** GSON-Instanz mit lesbarer Formatierung. */
+    /** GSON instance with readable formatting. */
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    /** Dateiname der Konfiguration im Ordner {@code config}. */
+    /** File name of the config in the {@code config} folder. */
     private static final String FILE_NAME = "oviclicker.json";
 
-    /** Die aktuell gueltigen Einstellungen. */
+    /** The currently valid settings. */
     private static OviClickerConfig config = new OviClickerConfig();
 
     private ConfigManager() {
     }
 
     /**
-     * Gibt die aktive Konfiguration zurueck.
+     * Returns the active config.
      *
-     * @return die Einstellungen, nie {@code null}
+     * @return the settings, never {@code null}
      */
     public static OviClickerConfig get() {
         return config;
     }
 
     /**
-     * Gibt den Pfad der Konfigurationsdatei zurueck.
+     * Returns the path of the config file.
      *
-     * @return absoluter Pfad auf {@code config/oviclicker.json}
+     * @return absolute path to {@code config/oviclicker.json}
      */
     public static Path getConfigPath() {
         return FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME);
     }
 
     /**
-     * Laedt die Konfiguration von der Festplatte. Existiert keine Datei, werden die
-     * Standardwerte verwendet und sofort geschrieben. Ist die Datei defekt, wird sie
-     * ignoriert und der Mod startet mit den Standardwerten.
+     * Loads the config from disk. If no file exists, the defaults are used and written
+     * immediately. If the file is broken, it is ignored and the mod starts with the defaults.
      */
     public static void load() {
         Path path = getConfigPath();
@@ -78,24 +76,24 @@ public final class ConfigManager {
             OviClickerConfig loaded = GSON.fromJson(json, OviClickerConfig.class);
 
             if (loaded == null) {
-                LOGGER.warn("oviclicker.json ist leer, es werden die Standardwerte verwendet.");
+                LOGGER.warn("oviclicker.json is empty, using the defaults.");
                 loaded = new OviClickerConfig();
             }
 
             loaded.clamp();
             config = loaded;
         } catch (Exception exception) {
-            // Defekte Datei darf den Client nicht am Start hindern
-            LOGGER.error("oviclicker.json konnte nicht gelesen werden, es gelten die Standardwerte.", exception);
+            // A broken file must not prevent the client from starting
+            LOGGER.error("Could not read oviclicker.json, using the defaults.", exception);
             config = new OviClickerConfig();
         }
     }
 
     /**
-     * Schreibt die aktuelle Konfiguration atomar auf die Festplatte.
+     * Writes the current config to disk atomically.
      *
-     * <p>Diese Methode wird nach jeder Aenderung aufgerufen, damit Modus und Master-Schalter
-     * auch nach einem Serverwechsel oder einem Client-Neustart erhalten bleiben.</p>
+     * <p>Called after every change, so mode and master switch survive a server switch or a
+     * client restart.</p>
      */
     public static void save() {
         config.clamp();
@@ -108,7 +106,7 @@ public final class ConfigManager {
             Files.createDirectories(path.getParent());
             Files.writeString(tempPath, GSON.toJson(config), StandardCharsets.UTF_8);
 
-            // Bisherige Fassung sichern, bevor sie ersetzt wird
+            // Back up the previous version before replacing it
             if (Files.exists(path)) {
                 Files.copy(path, backupPath, StandardCopyOption.REPLACE_EXISTING);
             }
@@ -117,18 +115,18 @@ public final class ConfigManager {
                 Files.move(tempPath, path,
                         StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
             } catch (AtomicMoveNotSupportedException exception) {
-                // Nicht jedes Dateisystem kann atomar verschieben
+                // Not every file system supports atomic moves
                 Files.move(tempPath, path, StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (IOException exception) {
-            LOGGER.error("oviclicker.json konnte nicht geschrieben werden.", exception);
+            LOGGER.error("Could not write oviclicker.json.", exception);
         }
     }
 
     /**
-     * Ersetzt die aktive Konfiguration und speichert sie sofort.
+     * Replaces the active config and saves it immediately.
      *
-     * @param newConfig die neuen Einstellungen, {@code null} wird ignoriert
+     * @param newConfig the new settings, {@code null} is ignored
      */
     public static void replaceAndSave(OviClickerConfig newConfig) {
         if (newConfig == null) return;

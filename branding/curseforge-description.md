@@ -1,11 +1,9 @@
 <!--
-Text fuer die CurseForge-Projektseite. CurseForge verlangt eine englische, ausreichend
-ausfuehrliche Beschreibung, deshalb ist diese Datei als einzige im Projekt auf Englisch.
-Alles hier Beschriebene steht so auch in der README - keine Angabe darf ueber das
-hinausgehen, was der Mod wirklich kann.
+Text for the CurseForge project page. Everything described here is also in the README -
+nothing may go beyond what the mod actually does.
 
-Der Block "SUMMARY" gehoert ins Feld "Summary", alles ab "DESCRIPTION" in die
-Beschreibung.
+The "SUMMARY" block goes into the "Summary" field, everything from "DESCRIPTION" on into
+the description.
 -->
 
 ## SUMMARY

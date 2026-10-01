@@ -1,14 +1,14 @@
 package ch.ovitrinker.oviclicker.feature;
 
 /**
- * Die drei moeglichen Betriebsmodi des OviClickers. Es ist immer genau ein Modus aktiv.
+ * The three possible OviClicker modes. Exactly one mode is always active.
  */
 public enum ClickMode {
-    /** Der OviClicker ist ausgeschaltet. */
+    /** OviClicker is turned off. */
     OFF("oviclicker.mode.off"),
-    /** Klickt automatisch, sobald das Fadenkreuz auf einer Entity liegt. */
+    /** Clicks automatically as soon as the crosshair is on an entity. */
     AUTOATTACK("oviclicker.mode.autoattack"),
-    /** Klickt in einem festen Intervall, unabhaengig vom Ziel. */
+    /** Clicks at a fixed interval, regardless of the target. */
     TIMER("oviclicker.mode.timer");
 
     private final String translationKey;
@@ -18,18 +18,18 @@ public enum ClickMode {
     }
 
     /**
-     * Gibt den Uebersetzungsschluessel fuer die Anzeige im GUI und HUD zurueck.
+     * Returns the translation key for display in GUI and HUD.
      *
-     * @return Schluessel aus den Sprachdateien
+     * @return key from the language files
      */
     public String getTranslationKey() {
         return translationKey;
     }
 
     /**
-     * Gibt den naechsten Modus in der Reihenfolge OFF -&gt; AUTOATTACK -&gt; TIMER -&gt; OFF zurueck.
+     * Returns the next mode in the order OFF -&gt; AUTOATTACK -&gt; TIMER -&gt; OFF.
      *
-     * @return der folgende Modus
+     * @return the following mode
      */
     public ClickMode next() {
         ClickMode[] values = values();
@@ -37,11 +37,11 @@ public enum ClickMode {
     }
 
     /**
-     * Wandelt einen gespeicherten Namen sicher in einen Modus um.
+     * Safely converts a stored name into a mode.
      *
-     * @param name     der gespeicherte Name, darf {@code null} sein
-     * @param fallback Rueckgabewert, falls der Name unbekannt oder {@code null} ist
-     * @return der passende Modus oder {@code fallback}
+     * @param name     the stored name, may be {@code null}
+     * @param fallback return value if the name is unknown or {@code null}
+     * @return the matching mode or {@code fallback}
      */
     public static ClickMode fromName(String name, ClickMode fallback) {
         if (name == null) return fallback;

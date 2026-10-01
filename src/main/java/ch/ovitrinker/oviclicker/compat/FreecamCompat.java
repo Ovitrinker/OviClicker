@@ -14,49 +14,47 @@ import net.minecraft.world.phys.Vec3;
 import java.lang.reflect.Method;
 
 /**
- * Zusammenspiel mit der Freecam-Mod ({@code freecam}, Paket {@code net.xolt.freecam}).
+ * Interplay with the Freecam mod ({@code freecam}, package {@code net.xolt.freecam}).
  *
- * <p>Ist Freecam aktiv, sieht der Spieler durch eine losgeloeste Kamera, waehrend die
- * Spielfigur an Ort und Stelle stehen bleibt. Freecam greift dabei an zwei Stellen ein, die
- * den OviClicker sonst lahmlegen:</p>
+ * <p>While Freecam is active, the player looks through a detached camera while the player
+ * character stays in place. Freecam interferes in two places that would otherwise cripple
+ * OviClicker:</p>
  * <ul>
- *   <li>Das Fadenkreuz-Ziel {@code Minecraft.hitResult} wird von der Kamera aus berechnet.
- *       AUTOATTACK findet dadurch kein Ziel mehr vor der Spielfigur.</li>
- *   <li>Solange in Freecam „Interaktion erlauben" aus ist, bricht Freecam
- *       {@code startAttack()} und {@code continueAttack()} sofort ab.</li>
+ *   <li>The crosshair target {@code Minecraft.hitResult} is calculated from the camera.
+ *       AUTOATTACK therefore no longer finds a target in front of the player.</li>
+ *   <li>While "Allow interaction" is off in Freecam, Freecam cancels {@code startAttack()}
+ *       and {@code continueAttack()} immediately.</li>
  * </ul>
  *
- * <p>Waehrend Freecam aktiv ist, bestimmt der OviClicker das Ziel deshalb selbst: ein
- * Strahl ab den Augen der Spielfigur in deren Blickrichtung, genau wie es Minecraft ohne
- * Freecam tut. Der Angriff laeuft dann ueber {@code MultiPlayerGameMode.attack()} und
- * {@code swing()}, also dieselben Aufrufe, die {@code startAttack()} bei einem getroffenen
- * Wesen macht.</p>
+ * <p>So while Freecam is active, OviClicker determines the target itself: a ray from the
+ * player's eyes in their viewing direction, exactly as Minecraft does without Freecam. The
+ * attack then goes through {@code MultiPlayerGameMode.attack()} and {@code swing()}, the same
+ * calls {@code startAttack()} makes when it hits an entity.</p>
  *
- * <p>Freecam ist keine Build-Abhaengigkeit. Der Zustand wird zur Laufzeit per Reflection
- * abgefragt; fehlt die Mod oder aendert sie ihre Schnittstelle, gilt Freecam einfach als
- * inaktiv.</p>
+ * <p>Freecam is not a build dependency. Its state is queried at runtime via reflection; if the
+ * mod is missing or changes its interface, Freecam is simply treated as inactive.</p>
  */
 public final class FreecamCompat {
 
-    /** Mod-ID von Freecam. */
+    /** Freecam's mod ID. */
     private static final String MOD_ID = "freecam";
 
-    /** Hauptklasse von Freecam mit der statischen Methode {@code isEnabled()}. */
+    /** Freecam's main class with the static method {@code isEnabled()}. */
     private static final String MAIN_CLASS = "net.xolt.freecam.Freecam";
 
-    /** {@code Freecam.isEnabled()}, {@code null} wenn Freecam fehlt oder nicht lesbar ist. */
+    /** {@code Freecam.isEnabled()}, {@code null} if Freecam is missing or unreadable. */
     private static Method isEnabledMethod = null;
 
-    /** Merkt sich, ob die Methode bereits gesucht wurde. */
+    /** Remembers whether the method has already been looked up. */
     private static boolean resolved = false;
 
     private FreecamCompat() {
     }
 
     /**
-     * Gibt an, ob Freecam installiert und gerade eingeschaltet ist.
+     * Returns whether Freecam is installed and currently enabled.
      *
-     * @return {@code true}, wenn die Kamera gerade von der Spielfigur geloest ist
+     * @return {@code true} if the camera is currently detached from the player
      */
     public static boolean isActive() {
         if (!resolved) resolve();
@@ -65,14 +63,14 @@ public final class FreecamCompat {
         try {
             return (boolean) isEnabledMethod.invoke(null);
         } catch (ReflectiveOperationException | RuntimeException e) {
-            // Schnittstelle hat sich geaendert: Freecam ab jetzt ignorieren
+            // Interface has changed: ignore Freecam from now on
             isEnabledMethod = null;
             return false;
         }
     }
 
     /**
-     * Sucht einmalig die Methode {@code Freecam.isEnabled()}.
+     * Looks up the method {@code Freecam.isEnabled()} once.
      */
     private static void resolve() {
         resolved = true;
@@ -86,16 +84,15 @@ public final class FreecamCompat {
     }
 
     /**
-     * Bestimmt das Ziel so, wie Minecraft es ohne Freecam tun wuerde: ab den Augen der
-     * Spielfigur in ihrer eigenen Blickrichtung, begrenzt durch die Angriffsreichweite und
-     * durch Bloecke im Weg.
+     * Determines the target the way Minecraft would without Freecam: from the player's eyes in
+     * their own viewing direction, limited by attack reach and by blocks in the way.
      *
-     * <p>Die Blickrichtung wird bewusst aus {@code getXRot()} und {@code getYRot()} gebildet
-     * und nicht ueber {@code getViewVector()}: Freecam leitet die Blickwinkel-Abfragen der
-     * Spielfigur je nach Einstellung auf die Kamera um.</p>
+     * <p>The viewing direction is deliberately built from {@code getXRot()} and
+     * {@code getYRot()} rather than {@code getViewVector()}: depending on its settings, Freecam
+     * redirects the player's view-angle queries to the camera.</p>
      *
-     * @param client die Client-Instanz
-     * @return das getroffene Wesen oder {@code null}, wenn keines anvisiert ist
+     * @param client the client instance
+     * @return the entity hit, or {@code null} if none is targeted
      */
     public static EntityHitResult pickEntityFromPlayer(Minecraft client) {
         LocalPlayer player = client.player;
@@ -106,7 +103,7 @@ public final class FreecamCompat {
         Vec3 direction = Vec3.directionFromRotation(player.getXRot(), player.getYRot());
         Vec3 end = eye.add(direction.scale(reach));
 
-        // Bloecke im Weg verkuerzen den Strahl, sonst wuerde durch Waende geschlagen
+        // Blocks in the way shorten the ray, otherwise it would hit through walls
         double maxDistanceSq = reach * reach;
         HitResult blockHit = client.level.clip(new ClipContext(
                 eye, end, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, player));
@@ -120,10 +117,10 @@ public final class FreecamCompat {
     }
 
     /**
-     * Greift ein Wesen an, genau wie es {@code startAttack()} bei einem getroffenen Wesen tut.
+     * Attacks an entity, exactly as {@code startAttack()} does when it hits an entity.
      *
-     * @param client die Client-Instanz
-     * @param target das anzugreifende Wesen
+     * @param client the client instance
+     * @param target the entity to attack
      */
     public static void attack(Minecraft client, Entity target) {
         LocalPlayer player = client.player;

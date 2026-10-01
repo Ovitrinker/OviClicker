@@ -25,69 +25,69 @@ import java.util.List;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 /**
- * Der Einstellungsbildschirm des OviClickers.
+ * The OviClicker settings screen.
  *
- * <p>Bewusst ausschliesslich mit dem Vanilla-Screen-API gebaut, ohne Cloth Config oder
- * eine andere Fremdbibliothek. So haengt der Multiversion-Build an keiner zusaetzlichen
- * Abhaengigkeit.</p>
+ * <p>Deliberately built with the vanilla screen API only, without Cloth Config or any other
+ * third-party library. That way the multi-version build doesn't depend on any additional
+ * dependency.</p>
  *
- * <p>Der Optionsbereich zwischen Titel und Fusszeile laesst sich mit dem Mausrad scrollen,
- * falls nicht alle Optionen auf den Bildschirm passen. Gescrollt wird in ganzen Zeilen,
- * damit nie eine halbe Zeile am Rand abgeschnitten wird. Bedienelemente ausserhalb des
- * Sichtbereichs werden ausgeblendet und nehmen dadurch auch keine Klicks entgegen.</p>
+ * <p>The options area between title and footer can be scrolled with the mouse wheel if not
+ * all options fit on the screen. Scrolling happens in whole rows, so a row is never cut in
+ * half at the edge. Widgets outside the visible area are hidden and therefore don't receive
+ * clicks either.</p>
  *
- * <p>Alle Aenderungen laufen zuerst in eine Arbeitskopie der Einstellungen. Erst der
- * Knopf "Speichern" uebernimmt sie und schreibt sie auf die Festplatte.</p>
+ * <p>All changes go into a working copy of the settings first. Only the "Save" button
+ * applies them and writes them to disk.</p>
  */
 public class OviClickerScreen extends Screen {
 
-    /** Breite einer Spalte in Pixeln. */
+    /** Width of a column in pixels. */
     private static final int COLUMN_WIDTH = 150;
 
-    /** Abstand zwischen den Spalten. */
+    /** Gap between the columns. */
     private static final int COLUMN_GAP = 10;
 
-    /** Hoehe einer Zeile inklusive Abstand. */
+    /** Height of a row including spacing. */
     private static final int ROW_HEIGHT = 22;
 
-    /** Hoehe eines Bedienelements. */
+    /** Height of a widget. */
     private static final int WIDGET_HEIGHT = 20;
 
-    /** Obere Kante des scrollbaren Bereichs. */
+    /** Top edge of the scrollable area. */
     private static final int VIEWPORT_TOP = 32;
 
-    /** Abstand des scrollbaren Bereichs zum unteren Bildschirmrand. */
+    /** Distance of the scrollable area from the bottom of the screen. */
     private static final int VIEWPORT_BOTTOM_MARGIN = 34;
 
-    /** Bildschirm, zu dem beim Schliessen zurueckgekehrt wird. */
+    /** Screen to return to when closing. */
     private final Screen parent;
 
-    /** Arbeitskopie der Einstellungen. */
+    /** Working copy of the settings. */
     private final OviClickerConfig working;
 
-    /** Alle scrollbaren Bedienelemente mit ihrer unverschobenen Position. */
+    /** All scrollable widgets with their unshifted position. */
     private final List<ScrollEntry> entries = new ArrayList<>();
 
-    /** Aktuelle Verschiebung in Zeilen. */
+    /** Current scroll offset in rows. */
     private int scrollRows = 0;
 
-    /** Groesstmoegliche Verschiebung in Zeilen. */
+    /** Largest possible scroll offset in rows. */
     private int maxScrollRows = 0;
 
     /**
-     * Ein scrollbares Bedienelement zusammen mit seiner Position ohne Verschiebung.
+     * A scrollable widget together with its position without scrolling.
      *
-     * @param widget das Bedienelement
-     * @param baseY  die senkrechte Position bei Verschiebung null
+     * @param widget the widget
+     * @param baseY  the vertical position at scroll offset zero
      */
     private record ScrollEntry(AbstractWidget widget, int baseY) {
     }
 
     /**
-     * Erstellt den Einstellungsbildschirm.
+     * Creates the settings screen.
      *
-     * @param title  der Titel des Bildschirms
-     * @param parent der Bildschirm, zu dem beim Schliessen zurueckgekehrt wird, darf {@code null} sein
+     * @param title  the screen title
+     * @param parent the screen to return to when closing, may be {@code null}
      */
     public OviClickerScreen(Component title, Screen parent) {
         super(title);
@@ -96,7 +96,7 @@ public class OviClickerScreen extends Screen {
     }
 
     /**
-     * Baut alle Bedienelemente auf. Wird auch nach jedem Moduswechsel erneut aufgerufen.
+     * Builds all widgets. Called again after every mode change.
      */
     @Override
     protected void init() {
@@ -108,7 +108,7 @@ public class OviClickerScreen extends Screen {
         int leftY = 36;
         int rightY = 36;
 
-        // --- Linke Spalte: Modus, Aktion und die Optionen des Modus ---
+        // --- Left column: mode, action and the mode's options ---
         addOption(Button.builder(
                         Component.translatable("oviclicker.gui.mode",
                                 Component.translatable(working.getMode().getTranslationKey())),
@@ -119,7 +119,7 @@ public class OviClickerScreen extends Screen {
                 .bounds(leftX, leftY, COLUMN_WIDTH, WIDGET_HEIGHT).build());
         leftY += ROW_HEIGHT;
 
-        // Aktion des aktiven Modus: was der OviClicker ausloest
+        // Action of the active mode: what OviClicker triggers
         if (working.getMode() != ClickMode.OFF) {
             final ClickMode currentMode = working.getMode();
             addOption(Button.builder(
@@ -152,7 +152,7 @@ public class OviClickerScreen extends Screen {
                         value -> working.maxReach = value));
                 leftY += ROW_HEIGHT;
 
-                // Entity-Blacklist, nur im Modus AUTOATTACK sinnvoll
+                // Entity blacklist, only meaningful in AUTOATTACK mode
                 addOption(Checkbox.builder(
                                 Component.translatable("oviclicker.option.blacklist_players"), this.font)
                         .pos(leftX, leftY).maxWidth(COLUMN_WIDTH).selected(working.blacklistPlayers)
@@ -189,11 +189,11 @@ public class OviClickerScreen extends Screen {
                 leftY += ROW_HEIGHT;
             }
             case OFF -> {
-                // Im Modus OFF gibt es keine weiteren Optionen
+                // OFF mode has no further options
             }
         }
 
-        // --- Linke Spalte: AutoEat, unabhaengig vom gewaehlten Modus ---
+        // --- Left column: AutoEat, independent of the selected mode ---
         leftY += ROW_HEIGHT / 2;
 
         addOption(Checkbox.builder(
@@ -225,7 +225,7 @@ public class OviClickerScreen extends Screen {
                 .onValueChange((checkbox, selected) ->
                         working.autoEatAllowEnchantedGoldenApples = selected).build());
 
-        // --- Rechte Spalte: gemeinsame Bedingungen ---
+        // --- Right column: shared conditions ---
         addOption(Checkbox.builder(
                         Component.translatable("oviclicker.option.master_enabled"), this.font)
                 .pos(rightX, rightY).maxWidth(COLUMN_WIDTH).selected(working.masterEnabled)
@@ -261,7 +261,7 @@ public class OviClickerScreen extends Screen {
                 value -> working.tapDurationTicks = (int) Math.round(value)));
         rightY += ROW_HEIGHT;
 
-        // --- Rechte Spalte: HUD ---
+        // --- Right column: HUD ---
         addOption(Checkbox.builder(
                         Component.translatable("oviclicker.option.hud_enabled"), this.font)
                 .pos(rightX, rightY).maxWidth(COLUMN_WIDTH).selected(working.hudEnabled)
@@ -295,7 +295,7 @@ public class OviClickerScreen extends Screen {
                 "oviclicker.option.hud_offset_y", working.hudOffsetY, 0.0, 200.0, 0,
                 value -> working.hudOffsetY = (int) Math.round(value)));
 
-        // --- Eingehaengte Sektionen anderer Mods ---
+        // --- Sections hooked in by other mods ---
         int addonX = leftX;
         int addonWidth = COLUMN_WIDTH * 2 + COLUMN_GAP;
         int addonY = Math.max(leftY, rightY) + ROW_HEIGHT / 2;
@@ -310,7 +310,7 @@ public class OviClickerScreen extends Screen {
             addonY = api.cursorY;
         }
 
-        // --- Fusszeile, scrollt nicht mit ---
+        // --- Footer, does not scroll ---
         int footerY = this.height - 28;
         int buttonWidth = 100;
 
@@ -338,11 +338,11 @@ public class OviClickerScreen extends Screen {
     }
 
     /**
-     * Nimmt ein Bedienelement in den scrollbaren Bereich auf.
+     * Adds a widget to the scrollable area.
      *
-     * @param widget das Bedienelement, dessen aktuelle Position als Grundposition gilt
-     * @param <T>    der Typ des Bedienelements
-     * @return dasselbe Bedienelement
+     * @param widget the widget, whose current position is used as its base position
+     * @param <T>    the widget type
+     * @return the same widget
      */
     private <T extends AbstractWidget> T addOption(T widget) {
         entries.add(new ScrollEntry(widget, widget.getY()));
@@ -350,8 +350,7 @@ public class OviClickerScreen extends Screen {
     }
 
     /**
-     * Reicht den scrollbaren Bereich des Bildschirms an eingehaengte {@link ScreenExtension}en
-     * weiter.
+     * Passes the screen's scrollable area on to hooked-in {@link ScreenExtension}s.
      */
     private final class ExtensionApiImpl implements ExtensionApi {
 
@@ -414,17 +413,16 @@ public class OviClickerScreen extends Screen {
     }
 
     /**
-     * Gibt die untere Kante des scrollbaren Bereichs zurueck.
+     * Returns the bottom edge of the scrollable area.
      *
-     * @return die senkrechte Position der unteren Kante
+     * @return the vertical position of the bottom edge
      */
     private int viewportBottom() {
         return this.height - VIEWPORT_BOTTOM_MARGIN;
     }
 
     /**
-     * Berechnet, um wie viele Zeilen ueberhaupt gescrollt werden kann, und begrenzt die
-     * aktuelle Verschiebung darauf.
+     * Calculates how many rows can be scrolled at all and clamps the current offset to it.
      */
     private void updateScrollRange() {
         int lowestEdge = VIEWPORT_TOP;
@@ -438,8 +436,8 @@ public class OviClickerScreen extends Screen {
     }
 
     /**
-     * Verschiebt alle scrollbaren Bedienelemente und blendet jene aus, die nicht
-     * vollstaendig im Sichtbereich liegen.
+     * Shifts all scrollable widgets and hides those that are not fully inside the visible
+     * area.
      */
     private void applyScroll() {
         int shift = scrollRows * ROW_HEIGHT;
@@ -452,19 +450,19 @@ public class OviClickerScreen extends Screen {
 
             boolean inside = y >= VIEWPORT_TOP && y + widget.getHeight() <= bottom;
             widget.visible = inside;
-            // Unsichtbare Bedienelemente sollen weder Klicks noch den Fokus annehmen
+            // Invisible widgets must accept neither clicks nor focus
             widget.active = inside;
         }
     }
 
     /**
-     * Scrollt den Optionsbereich mit dem Mausrad, zeilenweise.
+     * Scrolls the options area row by row with the mouse wheel.
      *
-     * @param mouseX  Mausposition waagrecht
-     * @param mouseY  Mausposition senkrecht
-     * @param scrollX waagrechte Scrollmenge
-     * @param scrollY senkrechte Scrollmenge
-     * @return {@code true}, wenn gescrollt wurde
+     * @param mouseX  horizontal mouse position
+     * @param mouseY  vertical mouse position
+     * @param scrollX horizontal scroll amount
+     * @param scrollY vertical scroll amount
+     * @return {@code true} if it scrolled
      */
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
@@ -480,7 +478,7 @@ public class OviClickerScreen extends Screen {
     }
 
     /**
-     * Kehrt beim Schliessen zum vorherigen Bildschirm zurueck.
+     * Returns to the previous screen when closing.
      */
     @Override
     public void onClose() {
@@ -488,10 +486,9 @@ public class OviClickerScreen extends Screen {
     }
 
     /**
-     * Der Bildschirm pausiert ein Einzelspieler-Spiel nicht, damit sich Einstellungen
-     * im laufenden Spiel testen lassen.
+     * The screen doesn't pause a singleplayer game, so settings can be tested while playing.
      *
-     * @return immer {@code false}
+     * @return always {@code false}
      */
     @Override
     public boolean isPauseScreen() {
@@ -499,10 +496,9 @@ public class OviClickerScreen extends Screen {
     }
 
     /**
-     * Gibt die Position des Scrollbalkens zurueck: linke Kante, obere Kante des Reglers
-     * und dessen Hoehe.
+     * Returns the position of the scrollbar: left edge, top edge of the thumb and its height.
      *
-     * @return Feld mit x, y und Hoehe des Reglers
+     * @return array with x, y and height of the thumb
      */
     private int[] scrollbarBounds() {
         int trackTop = VIEWPORT_TOP;
@@ -517,8 +513,8 @@ public class OviClickerScreen extends Screen {
         return new int[]{x, thumbY, thumbHeight};
     }
 
-    // Bis Minecraft 1.21.11 zeichnet der Screen direkt ueber GuiGraphics,
-    // ab 26.1 sammelt er stattdessen einen Renderzustand ueber GuiGraphicsExtractor ein.
+    // Up to Minecraft 1.21.11 the screen draws directly via GuiGraphics,
+    // from 26.1 on it collects a render state via GuiGraphicsExtractor instead.
     //? if <26.1 {
     /*@Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
@@ -533,12 +529,12 @@ public class OviClickerScreen extends Screen {
     }
     *///?} else {
     /**
-     * Sammelt den Renderzustand ein (ab Minecraft 26.1).
+     * Collects the render state (Minecraft 26.1 and later).
      *
-     * @param graphics Zeichenkontext des neuen Rendersystems
-     * @param mouseX   Mausposition waagrecht
-     * @param mouseY   Mausposition senkrecht
-     * @param delta    Teiltick
+     * @param graphics drawing context of the new render system
+     * @param mouseX   horizontal mouse position
+     * @param mouseY   vertical mouse position
+     * @param delta    partial tick
      */
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {

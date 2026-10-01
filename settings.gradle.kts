@@ -9,29 +9,29 @@ pluginManagement {
 }
 
 plugins {
-    // Multiversion-Verwaltung: https://stonecutter.kikugie.dev
+    // Multi-version management: https://stonecutter.kikugie.dev
     id("dev.kikugie.stonecutter") version "0.9.7"
 
-    // Waehlt automatisch die passende Loom-Variante:
-    // - Minecraft < 26.1 (obfuskiert)  -> "fabric-loom"
-    // - Minecraft >= 26.1 (unobfuskiert) -> "net.fabricmc.fabric-loom"
+    // Automatically picks the matching Loom variant:
+    // - Minecraft < 26.1 (obfuscated)    -> "fabric-loom"
+    // - Minecraft >= 26.1 (unobfuscated) -> "net.fabricmc.fabric-loom"
     id("dev.kikugie.loom-back-compat") version "0.4.2"
 
-    // Laedt fehlende JDKs (z. B. Java 21 fuer 1.21.11) automatisch nach
+    // Downloads missing JDKs automatically (e.g. Java 21 for 1.21.11)
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
 stonecutter {
     create(rootProject) {
-        // Versionsmatrix. Der erste Wert ist der Name des Build-Knotens,
-        // der zweite die tatsaechliche Minecraft-Version, gegen die kompiliert wird.
-        // 26.1, 26.1.1 und 26.1.2 sind untereinander kompatibel -> ein Knoten.
+        // Version matrix. The first value is the build node name,
+        // the second the actual Minecraft version it compiles against.
+        // 26.1, 26.1.1 and 26.1.2 are compatible with each other -> one node.
         version("1.21.11", "1.21.11")
         version("26.1.x", "26.1.2")
         version("26.2.x", "26.2")
         version("26.3.x", "26.3")
 
-        // Version, die im Git/IDE-Zustand aktiv ist
+        // Version that is active in the Git/IDE state
         vcsVersion = "26.2.x"
     }
 }

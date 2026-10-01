@@ -1,23 +1,23 @@
-"""Laedt die gebauten Jars auf CurseForge hoch.
+"""Uploads the built jars to CurseForge.
 
-Voraussetzungen:
-  * Das CurseForge-Projekt existiert bereits (es wird von Hand im Autoren-Konto
-    angelegt, die API kann keine Projekte erstellen) und seine Projekt-ID steht
-    unten in PROJECT_ID oder wird mit --project-id uebergeben.
-  * Ein API-Token aus dem CurseForge-Konto steht in der Umgebungsvariablen
+Requirements:
+  * The CurseForge project already exists (it is created by hand in the author
+    account, the API can't create projects) and its project ID is set in
+    PROJECT_ID below or passed with --project-id.
+  * An API token from the CurseForge account is in the environment variable
     CURSEFORGE_TOKEN.
-  * Die Jars wurden vorher gebaut:
-    ./gradlew :1.21.11:buildAndCollect :26.1.x:buildAndCollect :26.2.x:buildAndCollect
+  * The jars have been built beforehand:
+    ./gradlew :1.21.11:buildAndCollect :26.1.x:buildAndCollect :26.2.x:buildAndCollect :26.3.x:buildAndCollect
 
-Welche Minecraft-Versionen ein Jar abdeckt, steht nicht hier, sondern in
-stonecutter.properties.toml (mod.mc_releases) - dieselbe Quelle, aus der auch die
-fabric.mod.json ihre Angabe bekommt. Die numerischen Versions-IDs, die CurseForge
-erwartet, werden zur Laufzeit ueber die API aufgeloest.
+Which Minecraft versions a jar covers isn't defined here but in
+stonecutter.properties.toml (mod.mc_releases) - the same source fabric.mod.json
+gets its value from. The numeric version IDs CurseForge expects are resolved at
+runtime via the API.
 
-API-Beschreibung:
+API documentation:
 https://support.curseforge.com/support/solutions/articles/9000197321-curseforge-upload-api
 
-Aufruf:
+Usage:
   python tools/publish_curseforge.py --dry-run
   python tools/publish_curseforge.py
 """
@@ -33,8 +33,8 @@ import urllib.request
 import uuid
 from pathlib import Path
 
-# Steht auf der Projektseite im CurseForge-Autoren-Konto. Bis das Projekt
-# angelegt ist, muss die ID mit --project-id uebergeben werden.
+# Shown on the project page in the CurseForge author account. Until the project
+# exists, the ID has to be passed with --project-id.
 PROJECT_ID = None
 
 BASE_URL = "https://minecraft.curseforge.com"
@@ -46,7 +46,7 @@ CHANGELOG = ROOT / "branding/curseforge-changelog.md"
 
 
 def die(message):
-    sys.exit("Abbruch: %s" % message)
+    sys.exit("Aborted: %s" % message)
 
 
 def load_properties():
@@ -55,18 +55,18 @@ def load_properties():
 
 
 def java_version_for(release):
-    """1.21.11 laeuft auf Java 21, ab 26.1 verlangt Minecraft Java 25."""
+    """1.21.11 runs on Java 21, from 26.1 on Minecraft requires Java 25."""
     return 21 if release.startswith("1.") else 25
 
 
 def collect_jars(properties):
-    """Ordnet jedem gebauten Jar die Minecraft-Versionen seines Knotens zu."""
+    """Maps each built jar to the Minecraft versions of its node."""
     version = properties["mod"]["version"]
     libs = ROOT / "build/libs" / version
     if not libs.is_dir():
-        die("%s fehlt - zuerst bauen (siehe Kopf dieser Datei)." % libs)
+        die("%s is missing - build first (see the top of this file)." % libs)
 
-    # Knoten aus der Properties-Datei: alles, was mod.mc_releases definiert
+    # Nodes from the properties file: everything that defines mod.mc_releases
     nodes = {
         name: table["mod"]["mc_releases"]
         for name, table in properties.items()
@@ -75,15 +75,15 @@ def collect_jars(properties):
 
     jars = []
     for jar in sorted(libs.glob("*.jar")):
-        # Dateiname: <mod-id>-<mod-version>+<gebaute Minecraft-Version>.jar
+        # File name: <mod-id>-<mod-version>+<built Minecraft version>.jar
         built_for = jar.stem.split("+", 1)[-1]
         matches = [releases for releases in nodes.values() if built_for in releases]
         if len(matches) != 1:
-            die("%s laesst sich keinem Knoten in %s zuordnen." % (jar.name, PROPERTIES.name))
+            die("%s can't be matched to a node in %s." % (jar.name, PROPERTIES.name))
         jars.append((jar, matches[0]))
 
     if len(jars) != len(nodes):
-        die("Es liegen %d Jars in %s, erwartet werden %d - bitte alle Knoten bauen."
+        die("Found %d jars in %s, expected %d - please build all nodes."
             % (len(jars), libs, len(nodes)))
     return jars
 
@@ -98,8 +98,8 @@ def api_get(path, token):
 
 
 def build_version_index(token):
-    """name/slug -> ID. CurseForge fuehrt Spielversionen, Modloader und Java in
-    derselben Liste, deshalb landen alle drei im selben Index."""
+    """name/slug -> ID. CurseForge keeps game versions, mod loaders and Java in
+    the same list, so all three end up in the same index."""
     index = {}
     for entry in api_get("/api/game/versions", token):
         index.setdefault(entry["name"], entry["id"])
@@ -109,22 +109,22 @@ def build_version_index(token):
 
 
 def resolve(index, names, optional=()):
-    """Setzt Namen in IDs um. Fehlt ein Pflichtname, bricht das Skript ab."""
+    """Converts names to IDs. If a required name is missing, the script aborts."""
     ids = []
     for name in names:
         if name in index:
             ids.append(index[name])
         elif name in optional:
-            print("    Hinweis: '%s' kennt CurseForge nicht, wird weggelassen." % name)
+            print("    Note: CurseForge doesn't know '%s', skipping it." % name)
         else:
-            die("CurseForge kennt die Version '%s' nicht. Vorhanden sind unter anderem: %s"
+            die("CurseForge doesn't know the version '%s'. Available include: %s"
                 % (name, ", ".join(sorted(index)[:25])))
     return ids
 
 
 def encode_multipart(fields, file_path):
-    """multipart/form-data von Hand - der Upload braucht genau die Felder
-    'metadata' und 'file'."""
+    """multipart/form-data by hand - the upload needs exactly the fields
+    'metadata' and 'file'."""
     boundary = uuid.uuid4().hex
     body = bytearray()
     for name, value in fields.items():
@@ -150,28 +150,28 @@ def upload(project_id, token, jar, metadata):
         with urllib.request.urlopen(request) as response:
             return json.loads(response.read().decode("utf-8"))
     except urllib.error.HTTPError as error:
-        die("Upload von %s -> HTTP %s: %s"
+        die("Upload of %s -> HTTP %s: %s"
             % (jar.name, error.code, error.read().decode("utf-8", "replace")))
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Laedt die gebauten Jars auf CurseForge hoch.")
+    parser = argparse.ArgumentParser(description="Uploads the built jars to CurseForge.")
     parser.add_argument("--project-id", default=PROJECT_ID,
-                        help="Projekt-ID von der CurseForge-Projektseite")
+                        help="project ID from the CurseForge project page")
     parser.add_argument("--release-type", default="release",
                         choices=["release", "beta", "alpha"])
     parser.add_argument("--changelog", type=Path, default=CHANGELOG)
     parser.add_argument("--dry-run", action="store_true",
-                        help="nur anzeigen, was hochgeladen wuerde")
+                        help="only show what would be uploaded")
     args = parser.parse_args()
 
     token = os.environ.get("CURSEFORGE_TOKEN")
     if not token:
-        die("CURSEFORGE_TOKEN ist nicht gesetzt.")
+        die("CURSEFORGE_TOKEN is not set.")
     if not args.project_id:
-        die("Keine Projekt-ID. Mit --project-id uebergeben oder oben in PROJECT_ID eintragen.")
+        die("No project ID. Pass it with --project-id or set PROJECT_ID at the top.")
     if not args.changelog.is_file():
-        die("Changelog %s fehlt." % args.changelog)
+        die("Changelog %s is missing." % args.changelog)
 
     properties = load_properties()
     mod_name = properties["mod"]["name"]
@@ -179,16 +179,16 @@ def main():
     changelog = args.changelog.read_text(encoding="utf-8")
     jars = collect_jars(properties)
 
-    print("%s %s -> Projekt %s (%s)" % (mod_name, mod_version, args.project_id, args.release_type))
+    print("%s %s -> project %s (%s)" % (mod_name, mod_version, args.project_id, args.release_type))
     index = build_version_index(token)
 
     for jar, releases in jars:
         java = "Java %d" % java_version_for(releases[0])
-        # Modloader und Java fuehrt CurseForge als eigene "Spielversionen".
-        # Java ist nicht bei jedem Spiel gepflegt, deshalb optional.
+        # CurseForge lists mod loader and Java as separate "game versions".
+        # Java isn't maintained for every game, so it's optional.
         wanted = list(releases) + [MODLOADER, java]
         print("\n  %s" % jar.name)
-        print("    Versionen: %s" % ", ".join(wanted))
+        print("    Versions: %s" % ", ".join(wanted))
         version_ids = resolve(index, wanted, optional=(java,))
 
         metadata = {
@@ -199,15 +199,15 @@ def main():
             "releaseType": args.release_type,
         }
         if args.dry_run:
-            print("    Probelauf, kein Upload.")
+            print("    Dry run, no upload.")
             continue
         result = upload(args.project_id, token, jar, metadata)
-        print("    hochgeladen, Datei-ID %s" % result.get("id"))
+        print("    uploaded, file ID %s" % result.get("id"))
 
     if args.dry_run:
-        print("\nProbelauf beendet, es wurde nichts hochgeladen.")
+        print("\nDry run finished, nothing was uploaded.")
     else:
-        print("\nFertig. Neue Dateien gehen bei CurseForge zuerst in die Pruefung.")
+        print("\nDone. New files go through CurseForge review first.")
 
 
 if __name__ == "__main__":

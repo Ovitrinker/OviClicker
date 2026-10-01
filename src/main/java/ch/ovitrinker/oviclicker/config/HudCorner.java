@@ -1,16 +1,16 @@
 package ch.ovitrinker.oviclicker.config;
 
 /**
- * Bildschirmecke, an der die HUD-Anzeige verankert wird.
+ * Screen corner the HUD is anchored to.
  */
 public enum HudCorner {
-    /** Oben links. */
+    /** Top left. */
     TOP_LEFT("oviclicker.hud.corner.top_left"),
-    /** Oben rechts. */
+    /** Top right. */
     TOP_RIGHT("oviclicker.hud.corner.top_right"),
-    /** Unten links. */
+    /** Bottom left. */
     BOTTOM_LEFT("oviclicker.hud.corner.bottom_left"),
-    /** Unten rechts. */
+    /** Bottom right. */
     BOTTOM_RIGHT("oviclicker.hud.corner.bottom_right");
 
     private final String translationKey;
@@ -20,18 +20,18 @@ public enum HudCorner {
     }
 
     /**
-     * Gibt den Uebersetzungsschluessel der Ecke zurueck.
+     * Returns the corner's translation key.
      *
-     * @return Schluessel aus den Sprachdateien
+     * @return key from the language files
      */
     public String getTranslationKey() {
         return translationKey;
     }
 
     /**
-     * Gibt die naechste Ecke im Durchlauf zurueck.
+     * Returns the next corner in the cycle.
      *
-     * @return die folgende Ecke
+     * @return the following corner
      */
     public HudCorner next() {
         HudCorner[] values = values();
@@ -39,11 +39,11 @@ public enum HudCorner {
     }
 
     /**
-     * Wandelt einen gespeicherten Namen sicher in eine Ecke um.
+     * Safely converts a stored name into a corner.
      *
-     * @param name     gespeicherter Name, darf {@code null} sein
-     * @param fallback Rueckgabewert bei unbekanntem oder fehlendem Namen
-     * @return die passende Ecke oder {@code fallback}
+     * @param name     stored name, may be {@code null}
+     * @param fallback return value for an unknown or missing name
+     * @return the matching corner or {@code fallback}
      */
     public static HudCorner fromName(String name, HudCorner fallback) {
         if (name == null) return fallback;

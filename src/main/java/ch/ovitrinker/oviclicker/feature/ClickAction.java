@@ -4,34 +4,33 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Options;
 
 /**
- * Die Aktion, die der OviClicker ausloest.
+ * The action OviClicker triggers.
  *
- * <p>Alle Aktionen entsprechen einer Vanilla-Tastenbelegung. Der Mod setzt ausschliesslich
- * den lokalen Zustand dieser Belegung, genau so, wie es die echte Taste tun wuerde.
- * Angriff und Benutzen werden beim einzelnen Ausloesen zusaetzlich ueber die
- * Vanilla-Methoden {@code startAttack()} und {@code startUseItem()} angestossen, damit
- * Cooldown und Reichweite exakt der Vanilla-Logik folgen.</p>
+ * <p>Every action corresponds to a vanilla key bind. The mod only sets the local state of that
+ * binding, exactly as the real key would. For single triggers, attack and use are additionally
+ * started via the vanilla methods {@code startAttack()} and {@code startUseItem()}, so cooldown
+ * and reach follow the vanilla logic exactly.</p>
  */
 public enum ClickAction {
-    /** Linksklick, also Angriff beziehungsweise Block abbauen. */
+    /** Left click, i.e. attack or break a block. */
     ATTACK("oviclicker.action.attack"),
-    /** Rechtsklick, also Gegenstand oder Block benutzen. */
+    /** Right click, i.e. use an item or block. */
     USE("oviclicker.action.use"),
-    /** Springen. */
+    /** Jump. */
     JUMP("oviclicker.action.jump"),
-    /** Vorwaerts laufen. */
+    /** Walk forward. */
     FORWARD("oviclicker.action.forward"),
-    /** Rueckwaerts laufen. */
+    /** Walk backward. */
     BACK("oviclicker.action.back"),
-    /** Nach links laufen. */
+    /** Walk left. */
     LEFT("oviclicker.action.left"),
-    /** Nach rechts laufen. */
+    /** Walk right. */
     RIGHT("oviclicker.action.right"),
-    /** Schleichen. */
+    /** Sneak. */
     SNEAK("oviclicker.action.sneak"),
-    /** Sprinten. */
+    /** Sprint. */
     SPRINT("oviclicker.action.sprint"),
-    /** Gegenstand ablegen. */
+    /** Drop item. */
     DROP("oviclicker.action.drop");
 
     private final String translationKey;
@@ -41,18 +40,18 @@ public enum ClickAction {
     }
 
     /**
-     * Gibt den Uebersetzungsschluessel fuer GUI und HUD zurueck.
+     * Returns the translation key for GUI and HUD.
      *
-     * @return Schluessel aus den Sprachdateien
+     * @return key from the language files
      */
     public String getTranslationKey() {
         return translationKey;
     }
 
     /**
-     * Gibt die naechste Aktion im Durchlauf zurueck.
+     * Returns the next action in the cycle.
      *
-     * @return die folgende Aktion
+     * @return the following action
      */
     public ClickAction next() {
         ClickAction[] values = values();
@@ -60,22 +59,21 @@ public enum ClickAction {
     }
 
     /**
-     * Gibt an, ob die Aktion vom Angriffs-Cooldown und der Waffenpruefung betroffen ist.
-     * Das gilt nur fuer den Angriff.
+     * Returns whether the action is affected by the attack cooldown and the weapon check.
+     * This only applies to attacking.
      *
-     * @return {@code true} beim Angriff, sonst {@code false}
+     * @return {@code true} for attack, otherwise {@code false}
      */
     public boolean isAttack() {
         return this == ATTACK;
     }
 
     /**
-     * Ordnet der Aktion die zugehoerige Vanilla-Tastenbelegung zu. Damit wirkt die
-     * Simulation genau wie ein echter Tastendruck, inklusive der vom Spieler gewaehlten
-     * Belegung.
+     * Maps the action to its vanilla key bind. That way the simulation works exactly like a
+     * real key press, including the binding the player chose.
      *
-     * @param options die Optionen des Clients
-     * @return die passende Tastenbelegung, nie {@code null}
+     * @param options the client options
+     * @return the matching key bind, never {@code null}
      */
     public KeyMapping getMapping(Options options) {
         return switch (this) {
@@ -93,11 +91,11 @@ public enum ClickAction {
     }
 
     /**
-     * Wandelt einen gespeicherten Namen sicher in eine Aktion um.
+     * Safely converts a stored name into an action.
      *
-     * @param name     der gespeicherte Name, darf {@code null} sein
-     * @param fallback Rueckgabewert bei unbekanntem oder fehlendem Namen
-     * @return die passende Aktion oder {@code fallback}
+     * @param name     the stored name, may be {@code null}
+     * @param fallback return value for an unknown or missing name
+     * @return the matching action or {@code fallback}
      */
     public static ClickAction fromName(String name, ClickAction fallback) {
         if (name == null) return fallback;

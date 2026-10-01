@@ -12,34 +12,34 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
 /**
- * Zeichnet den aktiven Modus als kleine Textzeile ins HUD.
+ * Draws the active mode as a small line of text in the HUD.
  *
- * <p>Registriert wird ein HUD-Element ueber {@code HudElementRegistry}. Die Schnittstelle
- * {@code HudElement} heisst in allen Zielversionen gleich, ihre Methode unterscheidet sich
- * jedoch: bis 1.21.11 zeichnet sie direkt ueber {@code GuiGraphics}, ab 26.1 sammelt sie
- * ueber {@code GuiGraphicsExtractor} einen Renderzustand ein. Da hier ein Lambda verwendet
- * wird, muss lediglich der eigentliche Zeichenaufruf versionsabhaengig sein.</p>
+ * <p>A HUD element is registered via {@code HudElementRegistry}. The {@code HudElement}
+ * interface has the same name in all target versions, but its method differs: up to 1.21.11
+ * it draws directly via {@code GuiGraphics}, from 26.1 on it collects a render state via
+ * {@code GuiGraphicsExtractor}. Since a lambda is used here, only the actual draw call has to
+ * be version-dependent.</p>
  */
 public final class HudRenderer {
 
-    /** Kennung des HUD-Elements. */
+    /** ID of the HUD element. */
     private static final Identifier ELEMENT_ID =
             Identifier.fromNamespaceAndPath("oviclicker", "mode_display");
 
-    /** Farbe fuer den ausgeschalteten Zustand (ARGB). */
+    /** Colour for the disabled state (ARGB). */
     private static final int COLOUR_OFF = 0xFFAAAAAA;
 
-    /** Farbe fuer den Modus AUTOATTACK (ARGB). */
+    /** Colour for AUTOATTACK mode (ARGB). */
     private static final int COLOUR_AUTOATTACK = 0xFFFF5555;
 
-    /** Farbe fuer den Modus TIMER (ARGB). */
+    /** Colour for TIMER mode (ARGB). */
     private static final int COLOUR_TIMER = 0xFF55FF55;
 
     private HudRenderer() {
     }
 
     /**
-     * Registriert das HUD-Element. Wird einmalig beim Start des Clients aufgerufen.
+     * Registers the HUD element. Called once when the client starts.
      */
     public static void register() {
         HudElementRegistry.attachElementAfter(VanillaHudElements.MISC_OVERLAYS, ELEMENT_ID,
@@ -77,7 +77,7 @@ public final class HudRenderer {
                     *///?} else
                     graphics.text(client.font, text, x, y, colour);
 
-                    // --- Zusaetzliche Zeilen anderer Mods ---
+                    // --- Extra lines from other mods ---
                     boolean stacksDown = corner == HudCorner.TOP_LEFT || corner == HudCorner.TOP_RIGHT;
                     int extraY = y;
                     for (HudLineProvider provider : HudExtensions.all()) {
@@ -100,11 +100,11 @@ public final class HudRenderer {
     }
 
     /**
-     * Baut die anzuzeigende Textzeile zusammen.
+     * Builds the line of text to display.
      *
-     * @param config die aktiven Einstellungen
-     * @param mode   der aktive Modus
-     * @return der fertige Text
+     * @param config the active settings
+     * @param mode   the active mode
+     * @return the finished text
      */
     private static Component buildText(OviClickerConfig config, ClickMode mode) {
         Component base = config.masterEnabled
@@ -112,7 +112,7 @@ public final class HudRenderer {
                         Component.translatable(mode.getTranslationKey()))
                 : Component.translatable("oviclicker.hud.disabled");
 
-        // Waehrend des automatischen Essens ist sichtbar, warum gerade nicht geklickt wird
+        // While eating automatically, show why nothing is being clicked
         if (AutoEatHandler.isEating()) {
             return Component.translatable("oviclicker.hud.eating", base);
         }

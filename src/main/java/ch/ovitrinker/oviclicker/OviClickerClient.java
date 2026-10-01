@@ -9,28 +9,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Einstiegspunkt des Mods auf der Client-Seite.
+ * Client-side entry point of the mod.
  *
- * <p>Der Mod ist rein client-seitig: er simuliert ausschliesslich lokale Eingaben,
- * faelscht keine Netzwerkpakete und umgeht keine Serverlogik.</p>
+ * <p>The mod is purely client-side: it only simulates local input, forges no network packets
+ * and bypasses no server logic.</p>
  */
 public class OviClickerClient implements ClientModInitializer {
 
-    /** Modkennung, wie sie in der {@code fabric.mod.json} steht. */
+    /** Mod ID as listed in {@code fabric.mod.json}. */
     public static final String MOD_ID = "oviclicker";
 
-    /** Logger des Mods. */
+    /** The mod's logger. */
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-    /** Version des Mods, wird von Stonecutter eingesetzt. */
+    /** Mod version, inserted by Stonecutter. */
     public static final String VERSION = /*$ mod_version*/ "1.0.0";
 
-    /** Minecraft-Version, gegen die dieses Jar gebaut wurde. */
+    /** Minecraft version this jar was built against. */
     public static final String MINECRAFT = /*$ minecraft*/ "26.2";
 
     /**
-     * Wird beim Start des Clients aufgerufen: laedt die Einstellungen, registriert die
-     * Tastenbelegungen, das HUD-Element und die Tick-Logik.
+     * Called when the client starts: loads the settings, registers the key binds, the HUD
+     * element and the tick logic.
      */
     @Override
     public void onInitializeClient() {
@@ -38,15 +38,15 @@ public class OviClickerClient implements ClientModInitializer {
         KeybindManager.register();
         HudRenderer.register();
 
-        // Die gesamte Klick-Logik laeuft im Client-Tick, nicht in einem eigenen Thread.
-        // Der AutoEat kommt bewusst nach dem Klicker: dieser gibt seine Taste zuerst
-        // frei, erst danach haelt der AutoEat die Taste "Benutzen" fuer den Bissen.
+        // All click logic runs in the client tick, not in a thread of its own.
+        // AutoEat deliberately comes after the clicker: the clicker releases its key first,
+        // only then does AutoEat hold the "Use" key for the bite.
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             KeybindManager.handleInput(client);
             OviClickerEngine.onEndClientTick(client);
             AutoEatHandler.onEndClientTick(client);
         });
 
-        LOGGER.info("OviClicker {} fuer Minecraft {} geladen.", VERSION, MINECRAFT);
+        LOGGER.info("OviClicker {} for Minecraft {} loaded.", VERSION, MINECRAFT);
     }
 }

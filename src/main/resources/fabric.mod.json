@@ -3,7 +3,7 @@
   "id": "${id}",
   "version": "${version}",
   "name": "${name}",
-  "description": "Client-seitiger Auto-Klicker mit den Modi OFF, AUTOATTACK und TIMER, automatischem Essen, eigenem Einstellungsbildschirm, HUD-Anzeige und frei belegbaren Tasten.",
+  "description": "Client-side auto-clicker with OFF, AUTOATTACK and TIMER modes, automatic eating, its own settings screen, a HUD and freely rebindable keys.",
   "icon": "assets/oviclicker/icon.png",
   "authors": [
     "Ovitrinker"

@@ -18,42 +18,39 @@ import net.minecraft.resources.Identifier;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 
 /**
- * Registriert und verarbeitet die Tastenbelegungen des Mods.
+ * Registers and handles the mod's key binds.
  *
- * <p>Alle Tasten werden ueber die Fabric-API registriert und erscheinen dadurch unter
- * Optionen -&gt; Steuerung -&gt; Tastenbelegung in einer eigenen Kategorie. Dort koennen sie
- * frei umbelegt werden.</p>
+ * <p>All keys are registered via the Fabric API and therefore appear in their own category
+ * under Options -&gt; Controls -&gt; Key Binds, where they can be rebound freely.</p>
  *
- * <p>Hinweis zur Kategorie: seit 1.21.11 sind Kategorien keine freien Zeichenketten mehr,
- * sondern {@code KeyMapping.Category}-Objekte mit einem {@code Identifier}. Der daraus
- * gebildete Uebersetzungsschluessel lautet {@code key.category.<namespace>.<pfad>}, hier
- * also {@code key.category.oviclicker.main}. Das gilt fuer alle Zielversionen dieses Mods,
- * eine Fallunterscheidung ist deshalb nicht noetig.</p>
+ * <p>Note on the category: since 1.21.11 categories are no longer free-form strings but
+ * {@code KeyMapping.Category} objects with an {@code Identifier}. The resulting translation
+ * key is {@code key.category.<namespace>.<path>}, here {@code key.category.oviclicker.main}.
+ * This applies to all target versions of this mod, so no case distinction is needed.</p>
  */
 public final class KeybindManager {
 
-    /** Eigene Kategorie fuer alle Tasten des Mods. */
+    /** Own category for all of the mod's keys. */
     public static final KeyMapping.Category CATEGORY =
             KeyMapping.Category.register(Identifier.fromNamespaceAndPath("oviclicker", "main"));
 
     /**
-     * Oeffnet die Einstellungen.
+     * Opens the settings.
      *
-     * <p>Standardbelegung ist die Taste, die auf einem Schweizer Layout ein "$" erzeugt.
-     * GLFW meldet Tasten immer in der Belegung des US-Layouts. Die Schweizer "$"-Taste
-     * liegt auf dem Scancode 0x2B, also auf der ISO-Taste links von der Eingabetaste,
-     * die im US-Layout der Backslash-Taste entspricht. Der zugehoerige GLFW-Code ist
-     * {@code GLFW_KEY_BACKSLASH} (92).</p>
+     * <p>The default binding is the key that produces a "$" on a Swiss layout. GLFW always
+     * reports keys in the US layout. The Swiss "$" key sits on scancode 0x2B, the ISO key
+     * left of Enter, which corresponds to the backslash key in the US layout. The matching
+     * GLFW code is {@code GLFW_KEY_BACKSLASH} (92).</p>
      */
     public static KeyMapping openGuiKey;
 
-    /** Schaltet den Mod als Ganzes ein und aus. */
+    /** Turns the mod as a whole on and off. */
     public static KeyMapping toggleKey;
 
-    /** Schaltet den Modus weiter: OFF -&gt; AUTOATTACK -&gt; TIMER -&gt; OFF. */
+    /** Cycles the mode: OFF -&gt; AUTOATTACK -&gt; TIMER -&gt; OFF. */
     public static KeyMapping cycleModeKey;
 
-    /** Standardtasten; ab 26.3 sind Tastenbelegungen SDL-Scancodes statt GLFW-Keycodes. */
+    /** Default keys; from 26.3 on, key binds are SDL scancodes instead of GLFW key codes. */
     //? if <26.3 {
     private static final int KEY_OPEN_GUI = org.lwjgl.glfw.GLFW.GLFW_KEY_BACKSLASH;
     private static final int KEY_TOGGLE = org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT_SHIFT;
@@ -66,7 +63,7 @@ public final class KeybindManager {
     }
 
     /**
-     * Registriert alle Tastenbelegungen. Wird einmalig beim Start des Clients aufgerufen.
+     * Registers all key binds. Called once when the client starts.
      */
     public static void register() {
         openGuiKey = register(new KeyMapping(
@@ -75,15 +72,15 @@ public final class KeybindManager {
         toggleKey = register(new KeyMapping(
                 "key.oviclicker.toggle", KEY_TOGGLE, CATEGORY));
 
-        // Ohne Standardbelegung, damit es keine Konflikte gibt
+        // No default binding, to avoid conflicts
         cycleModeKey = register(new KeyMapping(
                 "key.oviclicker.cycle_mode", InputConstants.UNKNOWN.getValue(), CATEGORY));
     }
 
     /**
-     * Verarbeitet die gedrueckten Tasten. Wird in jedem Client-Tick aufgerufen.
+     * Handles pressed keys. Called every client tick.
      *
-     * @param client die Client-Instanz, darf {@code null} sein
+     * @param client the client instance, may be {@code null}
      */
     public static void handleInput(Minecraft client) {
         if (client == null) return;
@@ -104,8 +101,8 @@ public final class KeybindManager {
         }
 
         while (openGuiKey.consumeClick()) {
-            // Nur ausserhalb anderer Bildschirme oeffnen. Waehrend einer Texteingabe
-            // liefert Minecraft ohnehin keine Tastendruecke an Tastenbelegungen aus.
+            // Only open outside of other screens. While typing, Minecraft doesn't pass key
+            // presses to key binds anyway.
             if (ClientCompat.getCurrentScreen(client) == null) {
                 ClientCompat.openScreen(client, new OviClickerScreen(
                         Component.translatable("oviclicker.gui.title"), null));
@@ -114,14 +111,14 @@ public final class KeybindManager {
     }
 
     /**
-     * Reicht eine Tastenbelegung an die passende Fabric-API weiter.
+     * Passes a key bind on to the matching Fabric API.
      *
-     * <p>Das Modul heisst bis 1.21.11 {@code fabric-key-binding-api-v1} mit der Klasse
-     * {@code KeyBindingHelper}, ab 26.1 {@code fabric-key-mapping-api-v1} mit
+     * <p>Up to 1.21.11 the module is called {@code fabric-key-binding-api-v1} with the class
+     * {@code KeyBindingHelper}, from 26.1 on {@code fabric-key-mapping-api-v1} with
      * {@code KeyMappingHelper}.</p>
      *
-     * @param mapping die zu registrierende Tastenbelegung
-     * @return dieselbe Tastenbelegung, nun registriert
+     * @param mapping the key bind to register
+     * @return the same key bind, now registered
      */
     private static KeyMapping register(KeyMapping mapping) {
         //? if <26.1 {
@@ -131,10 +128,10 @@ public final class KeybindManager {
     }
 
     /**
-     * Ermittelt die Taste, die aktuell auf eine Tastenbelegung gelegt ist.
+     * Determines the key currently bound to a key bind.
      *
-     * @param mapping die Tastenbelegung
-     * @return die belegte Taste, {@code InputConstants.UNKNOWN} wenn keine belegt ist
+     * @param mapping the key bind
+     * @return the bound key, {@code InputConstants.UNKNOWN} if none is bound
      */
     public static InputConstants.Key boundKeyOf(KeyMapping mapping) {
         //? if <26.1 {
